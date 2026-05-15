@@ -30,6 +30,10 @@ export async function storeTokens(
   ]);
 }
 
+export async function setAccessToken(accessToken: string) {
+  await SecureStore.setItemAsync(TOKEN_KEY, accessToken);
+}
+
 export async function clearTokens() {
   await Promise.all([
     SecureStore.deleteItemAsync(TOKEN_KEY),
