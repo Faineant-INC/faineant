@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Uploader } from "@/components/uploader";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
@@ -120,20 +121,31 @@ export default function ProviderPortfolioPage() {
       {showForm && (
         <div className="bg-smoke-900 border border-smoke-700 p-6 flex flex-col gap-4 max-w-2xl">
           <div className="flex flex-col gap-2">
-            <Label
-              htmlFor="imageUrl"
-              className="text-label uppercase tracking-[0.28em] text-taupe-300 font-medium"
-            >
-              Image URL
+            <Label className="text-label uppercase tracking-[0.28em] text-taupe-300 font-medium">
+              Image
             </Label>
-            <Input
-              id="imageUrl"
-              value={form.imageUrl}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, imageUrl: e.target.value }))
-              }
-              placeholder="https://..."
-            />
+            {form.imageUrl ? (
+              <div className="relative aspect-square max-w-xs overflow-hidden bg-smoke-800 border border-smoke-700">
+                <img
+                  src={form.imageUrl}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, imageUrl: "" }))}
+                  className="absolute top-2 right-2 bg-smoke-900/80 px-2 py-1 text-label uppercase tracking-[0.24em] text-bone-200 hover:text-champagne-400"
+                >
+                  Replace
+                </button>
+              </div>
+            ) : (
+              <Uploader
+                purpose="portfolio"
+                label="Drop a portfolio image"
+                onUploaded={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+              />
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <Label

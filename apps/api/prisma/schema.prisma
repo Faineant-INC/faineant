@@ -64,17 +64,18 @@ enum CalendarProvider {
 // ─── Users ──────────────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  phone        String?
-  firstName    String
-  lastName     String
-  avatarUrl    String?
-  role         UserRole @default(CLIENT)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  phone         String?
+  firstName     String
+  lastName      String
+  avatarUrl     String?
+  role          UserRole @default(CLIENT)
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   providerProfile   ProviderProfile?
   bookingsAsClient  Booking[]        @relation("ClientBookings")
@@ -87,9 +88,23 @@ model User {
   refreshTokens         RefreshToken[]
   calendarConnections   CalendarConnection[]
   uploads               UploadRecord[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([email])
   @@index([role])
+}
+
+model EmailVerificationToken {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
 }
 
 model RefreshToken {

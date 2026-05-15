@@ -19,6 +19,16 @@ const envSchema = z.object({
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_PHONE_NUMBER: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Email transport (Resend)
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM_NAME: z.string().default("Faineant"),
+  EMAIL_FROM_ADDRESS: z.string().email().default("noreply@faineant.co"),
+  // Object storage — Cloudflare R2 (S3-compatible)
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().default("faineant-uploads"),
+  R2_PUBLIC_URL: z.string().default("https://uploads.faineant.co"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI: z.string().optional().default("http://localhost:3001/api/v1/calendar/google/callback"),

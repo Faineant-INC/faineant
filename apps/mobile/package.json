@@ -16,16 +16,17 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@faineant/shared": "workspace:*",
     "@babel/runtime": "^7.29.2",
     "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
     "@expo-google-fonts/cormorant-garamond": "^0.4.1",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/webpack-config": "~19.0.1",
+    "@faineant/shared": "workspace:*",
     "@stripe/stripe-react-native": "^0.37.0",
     "expo": "~50.0.0",
     "expo-constants": "~15.4.0",
     "expo-font": "^55.0.6",
+    "expo-image-picker": "^55.0.20",
     "expo-location": "~16.5.0",
     "expo-router": "~3.4.0",
     "expo-secure-store": "~12.8.0",
