@@ -10,7 +10,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "db:migrate": "pnpm --filter @faineant/api exec prisma migrate dev",
-    "db:push": "pnpm --filter @faineant/api exec prisma db push",
+    "db:migrate:deploy": "pnpm --filter @faineant/api exec prisma migrate deploy",
     "db:seed": "pnpm --filter @faineant/api exec prisma db seed",
     "db:studio": "pnpm --filter @faineant/api exec prisma studio",
     "clean": "turbo run clean && rm -rf node_modules"
