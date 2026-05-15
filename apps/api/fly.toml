@@ -1,0 +1,51 @@
+# Fly.io configuration for FAINEANT API (alternative to Render).
+#
+# First-time setup (from repo root):
+#   flyctl launch --no-deploy --copy-config --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
+#   flyctl secrets set DATABASE_URL=... JWT_SECRET=... JWT_REFRESH_SECRET=... \
+#     STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... RESEND_API_KEY=... \
+#     R2_ACCOUNT_ID=... R2_ACCESS_KEY_ID=... R2_SECRET_ACCESS_KEY=... R2_PUBLIC_URL=... \
+#     GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... GOOGLE_MAPS_API_KEY=... REDIS_URL=...
+#   flyctl deploy --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
+
+app = "faineant-api"
+primary_region = "ord" # Chicago — closest to Neon US-East defaults
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Run prisma migrate deploy before promoting the new release.
+[deploy]
+  release_command = "./node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma"
+  strategy = "rolling"
+
+[env]
+  NODE_ENV = "production"
+  API_PORT = "3001"
+  EMAIL_FROM_NAME = "FAINEANT"
+  EMAIL_FROM_ADDRESS = "noreply@faineant.co"
+  R2_BUCKET = "faineant-uploads"
+  GOOGLE_REDIRECT_URI = "https://api.faineant.co/api/v1/calendar/google/callback"
+  WEB_URL = "https://arc-marketplace.vercel.app,https://faineant.co,https://www.faineant.co"
+  STRIPE_PLATFORM_FEE_PERCENT = "5"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

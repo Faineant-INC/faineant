@@ -29,6 +29,8 @@ const envSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET: z.string().default("faineant-uploads"),
   R2_PUBLIC_URL: z.string().default("https://uploads.faineant.co"),
+  // Redis (rate-limit, queues, future Socket.IO adapter)
+  REDIS_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI: z.string().optional().default("http://localhost:3001/api/v1/calendar/google/callback"),
