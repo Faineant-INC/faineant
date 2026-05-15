@@ -223,9 +223,52 @@ export function passwordResetEmail(vars: PasswordResetVars): RenderedEmail {
   };
 }
 
+// ─── Email verification ─────────────────────────────────────────────────────
+
+export interface EmailVerificationVars {
+  firstName: string;
+  verifyUrl: string;
+  expiresInHours: number;
+}
+
+export function emailVerificationEmail(vars: EmailVerificationVars): RenderedEmail {
+  const v = {
+    firstName: escapeHtml(vars.firstName),
+    verifyUrl: escapeHtml(vars.verifyUrl),
+    expiresInHours: vars.expiresInHours,
+  };
+
+  const headline = `Confirm the <em style="font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; color:#7a6f5e;">address.</em><br>
+      That is all.`;
+
+  const body = `${paragraph(
+    `${v.firstName} — one quiet step. Confirm this is your address so the only mail you ever get from us is the kind you asked for.`,
+  )}
+    <p style="font-family:Inter,sans-serif; font-size:14px; line-height:1.6; color:#3d352c; margin:24px 0;">
+      <a href="${v.verifyUrl}" style="display:inline-block; background:#0e0d0c; color:#f3ede1; padding:14px 28px; text-decoration:none; font-family:Inter,sans-serif; font-size:11px; letter-spacing:0.32em; text-transform:uppercase;">
+        Confirm address
+      </a>
+    </p>
+    ${paragraph(
+      `The link rests for ${v.expiresInHours} hours. If this was not you, ignore it — nothing happens.`,
+    )}`;
+
+  return {
+    subject: 'Confirm the address. That is all.',
+    html: renderShell({
+      eyebrow: 'Verify your email',
+      headline,
+      body,
+    }),
+    text: `${vars.firstName} — confirm this is your address so the only mail you ever get from us is the kind you asked for. Open this link: ${vars.verifyUrl}\n\nThe link rests for ${vars.expiresInHours} hours. If this was not you, ignore it.\n\n— Faineant · Chicago · Nothing urgent.`,
+    from: FAINEANT_FROM,
+  };
+}
+
 export const faineantEmailTemplates = {
   bookingConfirmation: bookingConfirmationEmail,
   welcome: welcomeEmail,
   cancellation: cancellationEmail,
   passwordReset: passwordResetEmail,
+  emailVerification: emailVerificationEmail,
 } as const;

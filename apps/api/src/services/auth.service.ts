@@ -3,12 +3,45 @@ import { hashPassword, comparePassword } from "../utils/password";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/jwt";
 import { AppError } from "../middleware/error-handler";
 import { RegisterInput, LoginInput } from "@faineant/shared";
+import { env } from "../config/env";
+import { sendEmail } from "./email";
+import { emailVerificationEmail } from "./email-templates";
 import crypto from "crypto";
+
+const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const VERIFICATION_TOKEN_TTL_HOURS = 24;
 
 function generateSlug(firstName: string, lastName: string): string {
   const base = `${firstName}-${lastName}`.toLowerCase().replace(/[^a-z0-9-]/g, "");
   const suffix = crypto.randomBytes(3).toString("hex");
   return `${base}-${suffix}`;
+}
+
+function generateVerificationToken(): string {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+async function issueVerificationEmail(userId: string, email: string, firstName: string): Promise<void> {
+  const token = generateVerificationToken();
+  const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS);
+
+  await prisma.emailVerificationToken.create({
+    data: { userId, token, expiresAt },
+  });
+
+  const verifyUrl = `${env.WEB_URL}/verify-email?token=${token}`;
+  const rendered = emailVerificationEmail({
+    firstName,
+    verifyUrl,
+    expiresInHours: VERIFICATION_TOKEN_TTL_HOURS,
+  });
+
+  try {
+    await sendEmail(rendered, email);
+  } catch (err) {
+    // Log but don't fail registration — token is in DB and can be re-issued.
+    console.error("[auth] failed to send verification email", err);
+  }
 }
 
 export async function register(input: RegisterInput) {
@@ -27,6 +60,7 @@ export async function register(input: RegisterInput) {
       lastName: input.lastName,
       phone: input.phone,
       role: input.role,
+      emailVerified: false,
       providerProfile:
         input.role === "PROVIDER"
           ? {
@@ -39,6 +73,8 @@ export async function register(input: RegisterInput) {
     include: { providerProfile: true },
   });
 
+  await issueVerificationEmail(user.id, user.email, user.firstName);
+
   const tokens = await generateTokens(user.id, user.role);
 
   return {
@@ -48,6 +84,7 @@ export async function register(input: RegisterInput) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      emailVerified: user.emailVerified,
       providerProfile: user.providerProfile,
     },
     ...tokens,
@@ -78,10 +115,69 @@ export async function login(input: LoginInput) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      emailVerified: user.emailVerified,
       providerProfile: user.providerProfile,
     },
     ...tokens,
   };
+}
+
+export async function verifyEmail(token: string) {
+  const record = await prisma.emailVerificationToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+
+  if (!record) {
+    throw new AppError(400, "INVALID_TOKEN", "Verification link is invalid");
+  }
+
+  // Idempotent — if already consumed, return success (and the user is already verified).
+  if (record.consumedAt) {
+    return {
+      user: {
+        id: record.user.id,
+        email: record.user.email,
+        emailVerified: true,
+      },
+      alreadyVerified: true,
+    };
+  }
+
+  if (record.expiresAt < new Date()) {
+    throw new AppError(400, "TOKEN_EXPIRED", "Verification link has expired");
+  }
+
+  const [, updatedUser] = await prisma.$transaction([
+    prisma.emailVerificationToken.update({
+      where: { id: record.id },
+      data: { consumedAt: new Date() },
+    }),
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { emailVerified: true },
+    }),
+  ]);
+
+  return {
+    user: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      emailVerified: updatedUser.emailVerified,
+    },
+    alreadyVerified: false,
+  };
+}
+
+export async function resendVerification(email: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  // Always return success — don't leak whether an email is registered.
+  if (!user || user.emailVerified) {
+    return { sent: false };
+  }
+
+  await issueVerificationEmail(user.id, user.email, user.firstName);
+  return { sent: true };
 }
 
 export async function refreshAccessToken(refreshToken: string) {
