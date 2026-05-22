@@ -62,17 +62,17 @@ export function WaitlistSection() {
     <section
       id="waitlist"
       aria-labelledby="waitlist-heading"
-      className="py-30 border-b border-smoke-700"
+      className="py-16 md:py-24 lg:py-30 border-b border-smoke-700"
     >
-      <div className="max-w-[1480px] mx-auto px-14">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-16 lg:gap-24 items-start">
-          <div className="flex flex-col gap-8">
+      <div className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 md:gap-16 lg:gap-24 items-start">
+          <div className="flex flex-col gap-6 md:gap-8">
             <span className="font-mono text-mono uppercase tracking-[0.32em] text-taupe-300">
               № 07 · The list
             </span>
             <h2
               id="waitlist-heading"
-              className="font-display display-compressed text-[3.25rem] md:text-[4rem] leading-[0.94] text-bone-100"
+              className="font-display display-compressed text-[clamp(36px,8vw,64px)] leading-[0.94] text-bone-100"
             >
               Be{" "}
               <em className="font-editorial italic font-light text-champagne-400">
@@ -89,7 +89,7 @@ export function WaitlistSection() {
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="flex flex-col gap-6 border-t border-taupe-500 pt-10 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-16"
+            className="flex flex-col gap-6 border-t border-taupe-500 pt-8 md:pt-10 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-16"
             aria-describedby="waitlist-privacy"
           >
             {status === "success" ? (

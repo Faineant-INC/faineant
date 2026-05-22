@@ -90,16 +90,16 @@ const SERVICES = [
 
 export function IdleCollectionSection() {
   return (
-    <section className="py-30 border-b border-smoke-700">
-      <div className="max-w-[1480px] mx-auto px-14">
-        <div className="flex justify-between items-end mb-16 pb-6 border-b border-taupe-500 gap-12 flex-col md:flex-row">
-          <h3 className="font-display display-compressed text-[4rem] leading-[0.94] text-bone-100">
+    <section className="py-16 md:py-24 lg:py-30 border-b border-smoke-700">
+      <div className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14">
+        <div className="flex justify-between items-start md:items-end mb-10 md:mb-16 pb-6 border-b border-taupe-500 gap-6 md:gap-12 flex-col md:flex-row">
+          <h3 className="font-display display-compressed text-[clamp(40px,8vw,64px)] leading-[0.94] text-bone-100">
             The{" "}
             <em className="font-editorial italic font-light text-champagne-400">
               Idle Collection.
             </em>
           </h3>
-          <div className="font-mono text-mono text-taupe-300 leading-relaxed text-right">
+          <div className="font-mono text-mono text-taupe-300 leading-relaxed text-left md:text-right">
             <strong className="text-bone-100 font-medium">06 RITUALS</strong>
             <br />
             FROM $95 — $480
@@ -112,23 +112,23 @@ export function IdleCollectionSection() {
             <Link
               key={s.slug}
               href={`/services/${s.slug}`}
-              className="group bg-smoke-900 grid grid-cols-2 min-h-[380px] hover:bg-smoke-800 transition-colors duration-[350ms] ease-fai-smooth"
+              className="group bg-smoke-900 grid grid-cols-1 sm:grid-cols-2 sm:min-h-[380px] hover:bg-smoke-800 transition-colors duration-[350ms] ease-fai-smooth"
             >
-              <div className="relative bg-smoke-900 overflow-hidden">
+              <div className="relative bg-smoke-900 overflow-hidden h-56 sm:h-auto">
                 <Image
                   src={s.img}
                   alt={s.alt}
                   fill
                   className="object-cover object-center brightness-95 contrast-[1.02]"
-                  sizes="(max-width: 768px) 100vw, 25vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                 />
               </div>
-              <div className="p-9 flex flex-col gap-3.5">
+              <div className="p-6 sm:p-8 lg:p-9 flex flex-col gap-3.5">
                 <div className="flex justify-between items-start font-mono text-mono text-taupe-300">
                   <span>{s.n} · {s.cat}</span>
                   <span className="text-champagne-400 font-medium text-[14px]">{s.price}</span>
                 </div>
-                <h4 className="font-display display-compressed text-[1.875rem] leading-[1.04] text-bone-100 mt-1">
+                <h4 className="font-display display-compressed text-[clamp(24px,5vw,30px)] leading-[1.04] text-bone-100 mt-1">
                   {s.title}{" "}
                   <em className="font-editorial italic font-light text-champagne-400 tracking-[-0.005em]">
                     {s.titleEm}
@@ -138,7 +138,7 @@ export function IdleCollectionSection() {
                 <p className="font-editorial italic text-body-lg text-bone-200 leading-snug">
                   {s.desc}
                 </p>
-                <div className="flex justify-between items-center mt-auto pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.3em] text-taupe-300 font-medium text-[10px]">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-auto pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.3em] text-taupe-300 font-medium text-[10px] gap-2">
                   <span className="flex items-center gap-2.5">
                     <span className="w-4 h-4 rounded-full bg-taupe-500" aria-hidden />
                     {s.by}
