@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/login-form";
 export default function LoginPage() {
   return (
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-smoke-900">
-      <div className="flex flex-col p-14 justify-between">
+      <div className="flex flex-col gap-10 px-5 py-10 sm:px-8 sm:py-12 lg:p-14 lg:gap-0 lg:justify-between">
         <Link href="/" className="block">
           <Image
             src="/brand/faineant-wordmark-white.png"
@@ -16,11 +16,11 @@ export default function LoginPage() {
             priority
           />
         </Link>
-        <div className="max-w-[420px] flex flex-col gap-6">
+        <div className="w-full max-w-sm sm:max-w-md lg:max-w-[420px] flex flex-col gap-6">
           <span className="text-label uppercase tracking-[0.32em] text-taupe-300">
             Sign in
           </span>
-          <h1 className="font-display display-compressed text-[3.5rem] leading-[0.95] text-bone-100">
+          <h1 className="font-display display-compressed text-[clamp(2.25rem,9vw,3.5rem)] leading-[0.95] text-bone-100">
             Open{" "}
             <em className="font-editorial italic font-light text-champagne-400 not-italic-ish">
               the door.

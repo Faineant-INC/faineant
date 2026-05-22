@@ -50,15 +50,15 @@ function VerifyEmailInner() {
   }, [params, router]);
 
   return (
-    <main className="min-h-screen bg-smoke-900 text-bone-100 flex items-center justify-center px-6">
-      <div className="max-w-xl w-full border border-smoke-700 bg-smoke-800 p-12 flex flex-col gap-6">
+    <main className="min-h-screen bg-smoke-900 text-bone-100 flex items-center justify-center px-5 py-10 sm:px-6">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-xl border border-smoke-700 bg-smoke-800 p-6 sm:p-10 md:p-12 flex flex-col gap-6">
         <span className="text-label uppercase tracking-[0.32em] text-champagne-400">
           Verify your email
         </span>
 
         {state.kind === "loading" && (
           <>
-            <h1 className="font-display text-[2.25rem] leading-none">
+            <h1 className="font-display text-[clamp(1.75rem,7vw,2.25rem)] leading-[1.05]">
               One <em className="font-editorial italic font-light text-champagne-400">moment.</em>
             </h1>
             <p className="font-editorial italic text-body-lg text-taupe-300">
@@ -69,7 +69,7 @@ function VerifyEmailInner() {
 
         {state.kind === "missing" && (
           <>
-            <h1 className="font-display text-[2.25rem] leading-none">
+            <h1 className="font-display text-[clamp(1.75rem,7vw,2.25rem)] leading-[1.05]">
               Nothing to <em className="font-editorial italic font-light text-champagne-400">confirm.</em>
             </h1>
             <p className="font-editorial italic text-body-lg text-taupe-300">
@@ -87,7 +87,7 @@ function VerifyEmailInner() {
 
         {state.kind === "success" && (
           <>
-            <h1 className="font-display text-[2.25rem] leading-none">
+            <h1 className="font-display text-[clamp(1.75rem,7vw,2.25rem)] leading-[1.05]">
               {state.alreadyVerified ? (
                 <>
                   Already <em className="font-editorial italic font-light text-champagne-400">confirmed.</em>
@@ -112,7 +112,7 @@ function VerifyEmailInner() {
 
         {state.kind === "error" && (
           <>
-            <h1 className="font-display text-[2.25rem] leading-none">
+            <h1 className="font-display text-[clamp(1.75rem,7vw,2.25rem)] leading-[1.05]">
               That link is <em className="font-editorial italic font-light text-champagne-400">resting.</em>
             </h1>
             <p className="font-editorial italic text-body-lg text-taupe-300">
