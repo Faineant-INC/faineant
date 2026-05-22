@@ -146,15 +146,15 @@ export default function ClientBookingsPage() {
   }
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
-        <h2 className="font-display text-[2.625rem] leading-none text-bone-100">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
+        <h2 className="font-display text-[clamp(1.75rem,5vw,2.625rem)] leading-none text-bone-100">
           Your{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             visits.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           A short, slow ledger. What&rsquo;s coming, and what&rsquo;s already
           been.
         </p>
@@ -179,14 +179,14 @@ export default function ClientBookingsPage() {
       ) : (
         <>
           <section>
-            <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex justify-between items-center font-medium">
+            <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex flex-wrap gap-2 justify-between items-center font-medium">
               Upcoming{" "}
               <span className="font-mono text-champagne-400">
                 {upcoming.length.toString().padStart(2, "0")} / ON THE CALENDAR
               </span>
             </h4>
             {upcoming.length === 0 ? (
-              <div className="bg-smoke-900 border border-smoke-700 p-9 text-center">
+              <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 text-center">
                 <p className="font-editorial italic text-body-lg text-bone-200">
                   Nothing on the calendar. The week is yours.
                 </p>
@@ -202,7 +202,7 @@ export default function ClientBookingsPage() {
                 {upcoming.map((b) => (
                   <div
                     key={b.id}
-                    className="bg-smoke-900 border border-smoke-700 p-5 px-6 grid grid-cols-[80px_1fr_1fr_auto_auto] gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
+                    className="bg-smoke-900 border border-smoke-700 p-5 sm:px-6 grid grid-cols-2 sm:grid-cols-[80px_1fr_1fr_auto_auto] gap-4 sm:gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
                   >
                     <div className="font-mono text-mono text-taupe-300">
                       {shortDate(b.startTime)}
@@ -246,14 +246,14 @@ export default function ClientBookingsPage() {
           </section>
 
           <section>
-            <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex justify-between items-center font-medium">
+            <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex flex-wrap gap-2 justify-between items-center font-medium">
               Past visits{" "}
               <span className="font-mono text-champagne-400">
                 {past.length.toString().padStart(2, "0")} / IDLE COLLECTION
               </span>
             </h4>
             {past.length === 0 ? (
-              <div className="bg-smoke-900 border border-smoke-700 p-9 text-center">
+              <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 text-center">
                 <p className="font-editorial italic text-body-lg text-bone-200">
                   No past visits yet. Soon.
                 </p>
@@ -263,7 +263,7 @@ export default function ClientBookingsPage() {
                 {past.map((b) => (
                   <div
                     key={b.id}
-                    className="bg-smoke-900 border border-smoke-700 p-5 px-6 grid grid-cols-[80px_1fr_1fr_auto_auto] gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
+                    className="bg-smoke-900 border border-smoke-700 p-5 sm:px-6 grid grid-cols-2 sm:grid-cols-[80px_1fr_1fr_auto_auto] gap-4 sm:gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
                   >
                     <div className="font-mono text-mono text-taupe-300">
                       {shortDate(b.startTime)}

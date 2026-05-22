@@ -83,21 +83,21 @@ export default function ProviderPortfolioPage() {
   }
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
         <h2 className="font-display display-compressed text-[2.625rem] leading-none text-bone-100">
           Your{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             work.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           Editorial photography from the visits you&rsquo;ve booked. Clients see
           this on your profile.
         </p>
       </header>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
           Collection{" "}
           <span className="font-mono text-champagne-400 ml-2">
@@ -180,7 +180,7 @@ export default function ProviderPortfolioPage() {
           <Loader2 className="h-6 w-6 animate-spin text-taupe-300" />
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-smoke-900 border border-smoke-700 p-9 text-center">
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 text-center">
           <p className="font-editorial italic text-body-lg text-bone-200">
             No frames yet. The first one is the hardest.
           </p>

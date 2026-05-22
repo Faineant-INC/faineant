@@ -38,9 +38,9 @@ export function VerifyEmailBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="border-b border-champagne-500/30 bg-smoke-800 px-12 py-4"
+      className="border-b border-champagne-500/30 bg-smoke-800 px-5 md:px-10 lg:px-12 py-4"
     >
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
         <div className="flex flex-col gap-1">
           <span className="text-label uppercase tracking-[0.32em] text-champagne-400">
             One quiet step
@@ -51,7 +51,7 @@ export function VerifyEmailBanner() {
             and payments rest until you do.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {state.kind === "sent" && (
             <span className="font-mono text-mono text-taupe-300">
               SENT &middot; CHECK YOUR INBOX

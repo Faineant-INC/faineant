@@ -40,22 +40,22 @@ export default function DashboardPage() {
   const userName = user?.firstName || "Sasha";
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
-        <h2 className="font-display text-[2.625rem] leading-none text-bone-100">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
+        <h2 className="font-display text-[clamp(1.75rem,5vw,2.625rem)] leading-none text-bone-100">
           Good morning,{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             {userName}.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           You have one visit on the calendar &mdash; Maeve, tomorrow at 14:00.
           Two practitioners are on your &ldquo;again&rdquo; list.
         </p>
       </header>
 
       <section>
-        <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex justify-between items-center font-medium">
+        <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex flex-wrap gap-2 justify-between items-center font-medium">
           Upcoming{" "}
           <span className="font-mono text-champagne-400">
             01 / NEXT 30 DAYS
@@ -63,12 +63,12 @@ export default function DashboardPage() {
         </h4>
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
           {/* TODO(impl): replace with the next confirmed booking from /bookings/client */}
-          <article className="bg-gradient-to-br from-smoke-800 to-smoke-950 border border-smoke-700 p-9 flex flex-col gap-[1.125rem]">
-            <div className="flex justify-between items-center font-mono text-mono text-taupe-300 tracking-[0.04em]">
+          <article className="bg-gradient-to-br from-smoke-800 to-smoke-950 border border-smoke-700 p-6 sm:p-9 flex flex-col gap-[1.125rem]">
+            <div className="flex flex-wrap gap-2 justify-between items-center font-mono text-mono text-taupe-300 tracking-[0.04em]">
               <span>WED &middot; 28 APR &middot; 14:00 &middot; IN 21 HOURS</span>
               <strong className="text-champagne-400 font-medium">SOON</strong>
             </div>
-            <h3 className="font-display text-[2rem] leading-[1.05] text-bone-100">
+            <h3 className="font-display text-[clamp(1.5rem,4vw,2rem)] leading-[1.05] text-bone-100">
               An{" "}
               <em className="font-editorial italic font-light text-champagne-400">
                 hour of nothing,
@@ -81,12 +81,12 @@ export default function DashboardPage() {
               She brings a kit, towels, and a small jar of clarifying tea. You
               don&rsquo;t bring anything.
             </p>
-            <div className="flex justify-between items-center pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.28em] text-taupe-300">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 justify-between items-center pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.28em] text-taupe-300">
               <span>HAIR &middot; 90 MIN</span>
               <span>WEST LOOP</span>
               <span>$180.00</span>
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <Link
                 href="#"
                 className="flex-1 px-2.5 py-2.5 text-center bg-bone-100 text-smoke-900 text-label uppercase tracking-[0.28em] font-medium"
@@ -109,14 +109,14 @@ export default function DashboardPage() {
           </article>
 
           {/* TODO(impl): "again?" rebooking suggestion driven by past-frequency heuristic */}
-          <article className="bg-smoke-800 border border-smoke-700 p-8 flex flex-col gap-[1.125rem]">
-            <div className="flex justify-between items-center font-mono text-mono text-taupe-300">
+          <article className="bg-smoke-800 border border-smoke-700 p-6 sm:p-8 flex flex-col gap-[1.125rem]">
+            <div className="flex flex-wrap gap-2 justify-between items-center font-mono text-mono text-taupe-300">
               <span>READY WHEN YOU ARE</span>
               <strong className="text-champagne-400 font-medium">
                 UNBOOKED
               </strong>
             </div>
-            <h3 className="font-display text-[2rem] leading-[1.05] text-bone-100">
+            <h3 className="font-display text-[clamp(1.5rem,4vw,2rem)] leading-[1.05] text-bone-100">
               Imani,{" "}
               <em className="font-editorial italic font-light text-champagne-400">
                 again?
@@ -126,12 +126,12 @@ export default function DashboardPage() {
               It&rsquo;s been six weeks since your last lash visit. Imani has
               Saturday morning open this week.
             </p>
-            <div className="flex justify-between items-center pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.28em] text-taupe-300">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 justify-between items-center pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.28em] text-taupe-300">
               <span>LASH &middot; 120 MIN</span>
               <span>WICKER PARK</span>
               <span>$220.00</span>
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <Link
                 href="#"
                 className="flex-1 px-2.5 py-2.5 text-center bg-bone-100 text-smoke-900 text-label uppercase tracking-[0.28em] font-medium"
@@ -150,7 +150,7 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex justify-between items-center font-medium">
+        <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex flex-wrap gap-2 justify-between items-center font-medium">
           Past visits{" "}
           <span className="font-mono text-champagne-400">
             {PAST.length.toString().padStart(2, "0")} / IDLE COLLECTION
@@ -161,7 +161,7 @@ export default function DashboardPage() {
           {PAST.map((row) => (
             <div
               key={`${row.date}-${row.pract}`}
-              className="bg-smoke-900 border border-smoke-700 p-5 px-6 grid grid-cols-[80px_1fr_1fr_auto_auto] gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
+              className="bg-smoke-900 border border-smoke-700 p-5 sm:px-6 grid grid-cols-2 sm:grid-cols-[80px_1fr_1fr_auto_auto] gap-4 sm:gap-6 items-center mb-px hover:bg-smoke-800 transition-colors"
             >
               <div className="font-mono text-mono text-taupe-300">
                 {row.date}

@@ -285,15 +285,15 @@ export default function ProviderBookingsPage() {
   }
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
         <h2 className="font-display display-compressed text-[2.625rem] leading-none text-bone-100">
           Today&rsquo;s{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             calendar.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           Three windows tomorrow, two open Friday.
         </p>
       </header>
@@ -311,7 +311,7 @@ export default function ProviderBookingsPage() {
       )}
 
       {/* Tab nav */}
-      <nav className="flex gap-1 border-b border-smoke-700 -mt-4">
+      <nav className="flex gap-1 border-b border-smoke-700 -mt-4 overflow-x-auto">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.value;
           return (
@@ -336,7 +336,7 @@ export default function ProviderBookingsPage() {
           <Loader2 className="h-6 w-6 animate-spin text-taupe-300" />
         </div>
       ) : sortedBookings.length === 0 ? (
-        <div className="bg-smoke-900 border border-smoke-700 p-9 text-center">
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 text-center">
           <p className="font-editorial italic text-body-lg text-bone-200">
             {activeTab === "pending"
               ? "No requests waiting. The calm is yours."
@@ -351,7 +351,7 @@ export default function ProviderBookingsPage() {
         </div>
       ) : (
         <section>
-          <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex justify-between items-center font-medium">
+          <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 flex flex-wrap gap-2 justify-between items-center font-medium">
             {TABS.find((t) => t.value === activeTab)?.label}
             <span className="font-mono text-champagne-400">
               {sortedBookings.length.toString().padStart(2, "0")} / VISITS
@@ -362,7 +362,7 @@ export default function ProviderBookingsPage() {
               <div
                 key={booking.id}
                 onClick={() => setDetailBooking(booking)}
-                className="bg-smoke-900 border border-smoke-700 p-5 px-6 grid grid-cols-[80px_1fr_1fr_auto_auto] gap-6 items-center mb-px hover:bg-smoke-800 transition-colors cursor-pointer"
+                className="bg-smoke-900 border border-smoke-700 p-5 sm:px-6 grid grid-cols-2 sm:grid-cols-[80px_1fr_1fr_auto_auto] gap-4 sm:gap-6 items-center mb-px hover:bg-smoke-800 transition-colors cursor-pointer"
               >
                 <div className="font-mono text-mono text-taupe-300">
                   {shortDate(booking.startTime)}
