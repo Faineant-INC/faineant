@@ -106,26 +106,26 @@ export default function PractitionerPage({ params }: { params: { slug: string } 
     <>
       <Topbar />
       <SiteHeader />
-      <main className="max-w-[1480px] mx-auto px-14 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] min-h-[680px] border border-smoke-700">
-          <div className="relative bg-smoke-900 overflow-hidden">
+      <main className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] lg:min-h-[680px] border border-smoke-700">
+          <div className="relative bg-smoke-900 overflow-hidden min-h-[420px] sm:min-h-[520px] lg:min-h-0">
             <Image src={p.imgSrc} alt={`${p.name} ${p.nameEm}`} fill className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 55vw" />
-            <div className="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-10">
-              <p className="font-editorial italic font-light text-[24px] text-bone-100 leading-snug">
+            <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-10">
+              <p className="font-editorial italic font-light text-[clamp(18px,3vw,24px)] text-bone-100 leading-snug">
                 &ldquo;{p.quote}&rdquo;
               </p>
             </div>
           </div>
-          <div className="bg-smoke-900 p-14 px-14 pb-8 flex flex-col gap-6">
+          <div className="bg-smoke-900 p-6 sm:p-10 lg:p-14 pb-8 flex flex-col gap-6">
             <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">In Practice &middot; No 01 / 14</span>
-            <h2 className="font-display display-compressed text-[4rem] leading-[0.94] text-bone-100">
+            <h2 className="font-display display-compressed text-[clamp(40px,9vw,64px)] leading-[0.94] text-bone-100">
               {p.name}{" "}
               <em className="font-editorial italic font-light text-champagne-400">{p.nameEm}</em>
             </h2>
             <p className="font-editorial italic font-light text-body-lg text-bone-200 leading-relaxed max-w-[520px]">
               {p.bio}
             </p>
-            <dl className="grid grid-cols-2 gap-6 py-6 border-t border-smoke-700 border-b border-smoke-700">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 py-6 border-t border-smoke-700 border-b border-smoke-700">
               {p.metaItems.map((m) => (
                 <div key={m.dt}>
                   <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">{m.dt}</dt>
@@ -136,11 +136,11 @@ export default function PractitionerPage({ params }: { params: { slug: string } 
             <div className="flex flex-col gap-2">
               <h5 className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-2 font-medium">{p.name}&apos;s menu</h5>
               {p.services.map((s) => (
-                <div key={s.name} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center p-4 px-4 border border-smoke-700">
+                <div key={s.name} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto] gap-3 sm:gap-4 items-center p-4 px-4 border border-smoke-700">
                   <div className="font-display font-medium text-bone-100 tracking-[-0.01em]">
                     {s.name}<small className="block font-editorial italic font-light text-bone-200 text-[13px] mt-0.5">{s.sub}</small>
                   </div>
-                  <span className="font-mono text-mono text-taupe-300 tracking-[0.04em]">{s.dur}</span>
+                  <span className="hidden sm:inline font-mono text-mono text-taupe-300 tracking-[0.04em]">{s.dur}</span>
                   <span className="font-mono text-[14px] text-champagne-400 font-medium">{s.price}</span>
                 </div>
               ))}

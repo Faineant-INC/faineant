@@ -48,21 +48,21 @@ export default function AboutPage() {
       <Topbar />
       <SiteHeader />
       <main className="bg-smoke-900 text-bone-100">
-        <section className="max-w-[1480px] mx-auto px-14 py-24 border-b border-smoke-700">
+        <section className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-24 border-b border-smoke-700">
           <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
             № 01 · The House
           </span>
-          <h1 className="font-display display-compressed text-[5rem] leading-[0.94] text-bone-100 mt-4">
+          <h1 className="font-display display-compressed text-[clamp(48px,10vw,80px)] leading-[0.94] text-bone-100 mt-4">
             What{" "}
             <em className="font-editorial italic font-light text-champagne-400">
               we are.
             </em>
           </h1>
-          <p className="font-editorial italic font-light text-[28px] leading-snug text-bone-200 mt-10 max-w-[760px]">
+          <p className="font-editorial italic font-light text-[clamp(20px,4vw,28px)] leading-snug text-bone-200 mt-10 max-w-[760px]">
             A Chicago directory of beauty practitioners who travel to your home.
             Founded 2026. Fourteen practitioners. One city, on purpose.
           </p>
-          <dl className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-16 pt-8 border-t border-taupe-500">
+          <dl className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mt-12 md:mt-16 pt-8 border-t border-taupe-500">
             <div>
               <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-2 font-medium">
                 Founded
@@ -101,16 +101,16 @@ export default function AboutPage() {
         {SECTIONS.map((s, idx) => (
           <section
             key={s.label}
-            className={`max-w-[1480px] mx-auto px-14 py-24 ${
+            className={`max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-24 ${
               idx < SECTIONS.length - 1 ? "border-b border-smoke-700" : ""
             }`}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
               <div className="lg:col-span-4">
                 <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium font-mono">
                   {s.number}
                 </span>
-                <h2 className="font-display display-compressed text-[3.75rem] leading-[0.95] text-bone-100 mt-4">
+                <h2 className="font-display display-compressed text-[clamp(36px,8vw,60px)] leading-[0.95] text-bone-100 mt-4">
                   {s.title}{" "}
                   <em className="font-editorial italic font-light text-champagne-400">
                     {s.accent}
@@ -121,7 +121,7 @@ export default function AboutPage() {
                 {s.body.map((para, i) => (
                   <p
                     key={i}
-                    className="font-editorial italic font-light text-[22px] leading-relaxed text-bone-200 max-w-[640px]"
+                    className="font-editorial italic font-light text-[clamp(17px,3.2vw,22px)] leading-relaxed text-bone-200 max-w-[640px]"
                   >
                     {para}
                   </p>

@@ -102,23 +102,23 @@ export default function ProvidersPage() {
       <Topbar />
       <SiteHeader />
       <main className="bg-smoke-900 text-bone-100">
-        <section className="max-w-[1480px] mx-auto px-14 py-24 border-b border-smoke-700">
+        <section className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-24 border-b border-smoke-700">
           <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
             № 02 · The Directory
           </span>
-          <h1 className="font-display display-compressed text-[5rem] leading-[0.94] text-bone-100 mt-4">
+          <h1 className="font-display display-compressed text-[clamp(48px,10vw,80px)] leading-[0.94] text-bone-100 mt-4">
             The{" "}
             <em className="font-editorial italic font-light text-champagne-400">
               Salon.
             </em>
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-end gap-8 mt-10 pt-8 border-t border-taupe-500">
-            <p className="font-editorial italic font-light text-[24px] leading-snug text-bone-200 max-w-[680px]">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-start md:items-end gap-6 md:gap-8 mt-10 pt-8 border-t border-taupe-500">
+            <p className="font-editorial italic font-light text-[clamp(18px,3vw,24px)] leading-snug text-bone-200 max-w-[680px]">
               Fourteen practitioners, chosen one at a time. Each one travels.
               Each one keeps their own calendar. Tap a name to read about them
               and reserve an hour.
             </p>
-            <p className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300 text-right">
+            <p className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300 text-left md:text-right">
               Chicago only
               <br />
               Currently shown · 8 of 14
@@ -126,7 +126,7 @@ export default function ProvidersPage() {
           </div>
         </section>
 
-        <section className="max-w-[1480px] mx-auto px-14 py-20">
+        <section className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-20">
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-l border-t border-smoke-700">
             {PRACTITIONERS.map((p) => (
               <li
@@ -146,11 +146,11 @@ export default function ProvidersPage() {
                       className="object-cover object-top transition-transform duration-[600ms] ease-fai-smooth group-hover:scale-[1.03]"
                     />
                   </div>
-                  <div className="p-8 flex flex-col gap-4">
+                  <div className="p-6 sm:p-8 flex flex-col gap-4">
                     <span className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300">
                       {p.numberLabel} · {p.neighbourhood}
                     </span>
-                    <h3 className="font-display display-compressed text-[2.25rem] leading-[0.95] text-bone-100">
+                    <h3 className="font-display display-compressed text-[clamp(28px,5vw,36px)] leading-[0.95] text-bone-100">
                       {p.firstName}{" "}
                       <em className="font-editorial italic font-light text-champagne-400">
                         {p.surname}.
