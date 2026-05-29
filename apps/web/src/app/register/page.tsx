@@ -2,8 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/register-form";
+import { redirect } from "next/navigation";
+import { isLaunched } from "@/lib/flags";
 
 export default function RegisterPage() {
+  if (!isLaunched()) {
+    redirect("/#waitlist");
+  }
+
   return (
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] bg-smoke-900">
       <div className="flex flex-col gap-10 px-5 py-10 sm:px-8 sm:py-12 lg:p-14 lg:gap-0 lg:justify-between">
