@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LoginForm } from "@/components/login-form";
+import { isLaunched } from "@/lib/flags";
 
 export default function LoginPage() {
   return (
@@ -30,12 +31,21 @@ export default function LoginPage() {
             One window away from your next reservation.
           </p>
           <LoginForm />
-          <p className="font-mono text-mono text-taupe-300">
-            New here?{" "}
-            <Link href="/register" className="text-champagne-400 hover:underline">
-              Open an account →
-            </Link>
-          </p>
+          {isLaunched() ? (
+            <p className="font-mono text-mono text-taupe-300">
+              New here?{" "}
+              <Link href="/register" className="text-champagne-400 hover:underline">
+                Open an account →
+              </Link>
+            </p>
+          ) : (
+            <p className="font-mono text-mono text-taupe-300">
+              Not open yet?{" "}
+              <Link href="/#waitlist" className="text-champagne-400 hover:underline">
+                Join the waitlist →
+              </Link>
+            </p>
+          )}
         </div>
         <div className="font-mono text-mono text-taupe-400">© FAINEANT · CHICAGO</div>
       </div>
