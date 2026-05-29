@@ -77,7 +77,7 @@ data, real email. **Nothing else matters until this is done.**
 - `POST /auth/verify-email` accepts `{ token }`, marks user verified, consumes token. Idempotent on double-submit.
 - `POST /auth/resend-verification` rate-limited (3/hour/IP).
 - Login allowed for unverified users but a banner appears in dashboard until verified; bookings + payments are gated until verified.
-- Resend account: `noreply@faineant.co` (DNS pending), DKIM + SPF + DMARC configured.
+- Resend account: `noreply@faineantapp.com` (DNS pending), DKIM + SPF + DMARC configured.
 
 **Technical approach**
 - Provider: **Resend** (best dev DX, generous free tier, good DMARC support).
@@ -151,7 +151,7 @@ data, real email. **Nothing else matters until this is done.**
 **Goal:** the live web app talks to a real backend.
 
 **Acceptance criteria**
-- API deployed at `api.faineant.co` (or interim `arc-api.fly.dev`).
+- API deployed at `api.faineantapp.com` (or interim `arc-api.fly.dev`).
 - Postgres provisioned with daily backups.
 - Web `NEXT_PUBLIC_API_URL` points at prod API; CORS configured to accept `arc-marketplace.vercel.app` and the eventual custom domain.
 - Migrations run automatically on deploy (`prisma migrate deploy`).

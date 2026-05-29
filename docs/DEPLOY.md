@@ -50,22 +50,22 @@ You'll collect **secret values** along the way. Keep a scratchpad (1Password, Bi
 ## 3. Set up object storage (Cloudflare R2)
 
 1. https://dash.cloudflare.com → R2 → **Create bucket** → name `faineant-uploads`, location automatic.
-2. Bucket → Settings → **Public access** → Allow Access via R2.dev subdomain (or attach a custom domain like `cdn.faineant.co`). Copy the public URL — save as `R2_PUBLIC_URL`.
+2. Bucket → Settings → **Public access** → Allow Access via R2.dev subdomain (or attach a custom domain like `cdn.faineantapp.com`). Copy the public URL — save as `R2_PUBLIC_URL`.
 3. R2 home → **Manage R2 API Tokens** → Create token → Permissions: **Object Read & Write**, scope to bucket `faineant-uploads`.
    - Save `Access Key ID` → `R2_ACCESS_KEY_ID`
    - Save `Secret Access Key` → `R2_SECRET_ACCESS_KEY`
    - Save the Account ID from the R2 sidebar → `R2_ACCOUNT_ID`
-4. (Recommended) Add CORS to the bucket allowing PUT from `https://arc-marketplace.vercel.app`, `https://faineant.co`, `http://localhost:3000`.
+4. (Recommended) Add CORS to the bucket allowing PUT from `https://arc-marketplace.vercel.app`, `https://faineantapp.com`, `http://localhost:3000`.
 
 ---
 
 ## 4. Set up email (Resend)
 
-1. https://resend.com → **Domains** → Add `faineant.co`.
-2. Resend gives you DNS records (SPF, DKIM, DMARC). Add them in Cloudflare DNS for `faineant.co`. Wait for "verified" (usually <5 min).
+1. https://resend.com → **Domains** → Add `faineantapp.com`.
+2. Resend gives you DNS records (SPF, DKIM, DMARC). Add them in Cloudflare DNS for `faineantapp.com`. Wait for "verified" (usually <5 min).
 3. **API Keys** → Create → scope `Sending access` → save as `RESEND_API_KEY`.
 
-> If `faineant.co` DNS isn't pointed at Cloudflare yet, skip this for now — leave `RESEND_API_KEY` blank in Render. Email transport is wired in Phase 1.1.
+> If `faineantapp.com` DNS isn't pointed at Cloudflare yet, skip this for now — leave `RESEND_API_KEY` blank in Render. Email transport is wired in Phase 1.1.
 
 ---
 
@@ -85,7 +85,7 @@ You'll collect **secret values** along the way. Keep a scratchpad (1Password, Bi
 1. https://console.cloud.google.com → create/select a project `faineant-prod`.
 2. **APIs & Services → Library** → enable: Google Calendar API, Maps JavaScript API, Geocoding API, Places API.
 3. **Credentials → Create credentials → OAuth client ID** → Web application:
-   - Authorized redirect URIs: `https://<your-render-url>/api/v1/calendar/google/callback` (also add the final `https://api.faineant.co/...` once domain is mapped)
+   - Authorized redirect URIs: `https://<your-render-url>/api/v1/calendar/google/callback` (also add the final `https://api.faineantapp.com/...` once domain is mapped)
    - Save `Client ID` → `GOOGLE_CLIENT_ID`, `Client secret` → `GOOGLE_CLIENT_SECRET`.
 4. **Credentials → Create credentials → API key** → restrict to the Maps + Geocoding + Places APIs → save as `GOOGLE_MAPS_API_KEY`.
 
@@ -119,8 +119,8 @@ You'll collect **secret values** along the way. Keep a scratchpad (1Password, Bi
 5. Click **Apply**. Render builds the Docker image (~5–8 min first time).
 6. After the build, the **preDeployCommand** runs `prisma migrate deploy`. The first deploy will baseline the migrations folder.
 7. Once the service is live, copy the Render URL (e.g. `https://faineant-api.onrender.com`).
-8. Map the custom domain `api.faineant.co`:
-   - Render → Settings → Custom Domains → Add → `api.faineant.co`.
+8. Map the custom domain `api.faineantapp.com`:
+   - Render → Settings → Custom Domains → Add → `api.faineantapp.com`.
    - In Cloudflare DNS: add a CNAME `api → <render-cname>.onrender.com`, proxy **off** (so TLS terminates at Render).
 9. Update Stripe webhook URL + Google OAuth redirect URI to use the final domain.
 
@@ -130,7 +130,7 @@ You'll collect **secret values** along the way. Keep a scratchpad (1Password, Bi
 
 1. https://vercel.com → `arc-marketplace` project → Settings → Environment Variables.
 2. Add (Production + Preview):
-   - `NEXT_PUBLIC_API_URL=https://api.faineant.co` (or the Render URL until DNS is mapped)
+   - `NEXT_PUBLIC_API_URL=https://api.faineantapp.com` (or the Render URL until DNS is mapped)
 3. Redeploy the web app (Deployments → ⋯ → Redeploy).
 
 ---
@@ -139,11 +139,11 @@ You'll collect **secret values** along the way. Keep a scratchpad (1Password, Bi
 
 ```bash
 # Public health
-curl https://api.faineant.co/health
+curl https://api.faineantapp.com/health
 # → {"status":"ok","db":"ok","timestamp":"..."}
 
 # CORS preflight from the web origin
-curl -i -X OPTIONS https://api.faineant.co/api/v1/auth/login \
+curl -i -X OPTIONS https://api.faineantapp.com/api/v1/auth/login \
   -H "Origin: https://arc-marketplace.vercel.app" \
   -H "Access-Control-Request-Method: POST"
 # → 204 with Access-Control-Allow-Origin echoed back
@@ -177,7 +177,7 @@ Do **not** add this to the deploy hook — it would re-seed on every release.
 To set up the deploy hook:
 1. Render → service → Settings → Deploy Hook → copy URL.
 2. GitHub repo → Settings → Secrets → Actions → add `RENDER_DEPLOY_HOOK`.
-3. (Optional) Add `API_HEALTH_URL` as a repo **variable** (not secret): `https://api.faineant.co/health`.
+3. (Optional) Add `API_HEALTH_URL` as a repo **variable** (not secret): `https://api.faineantapp.com/health`.
 
 ---
 

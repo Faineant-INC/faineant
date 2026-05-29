@@ -22,13 +22,13 @@ const envSchema = z.object({
   // Email transport (Resend)
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM_NAME: z.string().default("Faineant"),
-  EMAIL_FROM_ADDRESS: z.string().email().default("noreply@faineant.co"),
+  EMAIL_FROM_ADDRESS: z.string().email().default("noreply@faineantapp.com"),
   // Object storage — Cloudflare R2 (S3-compatible)
   R2_ACCOUNT_ID: z.string().optional(),
   R2_ACCESS_KEY_ID: z.string().optional(),
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET: z.string().default("faineant-uploads"),
-  R2_PUBLIC_URL: z.string().default("https://uploads.faineant.co"),
+  R2_PUBLIC_URL: z.string().default("https://uploads.faineantapp.com"),
   // Redis (rate-limit, queues, future Socket.IO adapter)
   REDIS_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),

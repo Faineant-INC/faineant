@@ -23,10 +23,10 @@ primary_region = "ord" # Chicago — closest to Neon US-East defaults
   NODE_ENV = "production"
   API_PORT = "3001"
   EMAIL_FROM_NAME = "FAINEANT"
-  EMAIL_FROM_ADDRESS = "noreply@faineant.co"
+  EMAIL_FROM_ADDRESS = "noreply@faineantapp.com"
   R2_BUCKET = "faineant-uploads"
-  GOOGLE_REDIRECT_URI = "https://api.faineant.co/api/v1/calendar/google/callback"
-  WEB_URL = "https://arc-marketplace.vercel.app,https://faineant.co,https://www.faineant.co"
+  GOOGLE_REDIRECT_URI = "https://api.faineantapp.com/api/v1/calendar/google/callback"
+  WEB_URL = "https://arc-marketplace.vercel.app,https://faineantapp.com,https://www.faineantapp.com"
   STRIPE_PLATFORM_FEE_PERCENT = "5"
 
 [http_service]

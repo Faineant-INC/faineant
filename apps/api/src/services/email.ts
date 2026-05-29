@@ -22,6 +22,29 @@ export interface SendEmailResult {
   id?: string;
 }
 
+export interface SendEmailOptions {
+  /**
+   * Resend idempotency key. Lets the same logical send be retried safely —
+   * Resend de-dupes identical keys for 24h. Format: `<event-type>/<entity-id>`.
+   */
+  idempotencyKey?: string;
+}
+
+/** Max retries after the initial attempt for transient provider errors. */
+const MAX_RETRIES = 3;
+/** Base backoff in ms; doubles each attempt (250, 500, 1000...). */
+const BACKOFF_BASE_MS = 250;
+
+/**
+ * Resend error names that are worth retrying. Validation/permission failures
+ * are permanent and must not be retried.
+ */
+const TRANSIENT_ERROR_NAMES = new Set([
+  "rate_limit_exceeded",
+  "internal_server_error",
+  "application_error",
+]);
+
 let cachedClient: Resend | null = null;
 
 function getClient(): Resend | null {
@@ -30,9 +53,14 @@ function getClient(): Resend | null {
   return cachedClient;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function sendEmail(
   rendered: RenderedEmail,
   to: string,
+  options?: SendEmailOptions,
 ): Promise<SendEmailResult> {
   const client = getClient();
   const from = `${env.EMAIL_FROM_NAME} <${env.EMAIL_FROM_ADDRESS}>`;
@@ -46,19 +74,31 @@ export async function sendEmail(
     return { delivered: false };
   }
 
-  const response = await client.emails.send({
+  const payload = {
     from,
     to,
     subject: rendered.subject,
     html: rendered.html,
     text: rendered.text,
-  });
+  };
+  const sendOptions = options?.idempotencyKey
+    ? { idempotencyKey: options.idempotencyKey }
+    : undefined;
 
-  if (response.error) {
-    throw new Error(`Resend error: ${response.error.message}`);
+  for (let attempt = 0; ; attempt++) {
+    const response = await client.emails.send(payload, sendOptions);
+
+    if (!response.error) {
+      return { delivered: true, id: response.data?.id };
+    }
+
+    const transient = TRANSIENT_ERROR_NAMES.has(response.error.name);
+    if (!transient || attempt >= MAX_RETRIES) {
+      throw new Error(`Resend error: ${response.error.message}`);
+    }
+
+    await sleep(BACKOFF_BASE_MS * 2 ** attempt);
   }
-
-  return { delivered: true, id: response.data?.id };
 }
 
 /**

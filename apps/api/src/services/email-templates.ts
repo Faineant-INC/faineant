@@ -5,22 +5,20 @@
  * Bricolage Grotesque headings + Cormorant Garamond italic accents,
  * Geist Mono footer. Per brand spec §3.1.
  *
- * NOTE: No email transport (nodemailer/sendgrid/resend/etc.) is wired up in
- * this codebase yet. These exports are structured data ready to feed whatever
- * sender we add later. Do not import these into routes until a transport
- * exists.
+ * These exports are structured data (subject/html/text) fed to the Resend
+ * transport in `email.ts` via `sendEmail(rendered, to)`.
  */
 
 export interface EmailFromAddress {
   /** Display name. Mixed case — never all-caps. */
   readonly name: 'Faineant';
   /** Sending address. */
-  readonly email: 'noreply@faineant.co';
+  readonly email: 'noreply@faineantapp.com';
 }
 
 export const FAINEANT_FROM: EmailFromAddress = {
   name: 'Faineant',
-  email: 'noreply@faineant.co',
+  email: 'noreply@faineantapp.com',
 };
 
 export interface RenderedEmail {
@@ -30,7 +28,7 @@ export interface RenderedEmail {
   from: EmailFromAddress;
 }
 
-const WORDMARK_URL = 'https://faineant.co/brand/faineant-wordmark-black.png';
+const WORDMARK_URL = 'https://faineantapp.com/brand/faineant-wordmark-black.png';
 
 const escapeHtml = (value: string): string =>
   value

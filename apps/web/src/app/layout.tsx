@@ -41,7 +41,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: { default: BRAND_NAME, template: `%s · ${BRAND_NAME}` },
   description: BRAND_TAGLINE,
-  metadataBase: new URL("https://faineant.co"),
+  metadataBase: new URL("https://faineantapp.com"),
 };
 
 export default function RootLayout({

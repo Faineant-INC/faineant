@@ -33,7 +33,7 @@ interface SeedPractitioner {
 //       FACE -> FACIAL, NAILS -> NAILS, MAKEUP -> MAKEUP.
 const practitioners: SeedPractitioner[] = [
   {
-    email: "maeve@faineant.co",
+    email: "maeve@faineantapp.com",
     firstName: "Maeve",
     lastName: "Le Gal",
     bio: "Trained at Cristophe in Paris. Twenty-two years cutting hair, the last six entirely in clients' homes. Speaks slowly. Plays Erik Satie.",
@@ -60,7 +60,7 @@ const practitioners: SeedPractitioner[] = [
     ],
   },
   {
-    email: "yumi@faineant.co",
+    email: "yumi@faineantapp.com",
     firstName: "Yumi",
     lastName: "Watanabe",
     bio: "Three-month waitlist for her natural-look manicure. Plays only Bill Evans.",
@@ -80,7 +80,7 @@ const practitioners: SeedPractitioner[] = [
     ],
   },
   {
-    email: "adele@faineant.co",
+    email: "adele@faineantapp.com",
     firstName: "Adèle",
     lastName: "Bergère",
     bio: "Speaks of skin the way a sommelier speaks of soil. Will not work on phones.",
@@ -99,7 +99,7 @@ const practitioners: SeedPractitioner[] = [
     ],
   },
   {
-    email: "imani@faineant.co",
+    email: "imani@faineantapp.com",
     firstName: "Imani",
     lastName: "Okafor",
     bio: "Soft, full, never looks like work.",
@@ -118,7 +118,7 @@ const practitioners: SeedPractitioner[] = [
     ],
   },
   {
-    email: "rafael@faineant.co",
+    email: "rafael@faineantapp.com",
     firstName: "Rafael",
     lastName: "Duarte",
     bio: "No music, no chatter. The most expensive haircut on the platform. Worth it.",
@@ -138,7 +138,7 @@ const practitioners: SeedPractitioner[] = [
     ],
   },
   {
-    email: "lea@faineant.co",
+    email: "lea@faineantapp.com",
     firstName: "Léa",
     lastName: "Hernandez",
     bio: "Editorial-grade makeup applied at your bathroom mirror. The kit is heavier than it looks.",
@@ -173,10 +173,10 @@ async function main() {
   // Create admin user
   const adminPassword = await bcrypt.hash("admin123", 12);
   await prisma.user.upsert({
-    where: { email: "admin@faineant.co" },
+    where: { email: "admin@faineantapp.com" },
     update: {},
     create: {
-      email: "admin@faineant.co",
+      email: "admin@faineantapp.com",
       passwordHash: adminPassword,
       firstName: "Admin",
       lastName: "User",
@@ -264,10 +264,10 @@ async function main() {
   // Create demo client
   const clientPassword = await bcrypt.hash("client123", 12);
   await prisma.user.upsert({
-    where: { email: "demo.client@faineant.co" },
+    where: { email: "demo.client@faineantapp.com" },
     update: {},
     create: {
-      email: "demo.client@faineant.co",
+      email: "demo.client@faineantapp.com",
       passwordHash: clientPassword,
       firstName: "Sasha",
       lastName: "Chen",
@@ -276,11 +276,11 @@ async function main() {
   });
 
   console.log("Seed complete!");
-  console.log(`Admin: admin@faineant.co / admin123`);
+  console.log(`Admin: admin@faineantapp.com / admin123`);
   console.log(
     `Practitioners: ${practitioners.map((p) => p.email).join(", ")} / provider123`
   );
-  console.log(`Client: demo.client@faineant.co / client123`);
+  console.log(`Client: demo.client@faineantapp.com / client123`);
 }
 
 main()

@@ -184,6 +184,31 @@ describe("auth.service email verification", () => {
       expect(second.alreadyVerified).toBe(true);
     });
 
+    it("sends a welcome email after first verification", async () => {
+      const { token } = await seedRegistered();
+      sendEmailSpy.mockClear();
+
+      await authService.verifyEmail(token.token);
+
+      expect(sendEmailSpy).toHaveBeenCalledOnce();
+      const [rendered, to] = sendEmailSpy.mock.calls[0] as [
+        { subject: string },
+        string,
+      ];
+      expect(rendered.subject.toLowerCase()).toContain("nothing");
+      expect(to).toBe("maeve@example.com");
+    });
+
+    it("does not send a welcome email on already-verified double-submit", async () => {
+      const { token } = await seedRegistered();
+      await authService.verifyEmail(token.token);
+      sendEmailSpy.mockClear();
+
+      await authService.verifyEmail(token.token);
+
+      expect(sendEmailSpy).not.toHaveBeenCalled();
+    });
+
     it("rejects expired tokens", async () => {
       const { token } = await seedRegistered();
       const t = state.tokens.get(token.id);

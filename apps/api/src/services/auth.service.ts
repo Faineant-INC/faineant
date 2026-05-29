@@ -5,7 +5,7 @@ import { AppError } from "../middleware/error-handler";
 import { RegisterInput, LoginInput } from "@faineant/shared";
 import { env } from "../config/env";
 import { sendEmail } from "./email";
-import { emailVerificationEmail } from "./email-templates";
+import { emailVerificationEmail, welcomeEmail } from "./email-templates";
 import crypto from "crypto";
 
 const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -158,6 +158,17 @@ export async function verifyEmail(token: string) {
       data: { emailVerified: true },
     }),
   ]);
+
+  // Welcome the user once, on first verification. Failure here must not break
+  // verification — the account is already verified. Idempotency-keyed per user
+  // so a duplicate trigger can't double-send within Resend's de-dupe window.
+  try {
+    await sendEmail(welcomeEmail({ firstName: record.user.firstName }), updatedUser.email, {
+      idempotencyKey: `welcome/${updatedUser.id}`,
+    });
+  } catch (err) {
+    console.error("[auth] failed to send welcome email", err);
+  }
 
   return {
     user: {

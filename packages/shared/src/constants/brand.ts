@@ -1,8 +1,8 @@
 export const BRAND_NAME = "FAINEANT" as const;
 export const BRAND_LEGAL_NAME = "Faineant Inc." as const;
-export const BRAND_DOMAIN = "faineant.co" as const;
+export const BRAND_DOMAIN = "faineantapp.com" as const;
 export const BRAND_TAGLINE = "House calls for the slow-living." as const;
-export const BRAND_SUPPORT_EMAIL = "support@faineant.co" as const;
+export const BRAND_SUPPORT_EMAIL = "support@faineantapp.com" as const;
 
 export const CITY = "Chicago" as const;
 

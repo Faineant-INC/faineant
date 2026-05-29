@@ -19,7 +19,7 @@
 
 | Item | Provider | Cost | Notes |
 |------|----------|------|-------|
-| Primary domain (`faineant.co` or `getfaineant.com`) | Cloudflare / Namecheap / Google Domains | $10–50/yr | `.app` domains ~$15/yr, premium names vary |
+| Primary domain (`faineantapp.com`) | Cloudflare / Namecheap / Google Domains | $10–50/yr | `.com` domains ~$15/yr, premium names vary |
 | Additional domain (redirect) | Same | $10–15/yr | Optional: `faineantbeauty.com` etc. |
 | DNS hosting | Cloudflare (free tier) | **$0** | Included with domain transfer to CF |
 | SSL/TLS certificates | Cloudflare / Vercel / Let's Encrypt | **$0** | Auto-provisioned |
@@ -215,16 +215,16 @@ Cost for React Email: **$0** (open source).
 
 #### DNS Setup Required
 
-To send from `noreply@faineant.co`, add these DNS records (provided by Resend):
+To send from `noreply@faineantapp.com`, add these DNS records (provided by Resend):
 
 | Type | Name | Value | Purpose |
 |------|------|-------|---------|
-| TXT | faineant.co | `v=spf1 include:amazonses.com ~all` | SPF (sender auth) |
-| CNAME | resend._domainkey.faineant.co | `[provided by Resend]` | DKIM (signing) |
-| TXT | _dmarc.faineant.co | `v=DMARC1; p=none;` | DMARC (policy) |
-| MX | send.faineant.co | `feedback-smtp.us-east-1.amazonses.com` | Bounce handling |
+| TXT | faineantapp.com | `v=spf1 include:amazonses.com ~all` | SPF (sender auth) |
+| CNAME | resend._domainkey.faineantapp.com | `[provided by Resend]` | DKIM (signing) |
+| TXT | _dmarc.faineantapp.com | `v=DMARC1; p=none;` | DMARC (policy) |
+| MX | send.faineantapp.com | `feedback-smtp.us-east-1.amazonses.com` | Bounce handling |
 
-No Google Workspace seat needed for `noreply@faineant.co` — Resend handles sending directly.
+No Google Workspace seat needed for `noreply@faineantapp.com` — Resend handles sending directly.
 
 #### Estimated Email Volume
 
@@ -250,17 +250,17 @@ No Google Workspace seat needed for `noreply@faineant.co` — Resend handles sen
 
 | Plan | Cost | Includes |
 |------|------|----------|
-| **Business Starter** | **$7.20/user/mo** ($86.40/yr) | 30GB Drive, custom email (you@faineant.co), Meet (100 participants) |
+| **Business Starter** | **$7.20/user/mo** ($86.40/yr) | 30GB Drive, custom email (you@faineantapp.com), Meet (100 participants) |
 | **Business Standard** | **$14.40/user/mo** ($172.80/yr) | 2TB Drive, recording, 150 Meet participants |
 | **Business Plus** | **$21.60/user/mo** ($259.20/yr) | 5TB Drive, Vault, advanced endpoint management |
 
 Minimum team emails needed:
 | Email | Purpose |
 |-------|---------|
-| `hello@faineant.co` | General inquiries |
-| `support@faineant.co` | Customer support |
-| `noreply@faineant.co` | Transactional emails (can use Resend, no Workspace seat needed) |
-| `admin@faineant.co` | Admin/billing |
+| `hello@faineantapp.com` | General inquiries |
+| `support@faineantapp.com` | Customer support |
+| `noreply@faineantapp.com` | Transactional emails (can use Resend, no Workspace seat needed) |
+| `admin@faineantapp.com` | Admin/billing |
 
 **Recommended: 2 Google Workspace Starter seats @ $14.40/mo** ($172.80/yr)
 Use Resend for transactional `noreply@` emails (no seat needed, just DNS verification).
@@ -732,7 +732,7 @@ Most early-stage startups skip insurance until they have revenue. Budget $50–1
 | **Developer** | Apple DUNS Number (org enrollment) | $0 |
 | **Developer** | Google Play Console | $25 |
 | **Developer** | Twilio 10DLC brand registration | $50 |
-| **Domain** | Primary domain (faineant.co) | $50 |
+| **Domain** | Primary domain (faineantapp.com) | $50 |
 | **Brand** | Logo + basic brand assets | $300 |
 | **Brand** | App Store screenshots + assets | $100 |
 | **Legal** | Terms of Service + Privacy Policy | $2,000 |
@@ -754,7 +754,7 @@ Most early-stage startups skip insurance until they have revenue. Budget $50–1
 | **Cache** | Redis (serverless) | Upstash Pro | $15 | $180 |
 | **File Storage** | Image uploads (~50GB) | Cloudflare R2 | $5 | $60 |
 | **Email (transactional)** | Verification, confirmations | Resend Pro | $25 | $300 |
-| **Email (business)** | team@faineant.co (3 seats) | Google Workspace | $25 | $300 |
+| **Email (business)** | team@faineantapp.com (3 seats) | Google Workspace | $25 | $300 |
 | **Maps** | Geolocation + display | Google Maps | $0 | $0 |
 | **Payments** | Processing (transaction %) | Stripe | $0 | $0 |
 | **Banking** | Business checking | Mercury | $0 | $0 |

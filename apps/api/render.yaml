@@ -48,7 +48,7 @@ services:
       - key: EMAIL_FROM_NAME
         value: FAINEANT
       - key: EMAIL_FROM_ADDRESS
-        value: noreply@faineant.co
+        value: noreply@faineantapp.com
       # === Object storage (Cloudflare R2) ===
       - key: R2_ACCOUNT_ID
         sync: false
@@ -59,14 +59,14 @@ services:
       - key: R2_SECRET_ACCESS_KEY
         sync: false
       - key: R2_PUBLIC_URL
-        sync: false # e.g. https://cdn.faineant.co
+        sync: false # e.g. https://cdn.faineantapp.com
       # === Google Calendar OAuth ===
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_REDIRECT_URI
-        value: https://api.faineant.co/api/v1/calendar/google/callback
+        value: https://api.faineantapp.com/api/v1/calendar/google/callback
       # === Google Maps (server-side geocoding) ===
       - key: GOOGLE_MAPS_API_KEY
         sync: false
@@ -75,4 +75,4 @@ services:
         sync: false
       # === Web origin(s) for CORS (comma-separated) ===
       - key: WEB_URL
-        value: https://arc-marketplace.vercel.app,https://faineant.co,https://www.faineant.co
+        value: https://arc-marketplace.vercel.app,https://faineantapp.com,https://www.faineantapp.com
