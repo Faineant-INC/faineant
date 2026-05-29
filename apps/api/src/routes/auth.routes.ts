@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { validate } from "../middleware/validate";
 import { authLimiter, resendVerificationLimiter } from "../middleware/rate-limit";
 import { authenticate } from "../middleware/auth";
+import { requireSignupsEnabled } from "../middleware/launch-gate";
 import {
   registerSchema,
   loginSchema,
@@ -15,6 +16,7 @@ const router = Router();
 
 router.post(
   "/register",
+  requireSignupsEnabled,
   authLimiter,
   validate(registerSchema),
   async (req: Request, res: Response, next: NextFunction) => {

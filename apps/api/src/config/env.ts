@@ -37,6 +37,8 @@ const envSchema = z.object({
   API_PORT: z.coerce.number().default(3001),
   WEB_URL: z.string().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  // Launch gate — "true" enables self-serve sign-ups. Default "false" = pre-launch.
+  LAUNCH_MODE: z.string().default("false").transform((v) => v === "true"),
 });
 
 function loadEnv() {
