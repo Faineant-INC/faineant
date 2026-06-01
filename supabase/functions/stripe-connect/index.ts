@@ -3,6 +3,9 @@ import { getCaller, serviceClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   let caller; try { caller = await getCaller(req); } catch (r) { return r as Response; }
+  if (caller.role !== "PROVIDER") {
+    return new Response(JSON.stringify({ error: "FORBIDDEN: provider only" }), { status: 403 });
+  }
   const db = serviceClient();
   try {
     const { data: profile } = await db.from("provider_profiles")
