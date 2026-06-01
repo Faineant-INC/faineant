@@ -1,5 +1,5 @@
 begin;
-select plan(5);
+select plan(6);
 
 insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values
   ('44444444-0000-0000-0000-0000000000c1','vc@example.com', now(), '{"role":"CLIENT","first_name":"Val","last_name":"Id"}'),
@@ -42,6 +42,17 @@ select throws_ok(
       'CONFIRMED')$$,
   '42501', 'Only the provider can perform this action',
   'client cannot CONFIRM a booking (provider-only action)');
+reset role;
+
+-- An anonymous caller must not be able to cancel arbitrary bookings.
+set local role anon;
+set local request.jwt.claims = '';
+select throws_ok(
+  $$select public.update_booking_status(
+      (select id from public.bookings where client_id='44444444-0000-0000-0000-0000000000c1' limit 1),
+      'CANCELLED')$$,
+  '28000', 'Not authenticated',
+  'anon cannot cancel a booking');
 reset role;
 
 select * from finish();
