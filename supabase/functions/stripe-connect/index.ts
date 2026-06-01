@@ -1,32 +1,35 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
+import { stripeClient } from "../_shared/stripe.ts";
+import { getCaller, serviceClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  let caller; try { caller = await getCaller(req); } catch (r) { return r as Response; }
+  const db = serviceClient();
+  try {
+    const { data: profile } = await db.from("provider_profiles")
+      .select("id, stripe_account_id").eq("user_id", caller.userId).single();
+    if (!profile) return new Response(JSON.stringify({ error: "Provider profile not found" }), { status: 404 });
+    const p = profile as Record<string, unknown>;
+    const stripe = stripeClient();
+    const webUrl = Deno.env.get("WEB_URL") ?? "https://faineantapp.com";
+    let accountId = (p.stripe_account_id as string | null) ?? null;
+    if (!accountId) {
+      const { data: userRes } = await db.auth.admin.getUserById(caller.userId);
+      const email = userRes?.user?.email ?? undefined;
+      const account = await stripe.accounts.create({
+        type: "express", email,
+        capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
+      });
+      accountId = account.id;
+      await db.from("provider_profiles").update({ stripe_account_id: accountId }).eq("user_id", caller.userId);
+    }
+    const link = await stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: `${webUrl}/dashboard/provider/earnings?stripe=refresh`,
+      return_url: `${webUrl}/dashboard/provider/earnings?stripe=complete`,
+      type: "account_onboarding",
+    });
+    return new Response(JSON.stringify({ url: link.url }), { status: 200 });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), { status: 500 });
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/stripe-connect' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
+});
