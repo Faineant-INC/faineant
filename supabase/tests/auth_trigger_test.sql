@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(5);
 
 -- A client signup
 insert into auth.users (id, email, raw_user_meta_data)
@@ -22,6 +22,14 @@ select isnt(
 select is(
   (select count(*)::int from public.provider_profiles where user_id = '00000000-0000-0000-0000-0000000000c1'),
   0, 'no provider_profiles row for a CLIENT signup');
+
+-- Invalid role in metadata must fall back to CLIENT, not fail the signup.
+insert into auth.users (id, email, raw_user_meta_data)
+  values ('00000000-0000-0000-0000-0000000000e2', 'bad@example.com',
+          '{"role":"SUPERUSER","first_name":"Bad","last_name":"Role"}');
+select is(
+  (select role::text from public.profiles where id = '00000000-0000-0000-0000-0000000000e2'),
+  'CLIENT', 'invalid role in metadata falls back to CLIENT');
 
 select * from finish();
 rollback;
