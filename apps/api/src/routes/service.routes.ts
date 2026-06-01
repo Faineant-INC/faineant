@@ -6,7 +6,7 @@ import { createServiceSchema, updateServiceSchema } from "@faineant/shared";
 import { prisma } from "../config/database";
 import { AppError } from "../middleware/error-handler";
 
-const router = Router();
+const router: Router = Router();
 
 // Create service (provider only)
 router.post(

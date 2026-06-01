@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { authenticate } from "../middleware/auth";
 import * as reviewService from "../services/review.service";
 
-const router = Router();
+const router: Router = Router();
 
 // Create review
 router.post(

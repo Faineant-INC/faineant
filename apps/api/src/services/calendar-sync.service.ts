@@ -106,8 +106,8 @@ export async function syncGoogleCalendar(connectionId: string) {
 
   const params: {
     calendarId: string;
-    timeMin: string;
-    timeMax: string;
+    timeMin?: string;
+    timeMax?: string;
     singleEvents: boolean;
     maxResults: number;
     syncToken?: string;
@@ -155,6 +155,7 @@ export async function syncGoogleCalendar(connectionId: string) {
       if (!startTime || !endTime) continue;
 
       const isAllDay = !event.start?.dateTime;
+      const title = event.summary || null;
 
       await prisma.externalEvent.upsert({
         where: {
@@ -166,13 +167,13 @@ export async function syncGoogleCalendar(connectionId: string) {
         create: {
           calendarConnectionId: connectionId,
           externalId: event.id,
-          title: event.summary || null,
+          title,
           startTime,
           endTime,
           isAllDay,
         },
         update: {
-          title: event.summary || null,
+          title,
           startTime,
           endTime,
           isAllDay,
@@ -275,7 +276,7 @@ export async function addIcsFeed(userId: string, feedUrl: string) {
   }
 
   const eventCount = Object.values(events).filter(
-    (e) => e.type === "VEVENT",
+    (e) => e?.type === "VEVENT",
   ).length;
 
   const connection = await prisma.calendarConnection.upsert({
@@ -317,7 +318,7 @@ export async function syncIcsFeed(connectionId: string) {
   sixtyDaysFromNow.setDate(sixtyDaysFromNow.getDate() + 60);
 
   const vevents = Object.values(events).filter(
-    (e): e is ical.VEvent => e.type === "VEVENT",
+    (e): e is ical.VEvent => e?.type === "VEVENT",
   );
 
   // Track which external IDs we see so we can remove stale ones
@@ -343,6 +344,12 @@ export async function syncIcsFeed(connectionId: string) {
       event.end instanceof Date &&
       event.end.getHours() === 0;
 
+    // node-ical types `summary` as string | { val, params }; normalize to a string.
+    const title =
+      typeof event.summary === "string"
+        ? event.summary
+        : (event.summary?.val ?? null);
+
     await prisma.externalEvent.upsert({
       where: {
         calendarConnectionId_externalId: {
@@ -353,13 +360,13 @@ export async function syncIcsFeed(connectionId: string) {
       create: {
         calendarConnectionId: connectionId,
         externalId: uid,
-        title: event.summary || null,
+        title,
         startTime,
         endTime,
         isAllDay,
       },
       update: {
-        title: event.summary || null,
+        title,
         startTime,
         endTime,
         isAllDay,

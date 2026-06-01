@@ -1,16 +1,16 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { authenticate } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { createPostSchema, createCommentSchema } from "@faineant/shared";
+import { createPostSchema, createCommentSchema, PostCategory } from "@faineant/shared";
 import * as postService from "../services/post.service";
 
-const router = Router();
+const router: Router = Router();
 
 // Get posts
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await postService.getPosts(
-      req.query.category as string | undefined,
+      req.query.category as PostCategory | undefined,
       req.query.page ? parseInt(req.query.page as string) : undefined,
     );
     res.json({ success: true, data: result });

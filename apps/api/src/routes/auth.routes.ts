@@ -12,7 +12,7 @@ import {
 } from "@faineant/shared";
 import * as authService from "../services/auth.service";
 
-const router = Router();
+const router: Router = Router();
 
 router.post(
   "/register",

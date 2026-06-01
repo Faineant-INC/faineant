@@ -8,6 +8,7 @@ export interface AuthPayload {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- Express type augmentation requires namespace merging
   namespace Express {
     interface Request {
       user?: AuthPayload;

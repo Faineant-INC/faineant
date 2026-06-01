@@ -19,7 +19,7 @@ function createMocks(overrides: Partial<Request> = {}) {
     json: vi.fn().mockReturnThis(),
   } as unknown as Response;
 
-  const next = vi.fn() as NextFunction;
+  const next = vi.fn() as unknown as NextFunction;
 
   return { req, res, next };
 }

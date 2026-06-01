@@ -10,7 +10,7 @@ function createMocks() {
     json: vi.fn().mockReturnThis(),
   } as unknown as Response;
 
-  const next = vi.fn() as NextFunction;
+  const next = vi.fn() as unknown as NextFunction;
 
   return { req, res, next };
 }
@@ -40,7 +40,9 @@ describe('errorHandler middleware', () => {
 
   beforeEach(() => {
     // Suppress console.error output during tests
-    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    consoleSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {}) as unknown as ReturnType<typeof vi.spyOn>;
   });
 
   it('returns the correct status code for an AppError', () => {

@@ -14,7 +14,7 @@ import calendarRoutes from "./calendar.routes";
 import waitlistRoutes from "./waitlist.routes";
 import uploadsRoutes from "./uploads.routes";
 
-const router = Router();
+const router: Router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/providers", providerRoutes);

@@ -8,7 +8,7 @@ import {
   finalizeUpload,
 } from "../services/uploads.service";
 
-const router = Router();
+const router: Router = Router();
 
 // POST /uploads/sign  — request a presigned PUT URL
 router.post(

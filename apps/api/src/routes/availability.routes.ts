@@ -5,7 +5,7 @@ import { validate } from "../middleware/validate";
 import { setAvailabilitySchema, createOverrideSchema } from "@faineant/shared";
 import * as availabilityService from "../services/availability.service";
 
-const router = Router();
+const router: Router = Router();
 
 // Set weekly availability (replaces existing)
 router.put(
