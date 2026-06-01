@@ -33,7 +33,7 @@ export function bookingConfirmationEmail(v: {
     subject: "It's booked. Don't get up early.",
     html: shell(`Reservation confirmed · ${e.reservationId}`,
       `It's <em style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;color:#7a6f5e;">booked.</em><br>Don't get up early.`,
-      `${para(`${e.firstName} — ${e.practitionerName} will be at your ${e.neighbourhood} door ${e.whenHumanised}. She brings everything but the chair.`)}${para("Cancellation is free until midnight tonight, then you owe nothing if you let her know two hours before.")}`),
+      `${para(`${e.firstName} — ${e.practitionerName} will be at your ${e.neighbourhood} door ${e.whenHumanised}. They bring everything but the chair.`)}${para("Cancellation is free until midnight tonight, then you owe nothing if you let them know two hours before.")}`),
     text: `${v.firstName} — your reservation (${v.reservationId}) is confirmed. ${v.practitionerName} will be at your ${v.neighbourhood} door ${v.whenHumanised}.\n\n— Faineant · Chicago · Nothing urgent.`,
   };
 }
@@ -46,7 +46,7 @@ export function cancellationEmail(v: {
     subject: "No need to leave today either.",
     html: shell(`Reservation cancelled · ${e.reservationId}`,
       `No need to leave<br><em style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;color:#7a6f5e;">today either.</em>`,
-      `${para(`${e.firstName} — your reservation with ${e.practitionerName} (${e.reservationId}) has been cancelled. Nothing further is owed.`)}${para("When you are ready again, she will be too. The door stays the same.")}`),
+      `${para(`${e.firstName} — your reservation with ${e.practitionerName} (${e.reservationId}) has been cancelled. Nothing further is owed.`)}${para("When you are ready again, they will be too. The door stays the same.")}`),
     text: `${v.firstName} — your reservation with ${v.practitionerName} (${v.reservationId}) has been cancelled. Nothing further is owed.\n\n— Faineant · Chicago · Nothing urgent.`,
   };
 }
