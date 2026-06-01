@@ -561,17 +561,17 @@ insert into auth.users (id, email, raw_user_meta_data)
           '{"role":"CLIENT","first_name":"Cli","last_name":"Ent"}');
 -- A provider signup
 insert into auth.users (id, email, raw_user_meta_data)
-  values ('00000000-0000-0000-0000-0000000000p1', 'p1@example.com',
+  values ('00000000-0000-0000-0000-0000000000d1', 'p1@example.com',
           '{"role":"PROVIDER","first_name":"Pro","last_name":"Vider"}');
 
 select is(
   (select role::text from public.profiles where id = '00000000-0000-0000-0000-0000000000c1'),
   'CLIENT', 'client profile auto-created with CLIENT role');
 select is(
-  (select first_name from public.profiles where id = '00000000-0000-0000-0000-0000000000p1'),
+  (select first_name from public.profiles where id = '00000000-0000-0000-0000-0000000000d1'),
   'Pro', 'provider profile carries first_name from metadata');
 select isnt(
-  (select id::text from public.provider_profiles where user_id = '00000000-0000-0000-0000-0000000000p1'),
+  (select id::text from public.provider_profiles where user_id = '00000000-0000-0000-0000-0000000000d1'),
   null, 'provider_profiles row auto-created for PROVIDER signup');
 select is(
   (select count(*)::int from public.provider_profiles where user_id = '00000000-0000-0000-0000-0000000000c1'),
@@ -615,26 +615,26 @@ select plan(9);
 insert into auth.users (id, email, raw_user_meta_data) values
   ('11111111-0000-0000-0000-000000000a01','clientA@example.com','{"role":"CLIENT","first_name":"Alice","last_name":"A"}'),
   ('11111111-0000-0000-0000-000000000b02','clientB@example.com','{"role":"CLIENT","first_name":"Bob","last_name":"B"}'),
-  ('11111111-0000-0000-0000-000000000p03','prov@example.com','{"role":"PROVIDER","first_name":"Pam","last_name":"P"}');
+  ('11111111-0000-0000-0000-000000000e03','prov@example.com','{"role":"PROVIDER","first_name":"Pam","last_name":"P"}');
 
 -- ids
 -- providerProfile of Pam:
 --   (select id from public.provider_profiles where user_id = '...p03')
 insert into public.services (id, provider_profile_id, name, category, duration_minutes, price_in_cents, is_active)
-  select '22222222-0000-0000-0000-000000000s01',
-         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000p03'),
+  select '22222222-0000-0000-0000-000000000f01',
+         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000e03'),
          'Cut','HAIRCUT',60,5000,true;
 insert into public.services (id, provider_profile_id, name, category, duration_minutes, price_in_cents, is_active)
-  select '22222222-0000-0000-0000-000000000s02',
-         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000p03'),
+  select '22222222-0000-0000-0000-000000000f02',
+         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000e03'),
          'Hidden','HAIRCUT',60,5000,false;
 
 -- A booking linking clientA <-> Pam (so they are counterparties)
 insert into public.bookings (id, client_id, service_id, provider_profile_id, status, start_time, end_time, total_price_in_cents)
-  select '33333333-0000-0000-0000-000000000bk1',
+  select '33333333-0000-0000-0000-000000000bc1',
          '11111111-0000-0000-0000-000000000a01',
-         '22222222-0000-0000-0000-000000000s01',
-         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000p03'),
+         '22222222-0000-0000-0000-000000000f01',
+         (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000e03'),
          'CONFIRMED','2026-07-01T14:00:00Z','2026-07-01T15:00:00Z',5000;
 
 -- ── anon ───────────────────────────────────────────────────────────────────────
@@ -668,18 +668,18 @@ reset role;
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-0000-0000-0000-000000000a01","role":"authenticated"}';
 select is(
-  (select count(*)::int from public.bookings where id='33333333-0000-0000-0000-000000000bk1'),
+  (select count(*)::int from public.bookings where id='33333333-0000-0000-0000-000000000bc1'),
   1, 'clientA can see their own booking');
 select is(
-  (select count(*)::int from public.profiles where id='11111111-0000-0000-0000-000000000p03'),
+  (select count(*)::int from public.profiles where id='11111111-0000-0000-0000-000000000e03'),
   1, 'clientA can see Pam''s profile (shared booking -> counterparty)');
 reset role;
 
 -- ── Pam (provider) ────────────────────────────────────────────────────────────
 set local role authenticated;
-set local request.jwt.claims = '{"sub":"11111111-0000-0000-0000-000000000p03","role":"authenticated"}';
+set local request.jwt.claims = '{"sub":"11111111-0000-0000-0000-000000000e03","role":"authenticated"}';
 select is(
-  (select count(*)::int from public.bookings where id='33333333-0000-0000-0000-000000000bk1'),
+  (select count(*)::int from public.bookings where id='33333333-0000-0000-0000-000000000bc1'),
   1, 'provider can see the booking made for them');
 reset role;
 
