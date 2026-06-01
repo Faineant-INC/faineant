@@ -135,15 +135,15 @@ function CalendarSettingsPageInner() {
   const icsConnection = connections.find((c) => c.provider === "ICS_FEED");
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
         <h2 className="font-display display-compressed text-[2.625rem] leading-none text-bone-100">
           House{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             rules.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           Cancellation, payouts, account.
         </p>
       </header>
@@ -166,7 +166,7 @@ function CalendarSettingsPageInner() {
       ) : (
         <>
           <section className="bg-smoke-900 border border-smoke-700">
-            <div className="p-6 border-b border-smoke-700 flex items-start justify-between gap-6">
+            <div className="p-6 border-b border-smoke-700 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 items-center justify-center border border-smoke-700 bg-smoke-800">
                   <Calendar className="h-5 w-5 text-champagne-400" />
@@ -190,7 +190,7 @@ function CalendarSettingsPageInner() {
 
             <div className="p-6">
               {googleConnection ? (
-                <div className="flex items-center justify-between gap-4 border border-smoke-700 bg-smoke-800 px-4 py-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 border border-smoke-700 bg-smoke-800 px-4 py-3">
                   <div className="min-w-0">
                     <p className="font-mono text-mono text-bone-100 truncate">
                       {googleConnection.externalId || "Primary calendar"}
@@ -233,7 +233,7 @@ function CalendarSettingsPageInner() {
           </section>
 
           <section className="bg-smoke-900 border border-smoke-700">
-            <div className="p-6 border-b border-smoke-700 flex items-start justify-between gap-6">
+            <div className="p-6 border-b border-smoke-700 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 items-center justify-center border border-smoke-700 bg-smoke-800">
                   <Rss className="h-5 w-5 text-champagne-400" />
@@ -257,7 +257,7 @@ function CalendarSettingsPageInner() {
 
             <div className="p-6">
               {icsConnection ? (
-                <div className="flex items-center justify-between gap-4 border border-smoke-700 bg-smoke-800 px-4 py-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 border border-smoke-700 bg-smoke-800 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-mono text-mono text-bone-100 truncate">
                       {icsConnection.feedUrl}
@@ -297,7 +297,7 @@ function CalendarSettingsPageInner() {
                     usually under &ldquo;Calendar Export,&rdquo; &ldquo;Sync,&rdquo;
                     or &ldquo;iCal.&rdquo;
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       placeholder="https://calendar.booksy.com/feed/..."
                       value={icsUrl}

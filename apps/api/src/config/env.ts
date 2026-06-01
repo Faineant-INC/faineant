@@ -19,12 +19,26 @@ const envSchema = z.object({
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_PHONE_NUMBER: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
+  // Email transport (Resend)
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM_NAME: z.string().default("Faineant"),
+  EMAIL_FROM_ADDRESS: z.string().email().default("noreply@faineantapp.com"),
+  // Object storage — Cloudflare R2 (S3-compatible)
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().default("faineant-uploads"),
+  R2_PUBLIC_URL: z.string().default("https://uploads.faineantapp.com"),
+  // Redis (rate-limit, queues, future Socket.IO adapter)
+  REDIS_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI: z.string().optional().default("http://localhost:3001/api/v1/calendar/google/callback"),
   API_PORT: z.coerce.number().default(3001),
   WEB_URL: z.string().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  // Launch gate — "true" enables self-serve sign-ups. Default "false" = pre-launch.
+  LAUNCH_MODE: z.string().default("false").transform((v) => v === "true"),
 });
 
 function loadEnv() {

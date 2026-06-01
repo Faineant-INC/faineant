@@ -37,11 +37,11 @@ export default function CommunityPage() {
       <Topbar />
       <SiteHeader />
       <main className="bg-smoke-900 text-bone-100">
-        <section className="max-w-[1480px] mx-auto px-14 py-24 border-b border-smoke-700">
+        <section className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-24 border-b border-smoke-700">
           <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
             № 04 · The Room
           </span>
-          <h1 className="font-display display-compressed text-[5rem] leading-[0.94] text-bone-100 mt-4">
+          <h1 className="font-display display-compressed text-[clamp(48px,10vw,80px)] leading-[0.94] text-bone-100 mt-4">
             What our{" "}
             <em className="font-editorial italic font-light text-champagne-400">
               clients say.
@@ -55,21 +55,21 @@ export default function CommunityPage() {
         {QUOTES.map((q, idx) => (
           <section
             key={q.attribution}
-            className={`max-w-[1480px] mx-auto px-14 py-32 ${
+            className={`max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-20 md:py-32 ${
               idx < QUOTES.length - 1 ? "border-b border-smoke-700" : ""
             }`}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
               <div className="lg:col-span-3">
                 <span className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300">
                   {q.number}
                 </span>
               </div>
               <div className="lg:col-span-9">
-                <blockquote className="font-editorial italic font-light text-[2.5rem] leading-[1.15] text-bone-100 max-w-[920px]">
+                <blockquote className="font-editorial italic font-light text-[clamp(24px,5vw,40px)] leading-[1.18] text-bone-100 max-w-[920px]">
                   &ldquo;{q.quote}&rdquo;
                 </blockquote>
-                <footer className="mt-12 pt-6 border-t border-taupe-500 max-w-[920px] flex items-baseline justify-between gap-6 flex-wrap">
+                <footer className="mt-8 md:mt-12 pt-6 border-t border-taupe-500 max-w-[920px] flex flex-col sm:flex-row items-start sm:items-baseline sm:justify-between gap-3 sm:gap-6 sm:flex-wrap">
                   <cite className="not-italic font-display text-[1.5rem] leading-none text-bone-100">
                     {q.attribution}
                   </cite>

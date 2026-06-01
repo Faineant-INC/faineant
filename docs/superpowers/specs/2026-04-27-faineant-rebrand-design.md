@@ -20,7 +20,7 @@ Visually, this means a brutalist fashion-house wordmark (closer to The Row / Bal
 ### 2.1 Name and capitalisation
 - **Mark:** `FAINEANT` — uppercase, no accent. Wordmark file is canonical; never re-typeset.
 - **In body copy:** `Faineant` (title case). Avoid all-caps in prose.
-- **Domain target:** `faineant.co` (acquisition is a separate workstream — not blocking spec).
+- **Domain target:** `faineantapp.com` (acquisition is a separate workstream — not blocking spec).
 - **Symbol:** the cruciform monogram (interlocking F's) is usable independent of the wordmark — favicons, app icons, loading states, watermarks.
 
 ### 2.2 Geographic scope

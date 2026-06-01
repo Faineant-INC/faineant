@@ -34,9 +34,6 @@ coverage/
 # Turbo
 .turbo/
 
-# Prisma
-apps/api/prisma/migrations/**/migration_lock.toml
-
 # Mobile
 apps/mobile/ios/
 apps/mobile/android/

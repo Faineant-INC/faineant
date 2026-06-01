@@ -14,9 +14,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
-RUN pnpm --filter @arc/shared build
-RUN pnpm --filter @arc/api exec prisma generate
-RUN pnpm --filter @arc/api build
+RUN pnpm --filter @faineant/shared build
+RUN pnpm --filter @faineant/api exec prisma generate
+RUN pnpm --filter @faineant/api build
 
 FROM base AS runner
 WORKDIR /app

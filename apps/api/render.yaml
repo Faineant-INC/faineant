@@ -1,0 +1,78 @@
+# Render Blueprint for FAINEANT API
+# Deploy via: https://dashboard.render.com/blueprints  →  point at this repo
+# Secrets marked `sync: false` MUST be set in the Render dashboard before first deploy.
+#
+# Note: This blueprint lives at apps/api/render.yaml. When importing the
+# blueprint, point Render at this file path so the Docker build context
+# resolves correctly (it builds from repo root — see Dockerfile).
+
+services:
+  - type: web
+    name: faineant-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    # Build from repo root so the Dockerfile can copy the workspace.
+    rootDir: .
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    # Run prisma migrate deploy on every release before the new instance is promoted.
+    # Runs in the built image with WORKDIR /app/apps/api (see Dockerfile).
+    preDeployCommand: "./node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PORT
+        value: "3001"
+      # === Database ===
+      - key: DATABASE_URL
+        sync: false # Neon connection string (pooled)
+      # === Auth ===
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # === Stripe Connect ===
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PLATFORM_FEE_PERCENT
+        value: "5"
+      # === Email (Resend) ===
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM_NAME
+        value: FAINEANT
+      - key: EMAIL_FROM_ADDRESS
+        value: noreply@faineantapp.com
+      # === Object storage (Cloudflare R2) ===
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_BUCKET
+        value: faineant-uploads
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false # e.g. https://cdn.faineantapp.com
+      # === Google Calendar OAuth ===
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        value: https://api.faineantapp.com/api/v1/calendar/google/callback
+      # === Google Maps (server-side geocoding) ===
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      # === Redis (Upstash — rate limit + Socket.IO adapter) ===
+      - key: REDIS_URL
+        sync: false
+      # === Web origin(s) for CORS (comma-separated) ===
+      - key: WEB_URL
+        value: https://arc-marketplace.vercel.app,https://faineantapp.com,https://www.faineantapp.com

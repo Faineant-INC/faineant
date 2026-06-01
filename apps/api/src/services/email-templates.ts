@@ -5,22 +5,20 @@
  * Bricolage Grotesque headings + Cormorant Garamond italic accents,
  * Geist Mono footer. Per brand spec §3.1.
  *
- * NOTE: No email transport (nodemailer/sendgrid/resend/etc.) is wired up in
- * this codebase yet. These exports are structured data ready to feed whatever
- * sender we add later. Do not import these into routes until a transport
- * exists.
+ * These exports are structured data (subject/html/text) fed to the Resend
+ * transport in `email.ts` via `sendEmail(rendered, to)`.
  */
 
 export interface EmailFromAddress {
   /** Display name. Mixed case — never all-caps. */
   readonly name: 'Faineant';
   /** Sending address. */
-  readonly email: 'noreply@faineant.co';
+  readonly email: 'noreply@faineantapp.com';
 }
 
 export const FAINEANT_FROM: EmailFromAddress = {
   name: 'Faineant',
-  email: 'noreply@faineant.co',
+  email: 'noreply@faineantapp.com',
 };
 
 export interface RenderedEmail {
@@ -30,7 +28,7 @@ export interface RenderedEmail {
   from: EmailFromAddress;
 }
 
-const WORDMARK_URL = 'https://faineant.co/brand/faineant-wordmark-black.png';
+const WORDMARK_URL = 'https://faineantapp.com/brand/faineant-wordmark-black.png';
 
 const escapeHtml = (value: string): string =>
   value
@@ -223,9 +221,52 @@ export function passwordResetEmail(vars: PasswordResetVars): RenderedEmail {
   };
 }
 
+// ─── Email verification ─────────────────────────────────────────────────────
+
+export interface EmailVerificationVars {
+  firstName: string;
+  verifyUrl: string;
+  expiresInHours: number;
+}
+
+export function emailVerificationEmail(vars: EmailVerificationVars): RenderedEmail {
+  const v = {
+    firstName: escapeHtml(vars.firstName),
+    verifyUrl: escapeHtml(vars.verifyUrl),
+    expiresInHours: vars.expiresInHours,
+  };
+
+  const headline = `Confirm the <em style="font-family:'Cormorant Garamond',serif; font-weight:300; font-style:italic; color:#7a6f5e;">address.</em><br>
+      That is all.`;
+
+  const body = `${paragraph(
+    `${v.firstName} — one quiet step. Confirm this is your address so the only mail you ever get from us is the kind you asked for.`,
+  )}
+    <p style="font-family:Inter,sans-serif; font-size:14px; line-height:1.6; color:#3d352c; margin:24px 0;">
+      <a href="${v.verifyUrl}" style="display:inline-block; background:#0e0d0c; color:#f3ede1; padding:14px 28px; text-decoration:none; font-family:Inter,sans-serif; font-size:11px; letter-spacing:0.32em; text-transform:uppercase;">
+        Confirm address
+      </a>
+    </p>
+    ${paragraph(
+      `The link rests for ${v.expiresInHours} hours. If this was not you, ignore it — nothing happens.`,
+    )}`;
+
+  return {
+    subject: 'Confirm the address. That is all.',
+    html: renderShell({
+      eyebrow: 'Verify your email',
+      headline,
+      body,
+    }),
+    text: `${vars.firstName} — confirm this is your address so the only mail you ever get from us is the kind you asked for. Open this link: ${vars.verifyUrl}\n\nThe link rests for ${vars.expiresInHours} hours. If this was not you, ignore it.\n\n— Faineant · Chicago · Nothing urgent.`,
+    from: FAINEANT_FROM,
+  };
+}
+
 export const faineantEmailTemplates = {
   bookingConfirmation: bookingConfirmationEmail,
   welcome: welcomeEmail,
   cancellation: cancellationEmail,
   passwordReset: passwordResetEmail,
+  emailVerification: emailVerificationEmail,
 } as const;

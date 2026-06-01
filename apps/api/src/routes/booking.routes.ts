@@ -1,15 +1,17 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { authenticate } from "../middleware/auth";
+import { requireVerifiedEmail } from "../middleware/require-verified-email";
 import { validate } from "../middleware/validate";
 import { createBookingSchema, updateBookingStatusSchema } from "@faineant/shared";
 import * as bookingService from "../services/booking.service";
 
 const router = Router();
 
-// Create booking (client)
+// Create booking (client) — requires verified email
 router.post(
   "/",
   authenticate,
+  requireVerifiedEmail,
   validate(createBookingSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {

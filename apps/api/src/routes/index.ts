@@ -12,6 +12,7 @@ import postRoutes from "./post.routes";
 import adminRoutes from "./admin.routes";
 import calendarRoutes from "./calendar.routes";
 import waitlistRoutes from "./waitlist.routes";
+import uploadsRoutes from "./uploads.routes";
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use("/posts", postRoutes);
 router.use("/admin", adminRoutes);
 router.use("/calendar", calendarRoutes);
 router.use("/waitlist", waitlistRoutes);
+router.use("/uploads", uploadsRoutes);
 
 export default router;

@@ -61,15 +61,15 @@ export default function ClientProfilePage() {
   }
 
   return (
-    <div className="p-12 px-14 flex flex-col gap-12">
-      <header className="flex justify-between items-end pb-5 border-b border-smoke-700">
-        <h2 className="font-display text-[2.625rem] leading-none text-bone-100">
+    <div className="px-5 md:px-10 lg:px-14 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+      <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 pb-5 border-b border-smoke-700">
+        <h2 className="font-display text-[clamp(1.75rem,5vw,2.625rem)] leading-none text-bone-100">
           Your{" "}
           <em className="font-editorial italic font-light text-champagne-400">
             details.
           </em>
         </h2>
-        <p className="font-editorial italic text-body-lg text-bone-200 max-w-[340px] text-right leading-snug">
+        <p className="font-editorial italic text-body-lg text-bone-200 md:max-w-[340px] md:text-right leading-snug">
           Where to find you, what to bring, how to reach out.
         </p>
       </header>
@@ -90,7 +90,7 @@ export default function ClientProfilePage() {
         <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 font-medium">
           Identity
         </h4>
-        <div className="bg-smoke-900 border border-smoke-700 p-9 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <label
               htmlFor="firstName"
@@ -148,7 +148,7 @@ export default function ClientProfilePage() {
             She arrives at two. You don&rsquo;t have to.
           </span>
         </h4>
-        <div className="bg-smoke-900 border border-smoke-700 p-9 grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-6">
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-6">
           <div className="flex flex-col gap-2">
             <label
               htmlFor="streetAddress"
@@ -199,8 +199,8 @@ export default function ClientProfilePage() {
         <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 font-medium">
           Card on file
         </h4>
-        <div className="bg-smoke-900 border border-smoke-700 p-9 flex items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+          <div className="flex flex-wrap items-center gap-3 md:gap-6">
             <span className="font-mono text-mono text-bone-100 tracking-[0.2em] text-[1.125rem]">
               &bull; &bull; &bull; &bull; &nbsp; &bull; &bull; &bull; &bull;
               &nbsp; &bull; &bull; &bull; &bull; &nbsp; 4242

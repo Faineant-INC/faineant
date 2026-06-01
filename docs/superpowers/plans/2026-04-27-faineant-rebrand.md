@@ -99,9 +99,9 @@ EOF
 // packages/shared/src/constants/brand.ts
 export const BRAND_NAME = "FAINEANT" as const;
 export const BRAND_LEGAL_NAME = "Faineant Inc." as const;
-export const BRAND_DOMAIN = "faineant.co" as const;
+export const BRAND_DOMAIN = "faineantapp.com" as const;
 export const BRAND_TAGLINE = "House calls for the slow-living." as const;
-export const BRAND_SUPPORT_EMAIL = "support@faineant.co" as const;
+export const BRAND_SUPPORT_EMAIL = "support@faineantapp.com" as const;
 
 export const CITY = "Chicago" as const;
 
@@ -684,7 +684,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: BRAND_NAME, template: `%s · ${BRAND_NAME}` },
   description: BRAND_TAGLINE,
-  metadataBase: new URL("https://faineant.co"),
+  metadataBase: new URL("https://faineantapp.com"),
 };
 
 export default function RootLayout({
@@ -3084,7 +3084,7 @@ Keep existing User/Provider/Service/Booking creation logic, but replace the lite
 // In seed.ts, replace the practitioner block with:
 const practitioners = [
   {
-    email: "maeve@faineant.co",
+    email: "maeve@faineantapp.com",
     firstName: "Maeve",
     lastName: "Le Gal",
     bio: "Trained at Cristophe in Paris. Twenty-two years cutting hair, the last six entirely in clients' homes. Speaks slowly. Plays Erik Satie.",
@@ -3097,7 +3097,7 @@ const practitioners = [
     ],
   },
   {
-    email: "yumi@faineant.co",
+    email: "yumi@faineantapp.com",
     firstName: "Yumi",
     lastName: "Watanabe",
     bio: "Three-month waitlist for her natural-look manicure. Plays only Bill Evans.",
@@ -3109,7 +3109,7 @@ const practitioners = [
     ],
   },
   {
-    email: "adele@faineant.co",
+    email: "adele@faineantapp.com",
     firstName: "Adèle",
     lastName: "Bergère",
     bio: "Speaks of skin the way a sommelier speaks of soil. Will not work on phones.",
@@ -3121,7 +3121,7 @@ const practitioners = [
     ],
   },
   {
-    email: "imani@faineant.co",
+    email: "imani@faineantapp.com",
     firstName: "Imani",
     lastName: "Okafor",
     bio: "Soft, full, never looks like work.",
@@ -3133,7 +3133,7 @@ const practitioners = [
     ],
   },
   {
-    email: "rafael@faineant.co",
+    email: "rafael@faineantapp.com",
     firstName: "Rafael",
     lastName: "Duarte",
     bio: "No music, no chatter. The most expensive haircut on the platform. Worth it.",
@@ -3145,7 +3145,7 @@ const practitioners = [
     ],
   },
   {
-    email: "lea@faineant.co",
+    email: "lea@faineantapp.com",
     firstName: "Léa",
     lastName: "Hernandez",
     bio: "Editorial-grade makeup applied at your bathroom mirror. The kit is heavier than it looks.",
@@ -3159,9 +3159,9 @@ const practitioners = [
 ];
 ```
 
-Then iterate over that array to create users, providers, and services. Replace any other "Arc"/"arc.app" references with "FAINEANT"/"faineant.co".
+Then iterate over that array to create users, providers, and services. Replace any other "Arc"/"arc.app" references with "FAINEANT"/"faineantapp.com".
 
-Replace the admin email: `admin@arc.app` → `admin@faineant.co`. Keep the password the same for local dev.
+Replace the admin email: `admin@arc.app` → `admin@faineantapp.com`. Keep the password the same for local dev.
 
 - [ ] **Step 3: Reset database and re-seed**
 
@@ -3181,7 +3181,7 @@ git commit -m "feat(api): replace seed data with FAINEANT canonical practitioner
 
 Six Chicago practitioners (Maeve, Yumi, Adèle, Imani, Rafael, Léa)
 across the six service categories. Admin email updated to
-admin@faineant.co.
+admin@faineantapp.com.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 ```
@@ -3205,7 +3205,7 @@ Templates to update (booking confirmation, cancellation, welcome, password reset
 ```html
 <div style="background:#f3ede1; padding:48px; max-width:680px; margin:0 auto;">
   <div style="text-align:center; padding-bottom:32px; border-bottom:1px solid #d8d2c4;">
-    <img src="https://faineant.co/brand/faineant-wordmark-black.png" height="32" alt="FAINEANT" />
+    <img src="https://faineantapp.com/brand/faineant-wordmark-black.png" height="32" alt="FAINEANT" />
   </div>
   <div style="padding:48px 0;">
     <span style="font-family:Inter,sans-serif; font-size:11px; letter-spacing:0.32em; text-transform:uppercase; color:#7a6f5e;">
@@ -3340,9 +3340,9 @@ grep -rn -E "(ARC_|arc\.app|arc\.co)" apps packages --include="*.ts" --include="
 - [ ] **Step 2: Replace each in place**
 
 - `ARC_API_URL` → `FAINEANT_API_URL`
-- `arc.app` → `faineant.co`
+- `arc.app` → `faineantapp.com`
 - Database name `arc_db` (in docker-compose) → `faineant_db`
-- Any email FROM defaults like `noreply@arc.app` → `noreply@faineant.co`
+- Any email FROM defaults like `noreply@arc.app` → `noreply@faineantapp.com`
 
 - [ ] **Step 3: Update local docker compose file**
 
@@ -3425,7 +3425,7 @@ Replace the "What This Is" and "Stack" sections to match the new identity. Keep 
 
 - [ ] **Step 3: Update `docs/ROADMAP.md`, `docs/COSTS.md`, `docs/CALENDAR-SYNC.md`**
 
-Find/replace `ARC` → `FAINEANT` and `Arc` → `Faineant`. Verify each post-replace for context (e.g., `arc.app` → `faineant.co`).
+Find/replace `ARC` → `FAINEANT` and `Arc` → `Faineant`. Verify each post-replace for context (e.g., `arc.app` → `faineantapp.com`).
 
 - [ ] **Step 4: Verify and commit**
 
@@ -3473,7 +3473,7 @@ Open `localhost:3000`. Verify against spec §10 acceptance criteria:
 3. `/services/hour-of-nothing` renders the service detail.
 4. `/practitioners/maeve-le-gal` renders the practitioner profile.
 5. `/login` and `/register` render with the auth split.
-6. `/dashboard` renders for a signed-in client (use `admin@faineant.co` / `admin123`).
+6. `/dashboard` renders for a signed-in client (use `admin@faineantapp.com` / `admin123`).
 
 For mobile: `pnpm --filter @faineant/mobile dev`, open the simulator, walk the four-step booking flow.
 

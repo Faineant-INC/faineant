@@ -135,7 +135,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     <>
       <Topbar />
       <SiteHeader />
-      <main className="max-w-[1480px] mx-auto px-14 py-14 grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-14">
+      <main className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-10 md:py-14 grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-14">
         <div className="aspect-[4/5] relative bg-smoke-900 border border-smoke-700 overflow-hidden">
           <Image src={s.imgSrc} alt={s.title} fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 55vw" />
           <div className="absolute bottom-0 inset-x-0 p-4.5 bg-gradient-to-t from-black/85 to-transparent font-editorial italic text-body-sm text-bone-200 z-10">
@@ -145,13 +145,13 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
         <div className="flex flex-col gap-6">
           <div>
             <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium block mb-3.5">{s.catLabel}</span>
-            <h2 className="font-display display-compressed text-[2.875rem] leading-[1.02] text-bone-100">
+            <h2 className="font-display display-compressed text-[clamp(32px,7vw,46px)] leading-[1.02] text-bone-100">
               {s.title}{" "}
               <em className="font-editorial italic font-light text-champagne-400">{s.titleEm}</em>{" "}
               {s.titleEnd}
             </h2>
           </div>
-          <div className="flex justify-between items-center font-mono text-mono text-taupe-300 pb-4 border-b border-smoke-700">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 font-mono text-mono text-taupe-300 pb-4 border-b border-smoke-700">
             <span>{s.durationMin} MINUTES · IN-HOME</span>
             <span className="font-display font-medium text-[1.5rem] text-champagne-400 tracking-[-0.01em]">{s.price}</span>
           </div>
@@ -168,7 +168,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium block mb-2">Available windows · this week</span>
             <div className="flex flex-col gap-2">
               {s.windows.map((w) => (
-                <div key={w.date} className="grid grid-cols-[140px_1fr_auto] gap-4 items-center p-3.5 px-4 border border-smoke-700 hover:border-taupe-500 hover:bg-smoke-800 transition-all duration-[250ms] ease-fai-smooth cursor-pointer">
+                <div key={w.date} className="grid grid-cols-[110px_1fr_auto] sm:grid-cols-[140px_1fr_auto] gap-3 sm:gap-4 items-center p-3.5 px-4 border border-smoke-700 hover:border-taupe-500 hover:bg-smoke-800 transition-all duration-[250ms] ease-fai-smooth cursor-pointer">
                   <div className="font-display font-medium text-[15px] text-bone-100 tracking-[-0.01em]">{w.day}<small className="block font-sans text-[10px] text-taupe-300 uppercase tracking-[0.18em] font-normal mt-0.5">{w.date}</small></div>
                   <div className="flex gap-1.5 flex-wrap">
                     {w.slots.map((slot) => (
@@ -182,11 +182,11 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
               ))}
             </div>
           </div>
-          <div className="flex justify-between items-center gap-6 pt-6 border-t border-taupe-500">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 md:gap-6 pt-6 border-t border-taupe-500">
             <p className="font-editorial italic text-body-lg text-bone-200">
               Wed <strong className="font-display font-medium not-italic text-bone-100 tracking-[-0.01em]">28 Apr</strong> at <strong className="font-display font-medium not-italic text-bone-100 tracking-[-0.01em]">14:00</strong> — at the address on file (West Loop).
             </p>
-            <Button size="lg" variant="primary">Reserve · {s.price.split(".")[0]}</Button>
+            <Button size="lg" variant="primary" className="w-full md:w-auto">Reserve · {s.price.split(".")[0]}</Button>
           </div>
         </div>
       </main>

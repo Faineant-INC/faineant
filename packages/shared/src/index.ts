@@ -20,6 +20,8 @@ export * from "./schemas/message.schema";
 export * from "./schemas/post.schema";
 export * from "./schemas/calendar.schema";
 export * from "./schemas/waitlist.schema";
+export * from "./schemas/payment.schema";
+export * from "./schemas/upload.schema";
 
 // Constants
 export * from "./constants/brand";
