@@ -4,8 +4,6 @@ select plan(3);
 -- Seed identity + catalog
 insert into auth.users (id, email)
   values ('11111111-1111-1111-1111-111111111111', 'tester@example.com');
-insert into public.profiles (id, role, first_name, last_name)
-  values ('11111111-1111-1111-1111-111111111111', 'PROVIDER', 'Tess', 'Ter');
 insert into public.provider_profiles (id, user_id, slug)
   values ('22222222-2222-2222-2222-222222222222',
           '11111111-1111-1111-1111-111111111111', 'tess-ter');
