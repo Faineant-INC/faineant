@@ -56,3 +56,10 @@ Deno.test("unrelated event -> no job", async () => {
     mockDb({}));
   assertEquals(job, null);
 });
+
+Deno.test("null record -> no job", async () => {
+  const job = await resolveJob(
+    { type: "INSERT", table: "bookings", old_record: null, record: null },
+    mockDb({}));
+  assertEquals(job, null);
+});

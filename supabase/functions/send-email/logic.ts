@@ -67,6 +67,7 @@ export interface DbClient {
 }
 
 export async function resolveJob(p: WebhookPayload, db: DbClient): Promise<EmailJob | null> {
+  if (!p.record) return null;
   if (isNewBooking(p) || isCancellation(p)) {
     const b = p.record as Record<string, unknown>;
     const bookingId = b.id as string;
