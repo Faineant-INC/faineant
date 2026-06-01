@@ -1077,6 +1077,63 @@ export type Database = {
             }
             Returns: string
           }
+      create_booking: {
+        Args: {
+          p_latitude?: number
+          p_location?: string
+          p_longitude?: number
+          p_notes?: string
+          p_service_id: string
+          p_start_time: string
+        }
+        Returns: {
+          client_id: string
+          created_at: string
+          end_time: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          notes: string | null
+          provider_profile_id: string
+          service_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+          stripe_payment_intent_id: string | null
+          total_price_in_cents: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_review: {
+        Args: {
+          p_booking_id: string
+          p_photos?: string[]
+          p_rating: number
+          p_text?: string
+        }
+        Returns: {
+          booking_id: string
+          client_id: string
+          created_at: string
+          id: string
+          photos: string[]
+          provider_profile_id: string
+          rating: number
+          text: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       current_app_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
@@ -1212,9 +1269,20 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_provider_busy_intervals: {
+        Args: { p_from: string; p_provider_profile_id: string; p_to: string }
+        Returns: {
+          end_time: string
+          start_time: string
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
       is_admin: { Args: never; Returns: boolean }
       longtransactionsenabled: { Args: never; Returns: boolean }
+      mark_conversation_read: {
+        Args: { p_conversation_id: string }
+        Returns: number
+      }
       my_provider_profile_id: { Args: never; Returns: string }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }
@@ -1256,6 +1324,56 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      search_providers: {
+        Args: {
+          p_category?: Database["public"]["Enums"]["service_category"]
+          p_lat?: number
+          p_limit?: number
+          p_lng?: number
+          p_offset?: number
+          p_radius_km?: number
+          p_text?: string
+        }
+        Returns: {
+          avatar_url: string | null
+          average_rating: number | null
+          bio: string | null
+          business_name: string | null
+          first_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          service_radius: number | null
+          slug: string | null
+          total_reviews: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "public_provider_profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      send_message: {
+        Args: { p_image_url?: string; p_recipient_id: string; p_text: string }
+        Returns: {
+          conversation_id: string
+          created_at: string
+          id: string
+          image_url: string | null
+          read_at: string | null
+          sender_id: string
+          text: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       shares_booking_or_convo: { Args: { other: string }; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
@@ -1841,6 +1959,35 @@ export type Database = {
         Returns: unknown
       }
       unlockrows: { Args: { "": string }; Returns: number }
+      update_booking_status: {
+        Args: {
+          p_booking_id: string
+          p_new_status: Database["public"]["Enums"]["booking_status"]
+        }
+        Returns: {
+          client_id: string
+          created_at: string
+          end_time: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          notes: string | null
+          provider_profile_id: string
+          service_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+          stripe_payment_intent_id: string | null
+          total_price_in_cents: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
