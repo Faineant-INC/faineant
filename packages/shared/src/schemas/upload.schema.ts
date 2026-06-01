@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+const EXT_BY_TYPE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+
+/** Storage object path for the `uploads` bucket: `<userId>/<uuid>.<ext>`. */
+export function storageObjectPath(userId: string, contentType: string): string {
+  const ext = EXT_BY_TYPE[contentType];
+  if (!ext) throw new Error("Unsupported content type");
+  // crypto.randomUUID() is a global in Node 20+, browsers, and Deno
+  return `${userId}/${(crypto as { randomUUID(): string }).randomUUID()}.${ext}`;
+}
+
 export const ALLOWED_UPLOAD_CONTENT_TYPES = [
   "image/jpeg",
   "image/png",
