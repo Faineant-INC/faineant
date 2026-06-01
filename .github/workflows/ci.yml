@@ -26,6 +26,9 @@ jobs:
       - name: Build shared package
         run: pnpm --filter @faineant/shared build
 
+      - name: Generate Prisma client
+        run: pnpm --filter @faineant/api exec prisma generate
+
       - name: Lint
         run: pnpm run lint
 
