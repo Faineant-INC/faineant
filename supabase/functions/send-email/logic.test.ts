@@ -27,3 +27,19 @@ Deno.test("html-escapes angle brackets in input", () => {
   const r = welcomeEmail({ firstName: "<script>" });
   assertStringIncludes(r.html, "&lt;script&gt;");
 });
+
+import {
+  humaniseWhen, isCancellation, isNewBooking, isNewProfile,
+} from "./logic.ts";
+import { assert, assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+
+Deno.test("event classifiers", () => {
+  assert(isNewBooking({ type: "INSERT", table: "bookings", record: {}, old_record: null }));
+  assert(isCancellation({ type: "UPDATE", table: "bookings", record: { status: "CANCELLED" }, old_record: { status: "CONFIRMED" } }));
+  assert(!isCancellation({ type: "UPDATE", table: "bookings", record: { status: "CANCELLED" }, old_record: { status: "CANCELLED" } }));
+  assert(isNewProfile({ type: "INSERT", table: "profiles", record: {}, old_record: null }));
+});
+
+Deno.test("humaniseWhen formats in Chicago tz", () => {
+  assertEquals(humaniseWhen("2026-06-04T19:00:00.000Z"), "on Thursday at 2:00 PM");
+});
