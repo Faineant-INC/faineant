@@ -6,7 +6,7 @@ import { updateProviderProfileSchema, createPortfolioItemSchema } from "@fainean
 import * as userService from "../services/user.service";
 import { prisma } from "../config/database";
 
-const router = Router();
+const router: Router = Router();
 
 // Get own provider profile
 router.get(

@@ -3,7 +3,7 @@ import { authenticate } from "../middleware/auth";
 import { requireRole } from "../middleware/role";
 import { prisma } from "../config/database";
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate, requireRole("ADMIN"));
 

@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from "express";
 import * as searchService from "../services/search.service";
+import { ServiceCategory } from "@faineant/shared";
 
-const router = Router();
+const router: Router = Router();
 
 // Search providers
 router.get(
@@ -12,7 +13,7 @@ router.get(
         latitude: req.query.lat ? parseFloat(req.query.lat as string) : undefined,
         longitude: req.query.lng ? parseFloat(req.query.lng as string) : undefined,
         radiusMiles: req.query.radius ? parseFloat(req.query.radius as string) : undefined,
-        category: req.query.category as string | undefined,
+        category: req.query.category as ServiceCategory | undefined,
         query: req.query.q as string | undefined,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : undefined,

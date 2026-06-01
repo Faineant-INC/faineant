@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -10,7 +10,7 @@ import { errorHandler } from "./middleware/error-handler";
 import routes from "./routes";
 import { setupSocketIO } from "./sockets";
 
-const app = express();
+const app: Express = express();
 const httpServer = createServer(app);
 
 // Stripe webhook needs raw body

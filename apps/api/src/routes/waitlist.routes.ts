@@ -16,7 +16,7 @@ const waitlistLimiter = rateLimit({
   },
 });
 
-const router = Router();
+const router: Router = Router();
 
 router.post(
   "/",

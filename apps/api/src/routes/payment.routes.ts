@@ -8,7 +8,7 @@ import * as paymentService from "../services/payment.service";
 import { stripe } from "../config/stripe";
 import { env } from "../config/env";
 
-const router = Router();
+const router: Router = Router();
 
 // Create Stripe Connect account for provider
 router.post(

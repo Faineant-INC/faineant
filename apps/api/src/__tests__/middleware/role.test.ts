@@ -12,7 +12,7 @@ function createMocks(user?: { userId: string; role: string }) {
     json: vi.fn().mockReturnThis(),
   } as unknown as Response;
 
-  const next = vi.fn() as NextFunction;
+  const next = vi.fn() as unknown as NextFunction;
 
   return { req, res, next };
 }

@@ -2,10 +2,10 @@ import { Router, Request, Response, NextFunction } from "express";
 import { authenticate } from "../middleware/auth";
 import { requireVerifiedEmail } from "../middleware/require-verified-email";
 import { validate } from "../middleware/validate";
-import { createBookingSchema, updateBookingStatusSchema } from "@faineant/shared";
+import { createBookingSchema, updateBookingStatusSchema, BookingStatus } from "@faineant/shared";
 import * as bookingService from "../services/booking.service";
 
-const router = Router();
+const router: Router = Router();
 
 // Create booking (client) — requires verified email
 router.post(
@@ -50,7 +50,7 @@ router.get(
     try {
       const bookings = await bookingService.getClientBookings(
         req.user!.userId,
-        req.query.status as string | undefined,
+        req.query.status as BookingStatus | undefined,
       );
       res.json({ success: true, data: bookings });
     } catch (err) {
@@ -67,7 +67,7 @@ router.get(
     try {
       const bookings = await bookingService.getProviderBookings(
         req.user!.userId,
-        req.query.status as string | undefined,
+        req.query.status as BookingStatus | undefined,
       );
       res.json({ success: true, data: bookings });
     } catch (err) {

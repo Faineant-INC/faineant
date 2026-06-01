@@ -5,7 +5,7 @@ import { validate } from "../middleware/validate";
 import { addIcsFeedSchema } from "@faineant/shared";
 import * as calendarService from "../services/calendar-sync.service";
 
-const router = Router();
+const router: Router = Router();
 
 // ─── Get all calendar connections ─────────────────────────────────────────
 

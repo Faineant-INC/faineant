@@ -43,7 +43,7 @@ export async function searchProviders(params: SearchParams) {
 
   const [providers, total] = await Promise.all([
     prisma.providerProfile.findMany({
-      where: where as Parameters<typeof prisma.providerProfile.findMany>[0]["where"],
+      where: where as NonNullable<Parameters<typeof prisma.providerProfile.findMany>[0]>["where"],
       include: {
         user: { select: { firstName: true, lastName: true, avatarUrl: true } },
         services: { where: { isActive: true }, select: { name: true, category: true, priceInCents: true } },
@@ -53,7 +53,7 @@ export async function searchProviders(params: SearchParams) {
       orderBy: { averageRating: "desc" },
     }),
     prisma.providerProfile.count({
-      where: where as Parameters<typeof prisma.providerProfile.count>[0]["where"],
+      where: where as NonNullable<Parameters<typeof prisma.providerProfile.count>[0]>["where"],
     }),
   ]);
 
