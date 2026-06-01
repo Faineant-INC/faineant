@@ -1,32 +1,28 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendEmail } from "../_shared/resend.ts";
+import { resolveJob, type WebhookPayload, type DbClient } from "./logic.ts";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
-
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+Deno.serve(async (req: Request) => {
+  const secret = Deno.env.get("SEND_EMAIL_WEBHOOK_SECRET");
+  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
+    return new Response("Unauthorized", { status: 401 });
   }
+  let payload: WebhookPayload;
+  try { payload = await req.json(); } catch { return new Response("Bad payload", { status: 400 }); }
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+  const db = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+  const job = await resolveJob(payload, db as unknown as DbClient);
+  if (!job || !job.to) return new Response(JSON.stringify({ skipped: true }), { status: 200 });
 
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/send-email' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const from = `${Deno.env.get("EMAIL_FROM_NAME") ?? "Faineant"} <${Deno.env.get("EMAIL_FROM_ADDRESS") ?? "noreply@faineantapp.com"}>`;
+  if (!apiKey) {
+    console.info(`[send-email] no RESEND_API_KEY; would send "${job.rendered.subject}" to ${job.to}`);
+    return new Response(JSON.stringify({ delivered: false }), { status: 200 });
+  }
+  const result = await sendEmail(apiKey, from, job.to, job.rendered, job.idempotencyKey);
+  return new Response(JSON.stringify({ delivered: true, id: result.id }), { status: 200 });
+});
