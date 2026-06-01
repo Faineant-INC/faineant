@@ -1,32 +1,50 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
+import { stripeClient } from "../_shared/stripe.ts";
+import { getCaller, serviceClient } from "../_shared/auth.ts";
+import { resolveRefundAmount } from "./refund-logic.ts";
 
 Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  let caller; try { caller = await getCaller(req); } catch (r) { return r as Response; }
+  const body = await req.json().catch(() => ({}));
+  const bookingId = body.bookingId as string | undefined;
+  const requested = body.amountInCents as number | undefined;
+  const reason = body.reason as string | undefined;
+  if (!bookingId) return new Response(JSON.stringify({ error: "bookingId required" }), { status: 400 });
+  const db = serviceClient();
+  try {
+    const { data: booking } = await db.from("bookings")
+      .select("id, provider_profiles(user_id)").eq("id", bookingId).single();
+    if (!booking) return new Response(JSON.stringify({ error: "Booking not found" }), { status: 404 });
+    const providerUserId = ((booking as Record<string, unknown>).provider_profiles as { user_id?: string } | null)?.user_id ?? "";
+    const { data: payment } = await db.from("payments")
+      .select("id, stripe_payment_intent_id, amount_in_cents, refunded_amount_in_cents, status")
+      .eq("booking_id", bookingId).single();
+    if (!payment) return new Response(JSON.stringify({ error: "NO_PAYMENT: No payment recorded for booking" }), { status: 400 });
+    const p = payment as Record<string, unknown>;
+    const amount = resolveRefundAmount({
+      callerRole: caller.role, callerId: caller.userId, providerUserId,
+      paymentStatus: p.status as string, amountInCents: p.amount_in_cents as number,
+      refundedInCents: p.refunded_amount_in_cents as number, requested,
+    });
+    const stripe = stripeClient();
+    const refund = await stripe.refunds.create({
+      payment_intent: p.stripe_payment_intent_id as string,
+      amount, reason: "requested_by_customer",
+      metadata: { bookingId, initiatedByUserId: caller.userId },
+    }, { idempotencyKey: `refund_${bookingId}_${p.refunded_amount_in_cents}_${amount}` });
+    const newRefunded = (p.refunded_amount_in_cents as number) + amount;
+    const fullyRefunded = newRefunded >= (p.amount_in_cents as number);
+    await db.from("refunds").insert({
+      payment_id: p.id, stripe_refund_id: refund.id, amount_in_cents: amount,
+      reason: reason ?? null, initiated_by_user_id: caller.userId,
+    });
+    await db.from("payments").update({
+      refunded_amount_in_cents: newRefunded, status: fullyRefunded ? "REFUNDED" : "SUCCEEDED",
+    }).eq("id", p.id);
+    return new Response(JSON.stringify({ refundId: refund.id, amountInCents: amount, fullyRefunded }), { status: 200 });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    const status = msg.startsWith("FORBIDDEN") ? 403
+      : (msg.startsWith("INVALID_STATE") || msg.startsWith("ALREADY_REFUNDED") || msg.startsWith("INVALID_AMOUNT") || msg.startsWith("NO_PAYMENT")) ? 400 : 500;
+    return new Response(JSON.stringify({ error: msg }), { status });
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/stripe-refund' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
+});
