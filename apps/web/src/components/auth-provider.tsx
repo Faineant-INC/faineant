@@ -1,64 +1,89 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  AuthContext,
-  AuthUser,
-  getStoredTokens,
-  storeTokens,
-  clearTokens,
-} from "@/lib/auth";
-import { api } from "@/lib/api-client";
-
-interface AuthResponse {
-  data: {
-    user: AuthUser;
-    accessToken: string;
-    refreshToken: string;
-  };
-}
+import { AuthContext, type AuthUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const supabase = createClient();
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = getStoredTokens();
-    if (stored.accessToken && stored.user) {
-      setUser(stored.user);
-      setAccessToken(stored.accessToken);
+  const loadUser = useCallback(async () => {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    if (!authUser) {
+      setUser(null);
+      return;
     }
-    setIsLoading(false);
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<AuthResponse>("/auth/login", {
-      email,
-      password,
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, first_name, last_name")
+      .eq("id", authUser.id)
+      .single();
+    setUser({
+      id: authUser.id,
+      email: authUser.email ?? "",
+      firstName: profile?.first_name ?? "",
+      lastName: profile?.last_name ?? "",
+      role: (profile?.role as AuthUser["role"]) ?? "CLIENT",
+      emailVerified: !!authUser.email_confirmed_at,
     });
-    storeTokens(res.data.accessToken, res.data.refreshToken, res.data.user);
-    setUser(res.data.user);
-    setAccessToken(res.data.accessToken);
-  }, []);
+  }, [supabase]);
 
-  const register = useCallback(async (data: Record<string, string>) => {
-    const res = await api.post<AuthResponse>("/auth/register", data);
-    storeTokens(res.data.accessToken, res.data.refreshToken, res.data.user);
-    setUser(res.data.user);
-    setAccessToken(res.data.accessToken);
-  }, []);
+  useEffect(() => {
+    loadUser().finally(() => setIsLoading(false));
+    const {
+      data: sub,
+    } = supabase.auth.onAuthStateChange(() => {
+      loadUser();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [loadUser, supabase]);
 
-  const logout = useCallback(() => {
-    clearTokens();
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw new Error(error.message);
+      await loadUser();
+    },
+    [supabase, loadUser],
+  );
+
+  const register = useCallback(
+    async (data: Record<string, string>) => {
+      const { email, password, firstName, lastName, role, phone } = data;
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role: role ?? "CLIENT",
+            phone,
+          },
+        },
+      });
+      if (error) throw new Error(error.message);
+      await loadUser();
+    },
+    [supabase, loadUser],
+  );
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    setAccessToken(null);
     window.location.href = "/login";
-  }, []);
+  }, [supabase]);
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, register, logout, isLoading }}
+      value={{ user, accessToken: null, login, register, logout, isLoading }}
     >
       {children}
     </AuthContext.Provider>

@@ -13,6 +13,9 @@ export interface AuthUser {
 
 export interface AuthContextValue {
   user: AuthUser | null;
+  // Temporary: legacy Express-backed pages still read `accessToken` from the
+  // bearer token. Supabase manages sessions via cookies, so this is always
+  // null. Remove once those pages migrate to supabase data fetching.
   accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (data: Record<string, string>) => Promise<void>;
@@ -30,38 +33,3 @@ export const AuthContext = createContext<AuthContextValue>({
 });
 
 export const useAuth = () => useContext(AuthContext);
-
-const TOKEN_KEY = "arc_access_token";
-const REFRESH_KEY = "arc_refresh_token";
-const USER_KEY = "arc_user";
-
-export function getStoredTokens() {
-  if (typeof window === "undefined") return { accessToken: null, refreshToken: null, user: null };
-
-  return {
-    accessToken: localStorage.getItem(TOKEN_KEY),
-    refreshToken: localStorage.getItem(REFRESH_KEY),
-    user: (() => {
-      try {
-        const raw = localStorage.getItem(USER_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    })(),
-  };
-}
-
-export function storeTokens(accessToken: string, refreshToken: string, user: AuthUser) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_KEY, refreshToken);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  document.cookie = "arc_authenticated=1; path=/; max-age=604800; SameSite=Lax";
-}
-
-export function clearTokens() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_KEY);
-  localStorage.removeItem(USER_KEY);
-  document.cookie = "arc_authenticated=; path=/; max-age=0";
-}
