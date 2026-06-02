@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AuthContext, type AuthUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/client";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from("profiles")
       .select("role, first_name, last_name")
       .eq("id", authUser.id)
-      .single();
+      .maybeSingle();
     setUser({
       id: authUser.id,
       email: authUser.email ?? "",

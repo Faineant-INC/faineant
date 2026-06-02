@@ -33,11 +33,19 @@ export async function updateSession(request: NextRequest) {
   if (isProtected(pathname) && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    const redirect = NextResponse.redirect(loginUrl);
+    response.cookies
+      .getAll()
+      .forEach((c) => redirect.cookies.set(c.name, c.value, c));
+    return redirect;
   }
 
   if (isAuthPage(pathname) && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const redirect = NextResponse.redirect(new URL("/dashboard", request.url));
+    response.cookies
+      .getAll()
+      .forEach((c) => redirect.cookies.set(c.name, c.value, c));
+    return redirect;
   }
 
   return response;
