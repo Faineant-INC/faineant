@@ -1,9 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@faineant/shared";
-
-const PROTECTED_PREFIXES = ["/dashboard", "/admin"];
-const AUTH_PAGE_PREFIXES = ["/login", "/register"];
+import { isProtected, isAuthPage } from "@/lib/auth.matcher";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,13 +30,13 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
-  if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) && !user) {
+  if (isProtected(pathname) && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (AUTH_PAGE_PREFIXES.some((p) => pathname.startsWith(p)) && user) {
+  if (isAuthPage(pathname) && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
