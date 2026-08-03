@@ -1,91 +1,112 @@
-import * as SecureStore from "expo-secure-store";
-import { getStoredTokens, storeTokens, clearTokens } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import {
+  clearTokens,
+  getStoredTokens,
+} from "@/lib/auth";
 
-const mockStore = SecureStore as jest.Mocked<typeof SecureStore> & {
-  __store: Record<string, string>;
-  __clear: () => void;
-};
+const mockGetSession = jest.spyOn(supabase.auth, "getSession");
+const mockSignOut = jest.spyOn(supabase.auth, "signOut");
+const mockMaybeSingle = jest.fn();
+const mockEq = jest.fn(() => ({ maybeSingle: mockMaybeSingle }));
+const mockSelect = jest.fn(() => ({ eq: mockEq }));
+const mockFrom = jest
+  .spyOn(supabase, "from")
+  .mockReturnValue({ select: mockSelect } as never);
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockStore.__clear();
+  mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+  mockSignOut.mockResolvedValue({ error: null });
+  mockMaybeSingle.mockResolvedValue({
+    data: {
+      first_name: "John",
+      last_name: "Doe",
+      role: "PROVIDER",
+      is_active: true,
+    },
+    error: null,
+  });
 });
 
-describe("auth token storage", () => {
-  const mockUser = {
-    id: "user-1",
-    email: "test@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    role: "CLIENT",
-  };
+describe("Supabase auth session compatibility", () => {
+  it("returns the current Supabase session and mapped user", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "access-token",
+          refresh_token: "refresh-token",
+          user: {
+            id: "user-1",
+            email: "test@example.com",
+            user_metadata: {
+              first_name: "Untrusted",
+              last_name: "Metadata",
+              role: "ADMIN",
+            },
+          },
+        },
+      },
+      error: null,
+    } as unknown as Awaited<ReturnType<typeof supabase.auth.getSession>>);
 
-  describe("storeTokens", () => {
-    it("stores access token, refresh token, and user in SecureStore", async () => {
-      await storeTokens("access-123", "refresh-456", mockUser);
-
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("arc_access_token", "access-123");
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith("arc_refresh_token", "refresh-456");
-      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-        "arc_user",
-        JSON.stringify(mockUser),
-      );
+    await expect(getStoredTokens()).resolves.toEqual({
+      accessToken: "access-token",
+      refreshToken: "refresh-token",
+      user: {
+        id: "user-1",
+        email: "test@example.com",
+        firstName: "John",
+        lastName: "Doe",
+        role: "PROVIDER",
+      },
     });
+    expect(mockFrom).toHaveBeenCalledWith("profiles");
+    expect(mockSelect).toHaveBeenCalledWith(
+      "first_name,last_name,role,is_active",
+    );
+    expect(mockEq).toHaveBeenCalledWith("id", "user-1");
+  });
 
-    it("stores all values in parallel", async () => {
-      await storeTokens("a", "b", mockUser);
-      expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(3);
+  it("returns null values when there is no current session", async () => {
+    await expect(getStoredTokens()).resolves.toEqual({
+      accessToken: null,
+      refreshToken: null,
+      user: null,
     });
   });
 
-  describe("getStoredTokens", () => {
-    it("returns stored tokens and parsed user", async () => {
-      (SecureStore.getItemAsync as jest.Mock)
-        .mockResolvedValueOnce("access-token")
-        .mockResolvedValueOnce("refresh-token")
-        .mockResolvedValueOnce(JSON.stringify(mockUser));
+  it("signs out only the local Supabase session", async () => {
+    await clearTokens();
 
-      const result = await getStoredTokens();
-
-      expect(result.accessToken).toBe("access-token");
-      expect(result.refreshToken).toBe("refresh-token");
-      expect(result.user).toEqual(mockUser);
-    });
-
-    it("returns null user when no user stored", async () => {
-      (SecureStore.getItemAsync as jest.Mock)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null);
-
-      const result = await getStoredTokens();
-
-      expect(result.accessToken).toBeNull();
-      expect(result.refreshToken).toBeNull();
-      expect(result.user).toBeNull();
-    });
-
-    it("reads from correct keys", async () => {
-      await getStoredTokens();
-
-      expect(SecureStore.getItemAsync).toHaveBeenCalledWith("arc_access_token");
-      expect(SecureStore.getItemAsync).toHaveBeenCalledWith("arc_refresh_token");
-      expect(SecureStore.getItemAsync).toHaveBeenCalledWith("arc_user");
-    });
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: "local" });
   });
 
-  describe("clearTokens", () => {
-    it("deletes all stored keys", async () => {
-      await clearTokens();
-
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("arc_access_token");
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("arc_refresh_token");
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith("arc_user");
+  it("fails closed and clears a session without an active database profile", async () => {
+    mockGetSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "access-token",
+          refresh_token: "refresh-token",
+          user: { id: "user-1", email: "disabled@example.com" },
+        },
+      },
+      error: null,
+    } as unknown as Awaited<ReturnType<typeof supabase.auth.getSession>>);
+    mockMaybeSingle.mockResolvedValue({
+      data: {
+        first_name: "Disabled",
+        last_name: "User",
+        role: "CLIENT",
+        is_active: false,
+      },
+      error: null,
     });
 
-    it("deletes all in parallel", async () => {
-      await clearTokens();
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(3);
+    await expect(getStoredTokens()).resolves.toEqual({
+      accessToken: null,
+      refreshToken: null,
+      user: null,
     });
+    expect(mockSignOut).toHaveBeenCalledWith({ scope: "local" });
   });
 });

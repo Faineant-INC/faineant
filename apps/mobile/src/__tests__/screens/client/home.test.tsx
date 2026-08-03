@@ -1,10 +1,10 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import { useRouter } from "expo-router";
-import * as apiClient from "@/lib/api-client";
+import * as dataClient from "@/lib/data-client";
 import ClientHomeScreen from "@/app/(client)/home";
 
-jest.mock("@/lib/api-client");
+jest.mock("@/lib/data-client");
 
 const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn() };
 (useRouter as jest.Mock).mockReturnValue(mockRouter);
@@ -16,7 +16,7 @@ beforeEach(() => {
 
 describe("ClientHomeScreen", () => {
   it("renders FAINEANT editorial headline", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -27,7 +27,7 @@ describe("ClientHomeScreen", () => {
   });
 
   it("renders all six service category tiles", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -42,7 +42,7 @@ describe("ClientHomeScreen", () => {
   });
 
   it("renders editorial number labels for each tile", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -53,17 +53,17 @@ describe("ClientHomeScreen", () => {
   });
 
   it("loads providers on mount", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     render(<ClientHomeScreen />);
 
     await waitFor(() => {
-      expect(apiClient.api.get).toHaveBeenCalledWith("/search/providers");
+      expect(dataClient.listProviders).toHaveBeenCalledWith();
     });
   });
 
   it("navigates to booking flow when Hair tile pressed", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -77,7 +77,7 @@ describe("ClientHomeScreen", () => {
   });
 
   it("navigates to booking flow when Barber tile pressed", async () => {
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: { items: [] } });
+    (dataClient.listProviders as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -91,7 +91,9 @@ describe("ClientHomeScreen", () => {
   });
 
   it("shows error message when provider load fails", async () => {
-    (apiClient.api.get as jest.Mock).mockRejectedValueOnce(new Error("Network down"));
+    (dataClient.listProviders as jest.Mock).mockRejectedValueOnce(
+      new Error("Network down"),
+    );
 
     const { getByText } = render(<ClientHomeScreen />);
 
@@ -101,7 +103,7 @@ describe("ClientHomeScreen", () => {
   });
 
   it("uses generic error message when failure is not an Error instance", async () => {
-    (apiClient.api.get as jest.Mock).mockRejectedValueOnce("oops");
+    (dataClient.listProviders as jest.Mock).mockRejectedValueOnce("oops");
 
     const { getByText } = render(<ClientHomeScreen />);
 

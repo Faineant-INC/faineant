@@ -1,11 +1,9 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react-native";
-import * as apiClient from "@/lib/api-client";
-import * as auth from "@/lib/auth";
+import * as dataClient from "@/lib/data-client";
 import ClientBookingsScreen from "@/app/(client)/bookings";
 
-jest.mock("@/lib/api-client");
-jest.mock("@/lib/auth");
+jest.mock("@/lib/data-client");
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -39,20 +37,18 @@ const mockBookings = [
 ];
 
 describe("ClientBookingsScreen", () => {
-  it("loads bookings with stored token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok-123" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockBookings });
+  it("loads bookings from Supabase", async () => {
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce(mockBookings);
 
     render(<ClientBookingsScreen />);
 
     await waitFor(() => {
-      expect(apiClient.api.get).toHaveBeenCalledWith("/bookings/client", { token: "tok-123" });
+      expect(dataClient.listClientBookings).toHaveBeenCalledWith();
     });
   });
 
   it("renders editorial header", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockBookings });
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce(mockBookings);
 
     const { getByText } = render(<ClientBookingsScreen />);
 
@@ -63,8 +59,7 @@ describe("ClientBookingsScreen", () => {
   });
 
   it("displays the next upcoming visit in the hero card", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockBookings });
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce(mockBookings);
 
     const { getByText } = render(<ClientBookingsScreen />);
 
@@ -75,8 +70,7 @@ describe("ClientBookingsScreen", () => {
   });
 
   it("displays past visits with service names and providers", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockBookings });
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce(mockBookings);
 
     const { getByText } = render(<ClientBookingsScreen />);
 
@@ -87,8 +81,7 @@ describe("ClientBookingsScreen", () => {
   });
 
   it("displays past visit price as whole dollars", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockBookings });
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce(mockBookings);
 
     const { getByText } = render(<ClientBookingsScreen />);
 
@@ -98,8 +91,7 @@ describe("ClientBookingsScreen", () => {
   });
 
   it("shows empty hero card when no bookings", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: [] });
+    (dataClient.listClientBookings as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<ClientBookingsScreen />);
 
@@ -109,13 +101,4 @@ describe("ClientBookingsScreen", () => {
     });
   });
 
-  it("does not fetch when no access token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: null });
-
-    render(<ClientBookingsScreen />);
-
-    await waitFor(() => {
-      expect(apiClient.api.get).not.toHaveBeenCalled();
-    });
-  });
 });

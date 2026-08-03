@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Uploader } from "@/components/uploader";
-import { api } from "@/lib/api-client";
+import {
+  addPortfolioItem,
+  deletePortfolioItem,
+  listPortfolio,
+} from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
 
@@ -33,11 +38,7 @@ export default function ProviderPortfolioPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await api.get<{ data: PortfolioItemData[] }>(
-        "/providers/me/portfolio",
-        { token: accessToken! },
-      );
-      setItems(res.data);
+      setItems(await listPortfolio());
     } catch {
       // Network error on initial load — degrade to empty state
     } finally {
@@ -49,14 +50,10 @@ export default function ProviderPortfolioPage() {
     setError(null);
     setSaving(true);
     try {
-      await api.post(
-        "/providers/me/portfolio",
-        {
-          imageUrl: form.imageUrl,
-          caption: form.caption || undefined,
-        },
-        { token: accessToken! },
-      );
+      await addPortfolioItem({
+        imageUrl: form.imageUrl,
+        caption: form.caption || undefined,
+      });
       setShowForm(false);
       setForm({ imageUrl: "", caption: "" });
       loadPortfolio();
@@ -71,9 +68,7 @@ export default function ProviderPortfolioPage() {
     setError(null);
     setDeletingId(id);
     try {
-      await api.delete(`/providers/me/portfolio/${id}`, {
-        token: accessToken!,
-      });
+      await deletePortfolioItem(id);
       loadPortfolio();
     } catch {
       setError("Failed to delete portfolio item. Please try again.");
@@ -126,10 +121,12 @@ export default function ProviderPortfolioPage() {
             </Label>
             {form.imageUrl ? (
               <div className="relative aspect-square max-w-xs overflow-hidden bg-smoke-800 border border-smoke-700">
-                <img
+                <Image
                   src={form.imageUrl}
                   alt="Preview"
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="320px"
+                  className="object-cover"
                 />
                 <button
                   type="button"
@@ -192,10 +189,12 @@ export default function ProviderPortfolioPage() {
               key={item.id}
               className="group relative aspect-square overflow-hidden bg-smoke-900"
             >
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.caption || ""}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 640px) 50vw, 33vw"
+                className="object-cover"
               />
               <div className="absolute inset-0 flex items-end bg-gradient-to-t from-smoke-900/85 via-smoke-900/30 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
                 <div className="flex w-full items-end justify-between gap-3 p-4">

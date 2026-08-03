@@ -51,7 +51,7 @@ select throws_ok(
   $$select public.update_booking_status(
       (select id from public.bookings where client_id='44444444-0000-0000-0000-0000000000c1' limit 1),
       'CANCELLED')$$,
-  '28000', 'Not authenticated',
+  '42501', null,
   'anon cannot cancel a booking');
 reset role;
 

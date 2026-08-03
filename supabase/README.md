@@ -7,4 +7,5 @@ Local dev: `supabase start`, apply schema with `supabase db reset`, run DB tests
 - Generated client types: `packages/shared/src/database.types.ts`
   (regenerate after schema changes: `supabase gen types typescript --local > packages/shared/src/database.types.ts`).
 
-Remote project ref: `dujuixrqfarkcbdhqlkn`. Link with `supabase link --project-ref dujuixrqfarkcbdhqlkn`.
+Remote project: `prod` in the `faineant` organization (`cjphfgvmbtynsfpapzrg`).
+Link with `supabase link --project-ref cjphfgvmbtynsfpapzrg`.

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import { listClientBookings } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Booking {
@@ -23,11 +22,8 @@ export default function ClientBookingsScreen() {
   }, []);
 
   async function loadBookings() {
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) return;
     try {
-      const res = await api.get<{ data: Booking[] }>("/bookings/client", { token: accessToken });
-      setBookings(res.data);
+      setBookings(await listClientBookings());
     } catch {
       // Handle error silently
     }

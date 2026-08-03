@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import {
+  listProviderBookings,
+  updateBookingStatus,
+} from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Booking {
@@ -29,27 +31,16 @@ export default function ProviderBookingsScreen() {
   }, []);
 
   async function loadBookings() {
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) return;
     try {
-      const res = await api.get<{ data: Booking[] }>("/bookings/provider", {
-        token: accessToken,
-      });
-      setBookings(res.data);
+      setBookings(await listProviderBookings());
     } catch {
       // Handle error
     }
   }
 
   async function updateStatus(bookingId: string, status: string) {
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) return;
     try {
-      await api.patch(
-        `/bookings/${bookingId}/status`,
-        { status },
-        { token: accessToken },
-      );
+      await updateBookingStatus(bookingId, status);
       loadBookings();
     } catch (err) {
       Alert.alert("Error", err instanceof Error ? err.message : "Failed to update");

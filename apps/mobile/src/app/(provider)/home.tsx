@@ -6,8 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import { listProviderBookings } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Booking {
@@ -31,18 +30,11 @@ export default function ProviderHomeScreen() {
   async function loadToday() {
     setLoading(true);
     setError(null);
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) {
-      setLoading(false);
-      return;
-    }
     try {
-      const res = await api.get<{ data: Booking[] }>("/bookings/provider", {
-        token: accessToken,
-      });
+      const bookings = await listProviderBookings();
       const today = new Date().toDateString();
       setTodayBookings(
-        res.data.filter((b) => new Date(b.startTime).toDateString() === today),
+        bookings.filter((b) => new Date(b.startTime).toDateString() === today),
       );
     } catch (err) {
       setError(

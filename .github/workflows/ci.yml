@@ -7,82 +7,70 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-typecheck:
+  app:
+    name: App checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
+      - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: 22.13
+          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Build shared package
-        run: pnpm --filter @faineant/shared build
-
-      - name: Generate Prisma client
-        run: pnpm --filter @faineant/api exec prisma generate
-
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Typecheck
-        run: pnpm run typecheck
-
-  test:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
+      - run: pnpm --filter @faineant/shared build
+      - run: pnpm run lint
+      - run: pnpm run typecheck
+      - run: pnpm run test
+      - name: Build applications
+        run: pnpm run build
         env:
-          POSTGRES_USER: arc
-          POSTGRES_PASSWORD: arc_test
-          POSTGRES_DB: arc_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key
 
+  database:
+    name: Supabase migrations and policies
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - uses: supabase/setup-cli@v1
         with:
-          version: 9
+          version: 2.111.0
 
-      - uses: actions/setup-node@v4
+      - name: Start isolated local Supabase
+        run: supabase start
+
+      - name: Run pgTAP database tests
+        run: supabase test db
+
+      - name: Lint application schema
+        run: supabase db lint --local --schema public --level warning --fail-on warning
+
+      - name: Check generated database types are current
+        run: |
+          supabase gen types typescript --local > /tmp/database.types.ts
+          diff -u packages/shared/src/database.types.ts /tmp/database.types.ts
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
+
+  edge-functions:
+    name: Edge Function checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
         with:
-          node-version: 20
-          cache: "pnpm"
+          deno-version: v2.x
 
-      - run: pnpm install --frozen-lockfile
+      - name: Typecheck Edge Functions
+        run: deno check --node-modules-dir=auto supabase/functions/*/index.ts
 
-      - name: Build shared package
-        run: pnpm --filter @faineant/shared build
-
-      - name: Generate Prisma client
-        run: pnpm --filter @faineant/api exec prisma generate
-
-      - name: Run migrations
-        run: pnpm --filter @faineant/api exec prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://arc:arc_test@localhost:5432/arc_test?schema=public
-
-      - name: Run tests
-        run: pnpm run test
-        env:
-          DATABASE_URL: postgresql://arc:arc_test@localhost:5432/arc_test?schema=public
-          JWT_SECRET: test-jwt-secret-minimum16chars
-          JWT_REFRESH_SECRET: test-refresh-secret-minimum16chars
-          STRIPE_SECRET_KEY: sk_test_placeholder
-          STRIPE_WEBHOOK_SECRET: whsec_placeholder
-          NODE_ENV: test
+      - name: Test Edge Functions
+        run: deno test --allow-env --node-modules-dir=auto supabase/functions

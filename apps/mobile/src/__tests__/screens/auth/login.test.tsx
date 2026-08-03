@@ -1,12 +1,10 @@
 import React from "react";
-import { render, fireEvent, waitFor } from "@testing-library/react-native";
-import { useRouter } from "expo-router";
-import * as apiClient from "@/lib/api-client";
-import * as auth from "@/lib/auth";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import * as dataClient from "@/lib/data-client";
 import LoginScreen from "@/app/(auth)/login";
 
-jest.mock("@/lib/api-client");
-jest.mock("@/lib/auth");
+jest.mock("@/lib/data-client");
 
 const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn() };
 (useRouter as jest.Mock).mockReturnValue(mockRouter);
@@ -14,178 +12,99 @@ const mockRouter = { replace: jest.fn(), push: jest.fn(), back: jest.fn() };
 beforeEach(() => {
   jest.clearAllMocks();
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
+  (useLocalSearchParams as jest.Mock).mockReturnValue({});
 });
 
+function submit(email = "user@test.com", password = "password123") {
+  const view = render(<LoginScreen />);
+  fireEvent.changeText(view.getByPlaceholderText("you@somewhere.com"), email);
+  fireEvent.changeText(view.getByPlaceholderText("••••••••"), password);
+  fireEvent.press(view.getByText("SIGN IN →"));
+  return view;
+}
+
 describe("LoginScreen", () => {
-  it("renders login form elements", () => {
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+  it("renders and updates the sign-in fields", () => {
+    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
 
     expect(getByText("SIGN IN")).toBeTruthy();
     expect(getByText("the door.")).toBeTruthy();
-    expect(getByPlaceholderText("you@somewhere.com")).toBeTruthy();
-    expect(getByPlaceholderText("••••••••")).toBeTruthy();
-    expect(getByText("SIGN IN →")).toBeTruthy();
-  });
-
-  it("updates email and password fields on input", () => {
-    const { getByPlaceholderText } = render(<LoginScreen />);
-
-    const emailInput = getByPlaceholderText("you@somewhere.com");
-    const passwordInput = getByPlaceholderText("••••••••");
-
-    fireEvent.changeText(emailInput, "user@test.com");
-    fireEvent.changeText(passwordInput, "password123");
-
-    expect(emailInput.props.value).toBe("user@test.com");
-    expect(passwordInput.props.value).toBe("password123");
-  });
-
-  it("calls API and stores tokens on successful login", async () => {
-    const mockResponse = {
-      data: {
-        user: { id: "1", email: "user@test.com", firstName: "John", lastName: "Doe", role: "CLIENT" },
-        accessToken: "access-123",
-        refreshToken: "refresh-456",
-      },
-    };
-    (apiClient.api.post as jest.Mock).mockResolvedValueOnce(mockResponse);
-    (auth.storeTokens as jest.Mock).mockResolvedValueOnce(undefined);
-
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-
     fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "user@test.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "password123",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
+    fireEvent.changeText(getByPlaceholderText("••••••••"), "password123");
+    expect(getByPlaceholderText("you@somewhere.com").props.value).toBe("user@test.com");
+    expect(getByPlaceholderText("••••••••").props.value).toBe("password123");
+  });
+
+  it("signs in directly with Supabase", async () => {
+    (dataClient.signIn as jest.Mock).mockResolvedValue({
+      id: "1",
+      email: "user@test.com",
+      firstName: "John",
+      lastName: "Doe",
+      role: "CLIENT",
+    });
+
+    submit();
 
     await waitFor(() => {
-      expect(apiClient.api.post).toHaveBeenCalledWith("/auth/login", {
-        email: "user@test.com",
-        password: "password123",
-      });
-      expect(auth.storeTokens).toHaveBeenCalledWith(
-        "access-123",
-        "refresh-456",
-        mockResponse.data.user,
+      expect(dataClient.signIn).toHaveBeenCalledWith(
+        "user@test.com",
+        "password123",
       );
     });
   });
 
-  it("navigates to client home for CLIENT role", async () => {
-    const mockResponse = {
-      data: {
-        user: { id: "1", email: "a@b.com", firstName: "A", lastName: "B", role: "CLIENT" },
-        accessToken: "a",
-        refreshToken: "r",
-      },
-    };
-    (apiClient.api.post as jest.Mock).mockResolvedValueOnce(mockResponse);
-    (auth.storeTokens as jest.Mock).mockResolvedValueOnce(undefined);
-
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-
-    fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "a@b.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "pass",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
-
-    await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith("/(client)/home");
+  it.each([
+    ["CLIENT", "/(client)/home"],
+    ["PROVIDER", "/(provider)/home"],
+  ])("routes a %s to the correct home", async (role, route) => {
+    (dataClient.signIn as jest.Mock).mockResolvedValue({
+      id: "1",
+      email: "user@test.com",
+      firstName: "John",
+      lastName: "Doe",
+      role,
     });
+
+    submit();
+
+    await waitFor(() => expect(mockRouter.replace).toHaveBeenCalledWith(route));
   });
 
-  it("navigates to provider home for PROVIDER role", async () => {
-    const mockResponse = {
-      data: {
-        user: { id: "1", email: "a@b.com", firstName: "A", lastName: "B", role: "PROVIDER" },
-        accessToken: "a",
-        refreshToken: "r",
-      },
-    };
-    (apiClient.api.post as jest.Mock).mockResolvedValueOnce(mockResponse);
-    (auth.storeTokens as jest.Mock).mockResolvedValueOnce(undefined);
-
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-
-    fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "a@b.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "pass",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
-
-    await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith("/(provider)/home");
-    });
-  });
-
-  it("shows loading state while logging in", async () => {
-    let resolvePost: (value: unknown) => void;
-    (apiClient.api.post as jest.Mock).mockReturnValueOnce(
-      new Promise((r) => {
-        resolvePost = r;
+  it("shows a loading state while Supabase is signing in", async () => {
+    let resolveSignIn!: (value: unknown) => void;
+    (dataClient.signIn as jest.Mock).mockReturnValue(
+      new Promise((resolve) => {
+        resolveSignIn = resolve;
       }),
     );
 
-    const { getByText, getByPlaceholderText } = render(<LoginScreen />);
+    const view = submit();
+    expect(view.getByText("WAIT…")).toBeTruthy();
 
-    fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "a@b.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "pass",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
+    resolveSignIn({ id: "1", email: "a@b.com", role: "CLIENT" });
+    await waitFor(() => expect(view.getByText("SIGN IN →")).toBeTruthy());
+  });
 
-    expect(getByText("WAIT…")).toBeTruthy();
+  it("shows an inline error on authentication failure", async () => {
+    (dataClient.signIn as jest.Mock).mockRejectedValue(new Error("Invalid login"));
 
-    resolvePost!({
-      data: {
-        user: { id: "1", email: "a@b.com", firstName: "A", lastName: "B", role: "CLIENT" },
-        accessToken: "a",
-        refreshToken: "r",
-      },
-    });
+    const view = submit();
 
     await waitFor(() => {
-      expect(getByText("SIGN IN →")).toBeTruthy();
+      expect(
+        view.getByText("PASSWORD INCORRECT. NOTHING ELSE HAPPENED."),
+      ).toBeTruthy();
     });
   });
 
-  it("shows inline error on login failure", async () => {
-    (apiClient.api.post as jest.Mock).mockRejectedValueOnce(new Error("Invalid credentials"));
+  it("shows the email-confirmation handoff after sign-up", () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({ registered: "true" });
 
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
+    const { getByText } = render(<LoginScreen />);
 
-    fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "bad@email.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "wrong",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
-
-    await waitFor(() => {
-      expect(getByText("PASSWORD INCORRECT. NOTHING ELSE HAPPENED.")).toBeTruthy();
-    });
-  });
-
-  it("shows inline error for non-Error throws", async () => {
-    (apiClient.api.post as jest.Mock).mockRejectedValueOnce("something weird");
-
-    const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-
-    fireEvent.changeText(getByPlaceholderText("you@somewhere.com"), "a@b.com");
-    fireEvent.changeText(
-      getByPlaceholderText("••••••••"),
-      "pass",
-    );
-    fireEvent.press(getByText("SIGN IN →"));
-
-    await waitFor(() => {
-      expect(getByText("PASSWORD INCORRECT. NOTHING ELSE HAPPENED.")).toBeTruthy();
-    });
+    expect(
+      getByText("CHECK YOUR EMAIL TO CONFIRM THE ACCOUNT, THEN SIGN IN."),
+    ).toBeTruthy();
   });
 });

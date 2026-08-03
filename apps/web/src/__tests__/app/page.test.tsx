@@ -60,6 +60,10 @@ vi.mock("@/app/_components/practitioner-spotlight-section", () => ({
       React.createElement("h3", null, "Maeve Le Gal."),
     ),
 }));
+vi.mock("@/app/_components/waitlist-section", () => ({
+  WaitlistSection: () =>
+    React.createElement("section", { "data-testid": "waitlist-section" }),
+}));
 
 import HomePage from "@/app/page";
 

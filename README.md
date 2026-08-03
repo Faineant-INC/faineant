@@ -1,50 +1,69 @@
 # FAINEANT
 
-In-home beauty services in Chicago.
+In-home beauty services in Chicago. Faineant connects clients with independent
+practitioners who travel to them.
 
-A directory of practitioners — barbers, hair stylists, nail technicians, lash artists, makeup artists, facialists — who travel to your home. Booking is the only thing you have to do.
-
-## Stack
+## Architecture
 
 - **Monorepo:** pnpm workspaces + Turborepo
-- **API:** Express + Prisma + PostgreSQL + Socket.IO (standalone server)
-- **Web:** Next.js 14 (App Router) + Tailwind 3.4 + shadcn/ui
-- **Mobile:** Expo 50 + React Native 0.73 + Expo Router
-- **Shared:** `@faineant/shared` — types, Zod schemas, brand constants, theme tokens
-- **Payments:** Stripe Connect Express (5% platform fee)
-- **Calendar Sync:** Google Calendar API (two-way) + ICS feed import
+- **Backend:** Supabase Postgres, Auth, Storage, Row Level Security, and RPCs
+- **Integrations:** Deno Edge Functions for Stripe, Resend, Google Calendar, and ICS
+- **Web:** Next.js 15 App Router + Tailwind + Radix UI
+- **Mobile:** Expo + React Native + Expo Router
+- **Shared:** `@faineant/shared` schemas, design tokens, and generated database types
 
-## Run locally
+There is no standalone application server and no ORM. SQL migrations in
+`supabase/migrations/` are the database source of truth. Web and mobile use
+Supabase directly; invariant-heavy writes go through Postgres RPCs.
 
-```bash
+## Local development
+
+Requirements: Node 22.13+, pnpm 9, Docker Desktop, and Deno 2.
+
+```sh
 pnpm install
-docker compose up -d
-pnpm db:migrate
-pnpm db:seed
+cp apps/web/.env.example apps/web/.env.local
+cp apps/mobile/.env.example apps/mobile/.env
+pnpm db:start
+supabase status
 pnpm dev
 ```
 
-Then visit http://localhost:3000 (web) and run the Expo CLI for mobile.
+Copy the local API URL and anon key printed by `supabase status` into both app
+environment files. The web application runs at <http://localhost:3000>; Expo
+prints its mobile development URLs.
 
-## Database migrations
+## Database workflow
 
-Schema changes go through Prisma Migrate — **never use `prisma db push`**.
-
-```bash
-pnpm db:migrate                # local dev: prisma migrate dev (creates + applies migration)
-pnpm db:migrate:deploy         # CI / production: prisma migrate deploy (applies only)
-pnpm db:seed                   # seed demo data
+```sh
+supabase migration new <change_name>
+pnpm db:reset
+pnpm db:test
+pnpm db:types
 ```
 
-Migration files live in `apps/api/prisma/migrations/`. The initial baseline is `0001_init/`. After editing `schema.prisma`, run `pnpm db:migrate` and commit the generated migration alongside the schema change.
+Commit the SQL migration, pgTAP coverage, and regenerated
+`packages/shared/src/database.types.ts` together. `pnpm db:migrate:deploy`
+pushes migrations to the linked hosted project and is intentionally an explicit
+production operation.
+
+## Verification
+
+```sh
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+deno check --node-modules-dir=auto supabase/functions/*/index.ts
+deno test --allow-env --node-modules-dir=auto supabase/functions
+```
 
 ## Brand
 
-FAINEANT (anglicised; French *fainéant*: idle, at leisure). The mark is always the logo image — never typed text. Visual surface is dark canonical (smoke-900 ground), with a champagne accent. Voice is sensual and slow; CTAs are imperative ("Reserve a window," "Open the door at 14:00"). See `docs/superpowers/specs/2026-04-27-faineant-rebrand-design.md` for the full design spec.
+FAINEANT uses an editorial, dark-first visual system with champagne accents.
+Use the logo asset for the mark and the shared tokens rather than ad hoc colors.
+The full design specification lives in
+`docs/superpowers/specs/2026-04-27-faineant-rebrand-design.md`.
 
-## Testing
-
-```bash
-pnpm test              # all packages
-pnpm typecheck         # all packages
-```
+The hosted test identities, deterministic scenarios, secure credential lookup,
+and remaining provider-integration gates are documented in [docs/QA.md](docs/QA.md).

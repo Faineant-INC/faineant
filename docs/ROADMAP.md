@@ -1,4 +1,7 @@
-# Faineant Marketplace Roadmap
+# Faineant Marketplace Roadmap (Historical)
+
+> Archived pre-Supabase snapshot. Current code and verified runtime state outrank
+> the implementation claims in this document.
 
 ## Vision (2026-04-10)
 

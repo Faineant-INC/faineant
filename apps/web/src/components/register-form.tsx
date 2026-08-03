@@ -32,14 +32,18 @@ export function RegisterForm({
     setError("");
     setLoading(true);
     try {
-      await register({
+      const result = await register({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim(),
         password: form.password,
         role,
       });
-      router.push("/dashboard");
+      router.push(
+        result.requiresEmailConfirmation
+          ? "/login?checkEmail=1"
+          : "/dashboard",
+      );
     } catch {
       setError("DETAILS DECLINED. CHECK EMAIL AND PASSWORD.");
     } finally {

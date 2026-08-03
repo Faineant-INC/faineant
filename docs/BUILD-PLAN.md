@@ -1,4 +1,7 @@
-# FAINEANT Build Plan
+# FAINEANT Build Plan (Historical)
+
+> Archived pre-Supabase plan. It is not an implementation or deployment
+> authority; use the current code, `README.md`, `CLAUDE.md`, and SQL migrations.
 
 > Living document. Audit + per-phase requirements for the work that remains
 > end-to-end across web, API, mobile, and infrastructure.

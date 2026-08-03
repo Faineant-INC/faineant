@@ -14,8 +14,14 @@ export async function getCaller(req: Request): Promise<Caller> {
   const { data, error } = await anon.auth.getUser(token);
   if (error || !data.user) throw new Response("Unauthorized", { status: 401 });
   const svc = serviceClient();
-  const { data: profile } = await svc.from("profiles").select("role").eq("id", data.user.id).single();
-  return { userId: data.user.id, role: (profile?.role as string) ?? "CLIENT" };
+  const { data: profile, error: profileError } = await svc.from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+  if (profileError || !profile?.role) {
+    throw new Response("Forbidden", { status: 403 });
+  }
+  return { userId: data.user.id, role: profile.role as string };
 }
 
 export function serviceClient(): SupabaseClient {

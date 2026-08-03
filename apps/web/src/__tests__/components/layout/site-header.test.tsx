@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 // next/image is not mocked globally; stub it to a plain <img> for this file.
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: (props: Record<string, unknown>) =>
+  default: ({ priority: _priority, fill: _fill, ...props }: Record<string, unknown>) =>
     React.createElement("img", props as Record<string, unknown>),
 }));
 

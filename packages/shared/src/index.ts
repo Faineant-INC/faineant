@@ -10,6 +10,9 @@ export * from "./types/post";
 export * from "./types/api";
 export * from "./types/calendar";
 
+// Database
+export type { Database } from "./database.types";
+
 // Schemas
 export * from "./schemas/auth.schema";
 export * from "./schemas/booking.schema";

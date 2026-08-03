@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Suspense } from "react";
 import { LoginForm } from "@/components/login-form";
 import { isLaunched } from "@/lib/flags";
 
@@ -30,7 +31,9 @@ export default function LoginPage() {
           <p className="font-editorial italic text-editorial text-bone-200">
             One window away from your next reservation.
           </p>
-          <LoginForm />
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
           {isLaunched() ? (
             <p className="font-mono text-mono text-taupe-300">
               New here?{" "}

@@ -3,7 +3,12 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api-client";
+import {
+  disconnectCalendar,
+  invokeCalendar,
+  listCalendarConnections,
+  type CalendarConnectionData,
+} from "@/lib/data-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,17 +19,6 @@ import {
   Rss,
   Loader2,
 } from "lucide-react";
-
-interface CalendarConnectionData {
-  id: string;
-  provider: "GOOGLE" | "ICS_FEED";
-  externalId: string | null;
-  feedUrl: string | null;
-  lastSyncedAt: string | null;
-  isActive: boolean;
-  createdAt: string;
-  _count: { externalEvents: number };
-}
 
 function CalendarSettingsPageInner() {
   const { accessToken } = useAuth();
@@ -38,16 +32,16 @@ function CalendarSettingsPageInner() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadConnections = useCallback(async () => {
-    if (!accessToken) return;
+    if (!accessToken) {
+      setConnections([]);
+      setLoading(false);
+      return;
+    }
     setError(null);
     try {
-      const res = await api.get<{ data: CalendarConnectionData[] }>(
-        "/calendar/connections",
-        { token: accessToken },
-      );
-      setConnections(res.data);
+      setConnections(await listCalendarConnections());
     } catch {
-      // Network error on initial load — degrade to empty state
+      setError("Failed to load calendar connections.");
     } finally {
       setLoading(false);
     }
@@ -61,17 +55,18 @@ function CalendarSettingsPageInner() {
     if (searchParams.get("calendar") === "connected") {
       setSuccessMessage("Google Calendar connected.");
       setTimeout(() => setSuccessMessage(null), 5000);
+    } else if (searchParams.get("calendar") === "error") {
+      setError("Google Calendar could not be connected.");
     }
   }, [searchParams]);
 
   async function connectGoogle() {
     setError(null);
     try {
-      const res = await api.get<{ data: { url: string } }>(
-        "/calendar/google/connect",
-        { token: accessToken! },
+      const res = await invokeCalendar<{ url: string }>(
+        "calendar-google-connect",
       );
-      window.location.href = res.data.url;
+      window.location.href = res.url;
     } catch {
       setError("Failed to start Google Calendar connection.");
     }
@@ -82,14 +77,13 @@ function CalendarSettingsPageInner() {
     setIcsLoading(true);
     setError(null);
     try {
-      const res = await api.post<{ data: { eventsImported: number } }>(
-        "/calendar/ics",
+      const res = await invokeCalendar<{ eventCount: number }>(
+        "calendar-ics-connect",
         { feedUrl: icsUrl },
-        { token: accessToken! },
       );
       setIcsUrl("");
       setSuccessMessage(
-        `Feed connected. ${res.data.eventsImported} events imported.`,
+        `Feed connected. ${res.eventCount} events imported.`,
       );
       setTimeout(() => setSuccessMessage(null), 5000);
       await loadConnections();
@@ -104,11 +98,7 @@ function CalendarSettingsPageInner() {
     setSyncingId(connectionId);
     setError(null);
     try {
-      await api.post(
-        `/calendar/sync/${connectionId}`,
-        {},
-        { token: accessToken! },
-      );
+      await invokeCalendar("calendar-sync", { connectionId });
       setSuccessMessage("Calendar synced.");
       setTimeout(() => setSuccessMessage(null), 3000);
       await loadConnections();
@@ -122,9 +112,7 @@ function CalendarSettingsPageInner() {
   async function disconnect(connectionId: string) {
     setError(null);
     try {
-      await api.delete(`/calendar/connections/${connectionId}`, {
-        token: accessToken!,
-      });
+      await disconnectCalendar(connectionId);
       await loadConnections();
     } catch {
       setError("Failed to disconnect calendar.");
@@ -176,8 +164,8 @@ function CalendarSettingsPageInner() {
                     Google Calendar
                   </h3>
                   <p className="font-editorial italic text-body-md text-bone-200 mt-1 max-w-xl">
-                    Two-way. External events block your Faineant availability;
-                    Faineant visits land in Google Calendar.
+                    Read-only. External events block your Faineant availability;
+                    Faineant never changes your Google calendar.
                   </p>
                 </div>
               </div>
@@ -334,12 +322,12 @@ function CalendarSettingsPageInner() {
                   desc: "External events block those windows. Clients only see what’s genuinely free.",
                 },
                 {
-                  title: "Writes Faineant visits",
-                  desc: "Faineant bookings appear in Google Calendar automatically. Google only.",
+                  title: "Read-only by design",
+                  desc: "Faineant reads conflicts and never creates, edits, or deletes external events.",
                 },
                 {
-                  title: "Refreshes every 15",
-                  desc: "Google syncs in real time via push. ICS feeds check every 15 minutes.",
+                  title: "Refresh when needed",
+                  desc: "Use Sync after changing an external calendar. Automatic background sync is a later enhancement.",
                 },
               ].map((item) => (
                 <div key={item.title} className="bg-smoke-900 p-5">

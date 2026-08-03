@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api-client";
+import { resendVerification } from "@/lib/data-client";
 
 /**
  * Banner shown in the dashboard until the user verifies their email address.
@@ -24,9 +24,7 @@ export function VerifyEmailBanner() {
     if (!user) return;
     setState({ kind: "sending" });
     try {
-      await api.post<{ success: boolean }>("/auth/resend-verification", {
-        email: user.email,
-      });
+      await resendVerification(user.email);
       setState({ kind: "sent" });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not resend";

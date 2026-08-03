@@ -16,10 +16,7 @@ beforeEach(() => {
 
 describe("SplashScreen", () => {
   it("renders FAINEANT wordmark and tagline", () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({
-      accessToken: null,
-      user: null,
-    });
+    (auth.getStoredTokens as jest.Mock).mockReturnValue(new Promise(() => {}));
 
     const { getByLabelText, getByText } = render(<SplashScreen />);
     expect(getByLabelText("FAINEANT")).toBeTruthy();
@@ -65,16 +62,18 @@ describe("SplashScreen", () => {
     });
   });
 
-  it("redirects to client home for non-provider roles", async () => {
+  it("clears unsupported admin sessions and redirects to login", async () => {
     (auth.getStoredTokens as jest.Mock).mockResolvedValue({
       accessToken: "token-123",
       user: { id: "1", role: "ADMIN", firstName: "A", lastName: "B", email: "a@b.com" },
     });
+    (auth.clearTokens as jest.Mock).mockResolvedValue(undefined);
 
     render(<SplashScreen />);
 
     await waitFor(() => {
-      expect(mockRouter.replace).toHaveBeenCalledWith("/(client)/home");
+      expect(auth.clearTokens).toHaveBeenCalledWith();
+      expect(mockRouter.replace).toHaveBeenCalledWith("/(auth)/login");
     });
   });
 });

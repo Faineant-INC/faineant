@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ export function LoginForm({
   ...props
 }: Omit<React.FormHTMLAttributes<HTMLFormElement>, "onSubmit">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +26,12 @@ export function LoginForm({
     setLoading(true);
     try {
       await login(email.trim(), password);
-      router.push("/dashboard");
+      const requestedPath = searchParams.get("redirect");
+      const redirectPath =
+        requestedPath?.startsWith("/") && !requestedPath.startsWith("//")
+          ? requestedPath
+          : "/dashboard";
+      router.push(redirectPath);
     } catch {
       setError("PASSWORD INCORRECT. NOTHING ELSE HAPPENED.");
     } finally {
@@ -39,6 +45,11 @@ export function LoginForm({
       className={cn("flex flex-col gap-6", className)}
       {...props}
     >
+      {searchParams.get("checkEmail") === "1" && !error && (
+        <div className="border border-champagne-400/60 bg-champagne-400/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-champagne-400">
+          Check your email, confirm the account, then sign in.
+        </div>
+      )}
       {error && (
         <div className="border border-oxblood-500/60 bg-oxblood-500/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-oxblood-400">
           {error}

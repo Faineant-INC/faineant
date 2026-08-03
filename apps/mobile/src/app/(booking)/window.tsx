@@ -1,117 +1,116 @@
-import { useState } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { useRouter } from "expo-router";
+import { listAvailableDays, type AvailableDay } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 import { useBookingStore } from "@/stores/booking";
 
-type SlotState = "open" | "taken";
-
-type DayBlock = {
-  day: string;
-  date: string;
-  slots: { time: string; state: SlotState }[];
+type PickedSlot = {
+  startTime: string;
+  label: string;
 };
-
-// TODO: Wire to GET /providers/:id/availability once mobile booking is API-backed.
-const STUB_DAYS: DayBlock[] = [
-  {
-    day: "Tomorrow",
-    date: "Apr 29",
-    slots: [
-      { time: "10:00", state: "open" },
-      { time: "11:30", state: "taken" },
-      { time: "13:00", state: "open" },
-      { time: "15:30", state: "open" },
-      { time: "17:00", state: "taken" },
-    ],
-  },
-  {
-    day: "Thursday",
-    date: "Apr 30",
-    slots: [
-      { time: "09:30", state: "open" },
-      { time: "11:00", state: "open" },
-      { time: "13:30", state: "open" },
-      { time: "16:00", state: "taken" },
-      { time: "18:30", state: "open" },
-    ],
-  },
-  {
-    day: "Friday",
-    date: "May 01",
-    slots: [
-      { time: "10:30", state: "taken" },
-      { time: "12:00", state: "open" },
-      { time: "14:30", state: "open" },
-      { time: "16:30", state: "open" },
-      { time: "19:00", state: "open" },
-    ],
-  },
-];
 
 export default function BookingWindowScreen() {
   const router = useRouter();
-  const setWindow = useBookingStore((s) => s.setWindow);
-  const [picked, setPicked] = useState<{ day: string; time: string } | null>(null);
+  const service = useBookingStore((state) => state.service);
+  const setWindow = useBookingStore((state) => state.setWindow);
+  const [days, setDays] = useState<AvailableDay[]>([]);
+  const [picked, setPicked] = useState<PickedSlot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!service) {
+      setLoading(false);
+      setError("Choose a service before selecting a time.");
+      return;
+    }
+    setLoading(true);
+    listAvailableDays({
+      providerProfileId: service.providerProfileId,
+      durationMinutes: service.durationMinutes,
+    })
+      .then(setDays)
+      .catch((reason: unknown) =>
+        setError(reason instanceof Error ? reason.message : "Openings are unavailable."),
+      )
+      .finally(() => setLoading(false));
+  }, [service]);
 
   function handleContinue() {
     if (!picked) return;
-    setWindow(picked.day, picked.time);
+    setWindow(picked.startTime, picked.label);
     router.push("/(booking)/confirm");
   }
 
   return (
     <View style={styles.root}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>STEP 02 / 04 · WHEN</Text>
           <Text style={styles.headline}>
-            When does <Text style={styles.headlineEm}>she arrive?</Text>
+            When should <Text style={styles.headlineEm}>they arrive?</Text>
           </Text>
+          {service && (
+            <Text style={styles.context}>
+              {service.providerName} · {service.durationMinutes} minutes
+            </Text>
+          )}
         </View>
 
-        <View style={styles.days}>
-          {STUB_DAYS.map((block) => (
-            <View key={block.day} style={styles.dayBlock}>
-              <View style={styles.dayHeader}>
-                <Text style={styles.dayName}>{block.day}</Text>
-                <Text style={styles.dayDate}>{block.date}</Text>
-              </View>
-              <View style={styles.pills}>
-                {block.slots.map((slot) => {
-                  const isPicked =
-                    picked?.day === block.day && picked.time === slot.time;
-                  const isTaken = slot.state === "taken";
-                  return (
-                    <Pressable
-                      key={`${block.day}-${slot.time}`}
-                      style={[
-                        styles.pill,
-                        isTaken && styles.pillTaken,
-                        isPicked && styles.pillSelected,
-                      ]}
-                      disabled={isTaken}
-                      onPress={() => setPicked({ day: block.day, time: slot.time })}
-                    >
-                      <Text
-                        style={[
-                          styles.pillLabel,
-                          isTaken && styles.pillLabelTaken,
-                          isPicked && styles.pillLabelSelected,
-                        ]}
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.accent} />
+        ) : error ? (
+          <View style={styles.messageBox}>
+            <Text style={styles.error}>{error}</Text>
+            {!service && (
+              <Pressable onPress={() => router.replace("/(booking)/service")}>
+                <Text style={styles.link}>CHOOSE A SERVICE →</Text>
+              </Pressable>
+            )}
+          </View>
+        ) : days.length === 0 ? (
+          <Text style={styles.empty}>
+            No conflict-free openings are published in the next two weeks.
+          </Text>
+        ) : (
+          <View style={styles.days}>
+            {days.map((block) => (
+              <View key={block.dateKey} style={styles.dayBlock}>
+                <View style={styles.dayHeader}>
+                  <Text style={styles.dayName}>{block.dayLabel}</Text>
+                  <Text style={styles.dayDate}>{block.dateLabel}</Text>
+                </View>
+                <View style={styles.pills}>
+                  {block.slots.map((slot) => {
+                    const isPicked = picked?.startTime === slot.startTime;
+                    const fullLabel = `${block.dayLabel} · ${block.dateLabel} · ${slot.label}`;
+                    return (
+                      <Pressable
+                        key={slot.startTime}
+                        style={[styles.pill, isPicked && styles.pillSelected]}
+                        onPress={() =>
+                          setPicked({ startTime: slot.startTime, label: fullLabel })
+                        }
                       >
-                        {slot.time}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+                        <Text style={[styles.pillLabel, isPicked && styles.pillLabelSelected]}>
+                          {slot.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -141,7 +140,6 @@ const styles = StyleSheet.create({
     fontSize: sizes.label,
     color: colors.taupe[300],
     letterSpacing: 3.5,
-    textTransform: "uppercase",
   },
   headline: {
     fontFamily: fonts.displayBlack,
@@ -150,11 +148,8 @@ const styles = StyleSheet.create({
     letterSpacing: -1.2,
     lineHeight: 44,
   },
-  headlineEm: {
-    fontFamily: fonts.editorialLight,
-    color: colors.accent,
-    fontStyle: "italic",
-  },
+  headlineEm: { fontFamily: fonts.editorialLight, color: colors.accent, fontStyle: "italic" },
+  context: { fontFamily: fonts.editorialLight, color: colors.secondaryFg, fontStyle: "italic" },
   days: { gap: spacing.lg },
   dayBlock: { gap: spacing.sm },
   dayHeader: {
@@ -165,22 +160,9 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
     paddingBottom: spacing.sm,
   },
-  dayName: {
-    fontFamily: fonts.displayMedium,
-    fontSize: sizes.subheading,
-    color: colors.primaryFg,
-  },
-  dayDate: {
-    fontFamily: fonts.mono,
-    fontSize: sizes.mono,
-    color: colors.taupe[300],
-    letterSpacing: 1.6,
-  },
-  pills: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
+  dayName: { fontFamily: fonts.displayMedium, fontSize: sizes.subheading, color: colors.primaryFg },
+  dayDate: { fontFamily: fonts.mono, fontSize: sizes.mono, color: colors.taupe[300] },
+  pills: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   pill: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -188,37 +170,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     backgroundColor: colors.card,
   },
-  pillTaken: {
-    backgroundColor: "transparent",
-    borderColor: colors.smoke[700],
-    opacity: 0.4,
-  },
-  pillSelected: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  pillLabel: {
-    fontFamily: fonts.mono,
-    fontSize: sizes.mono,
-    color: colors.primaryFg,
-    letterSpacing: 1.6,
-  },
-  pillLabelTaken: {
-    color: colors.taupe[300],
-    textDecorationLine: "line-through",
-  },
+  pillSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  pillLabel: { fontFamily: fonts.mono, fontSize: sizes.mono, color: colors.primaryFg },
   pillLabelSelected: { color: colors.smoke[900] },
+  messageBox: { gap: spacing.md },
+  error: { color: colors.oxblood[500], fontFamily: fonts.body },
+  link: { color: colors.accent, fontFamily: fonts.bodyMedium, letterSpacing: 2 },
+  empty: { color: colors.secondaryFg, fontFamily: fonts.editorialLight, fontStyle: "italic" },
   footer: {
     padding: spacing.lg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
   },
-  cta: {
-    backgroundColor: colors.accent,
-    paddingVertical: spacing.md,
-    alignItems: "center",
-  },
+  cta: { backgroundColor: colors.accent, paddingVertical: spacing.md, alignItems: "center" },
   ctaDisabled: { opacity: 0.35 },
   ctaLabel: {
     fontFamily: fonts.bodyMedium,

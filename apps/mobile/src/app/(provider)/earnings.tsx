@@ -6,8 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import { getEarnings } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface EarningsData {
@@ -32,16 +31,8 @@ export default function EarningsScreen() {
   async function loadEarnings() {
     setLoading(true);
     setError(null);
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) {
-      setLoading(false);
-      return;
-    }
     try {
-      const res = await api.get<{ data: EarningsData }>("/payments/earnings", {
-        token: accessToken,
-      });
-      setEarnings(res.data);
+      setEarnings(await getEarnings());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load earnings");
     } finally {

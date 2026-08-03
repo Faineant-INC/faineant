@@ -16,6 +16,10 @@ insert into public.services (id, provider_profile_id, name, category, duration_m
          (select id from public.provider_profiles where user_id='11111111-0000-0000-0000-000000000e03'),
          'Hidden','HAIRCUT',60,5000,false;
 
+update public.provider_profiles
+set is_verified = true
+where user_id = '11111111-0000-0000-0000-000000000e03';
+
 insert into public.bookings (id, client_id, service_id, provider_profile_id, status, start_time, end_time, total_price_in_cents)
   select '33333333-0000-0000-0000-000000000bc1',
          '11111111-0000-0000-0000-000000000a01',
@@ -25,14 +29,18 @@ insert into public.bookings (id, client_id, service_id, provider_profile_id, sta
 
 -- ── anon ────────────────────────────────────────────────────────────────────
 set local role anon;
-select is((select count(*)::int from public.public_provider_profiles where slug is not null),
-  1, 'anon can see the provider via the public view');
+select is((select count(*)::int from public.search_providers()),
+  1, 'anon can discover the provider through the public RPC');
 select is((select count(*)::int from public.services),
   1, 'anon sees only the 1 ACTIVE service (inactive hidden by RLS)');
-select is((select count(*)::int from public.profiles),
-  0, 'anon cannot read base profiles at all (RLS filters to 0 rows)');
-select is((select count(*)::int from public.waitlist_entries),
-  0, 'anon cannot read waitlist_entries (admin-only SELECT; RLS filters to 0)');
+select throws_ok(
+  'select count(*) from public.profiles',
+  '42501', null,
+  'anon cannot read base profiles at all');
+select throws_ok(
+  'select count(*) from public.waitlist_entries',
+  '42501', null,
+  'anon cannot read waitlist entries');
 reset role;
 
 -- ── clientB (unrelated to clientA/Pam) ────────────────────────────────────────

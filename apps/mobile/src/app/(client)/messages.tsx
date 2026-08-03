@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import { listConversations } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Conversation {
@@ -18,13 +17,8 @@ export default function MessagesScreen() {
   }, []);
 
   async function loadConversations() {
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) return;
     try {
-      const res = await api.get<{ data: Conversation[] }>("/messages/conversations", {
-        token: accessToken,
-      });
-      setConversations(res.data);
+      setConversations(await listConversations());
     } catch {
       // Handle error silently
     }

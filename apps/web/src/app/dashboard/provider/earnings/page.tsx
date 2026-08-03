@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api-client";
+import { getEarnings, startStripeConnect } from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
 
@@ -31,11 +31,7 @@ export default function ProviderEarningsPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await api.get<{ data: EarningsData }>(
-        "/payments/earnings",
-        { token: accessToken! },
-      );
-      setEarnings(res.data);
+      setEarnings(await getEarnings());
     } catch {
       // Network error on initial load — degrade to empty state
     } finally {
@@ -47,12 +43,7 @@ export default function ProviderEarningsPage() {
     setError(null);
     setConnectingStripe(true);
     try {
-      const res = await api.post<{ data: { url: string } }>(
-        "/payments/connect",
-        {},
-        { token: accessToken! },
-      );
-      window.location.href = res.data.url;
+      window.location.href = await startStripeConnect();
     } catch {
       setError("Failed to connect to Stripe. Please try again.");
     } finally {

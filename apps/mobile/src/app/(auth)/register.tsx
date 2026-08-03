@@ -11,25 +11,10 @@ import {
   ScrollView,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { api } from "@/lib/api-client";
-import { storeTokens } from "@/lib/auth";
+import { signUp } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-interface RegisterResponse {
-  data: {
-    user: {
-      id: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-    };
-    accessToken: string;
-    refreshToken: string;
-  };
-}
 
 type Role = "CLIENT" | "PROVIDER";
 
@@ -83,15 +68,16 @@ export default function RegisterScreen() {
         password: form.password,
         role,
       };
-      const res = await api.post<RegisterResponse>("/auth/register", payload);
+      const result = await signUp(payload);
+      if (!result.hasSession) {
+        router.replace({
+          pathname: "/(auth)/login",
+          params: { registered: "true" },
+        });
+        return;
+      }
 
-      await storeTokens(
-        res.data.accessToken,
-        res.data.refreshToken,
-        res.data.user
-      );
-
-      if (res.data.user.role === "PROVIDER") {
+      if (result.user.role === "PROVIDER") {
         router.replace("/(provider)/home");
       } else {
         router.replace("/(client)/home");

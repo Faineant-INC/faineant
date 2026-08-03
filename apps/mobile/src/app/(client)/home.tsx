@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SERVICE_CATEGORIES, type ServiceCategorySlug } from "@faineant/shared";
-import { api } from "@/lib/api-client";
+import { listProviders } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Provider {
@@ -49,8 +49,7 @@ export default function ClientHomeScreen() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get<{ data: { items: Provider[] } }>("/search/providers");
-      setProviders(res.data.items);
+      setProviders(await listProviders());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load providers");
     } finally {

@@ -39,7 +39,7 @@ set local role anon;
 set local request.jwt.claims = '';
 select throws_ok(
   $$select public.create_review('99999999-0000-0000-0000-0000000000b1', 5, 'x')$$,
-  '28000', 'Not authenticated',
+  '42501', null,
   'anon cannot create a review');
 reset role;
 

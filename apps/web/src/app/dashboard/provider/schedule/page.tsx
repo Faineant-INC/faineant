@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { api } from "@/lib/api-client";
+import { listMyAvailability, replaceAvailability } from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
 
@@ -23,6 +23,12 @@ interface Slot {
   endTime: string;
 }
 
+const DEFAULT_SLOTS: Slot[] = [1, 2, 3, 4, 5, 6].map((day) => ({
+  dayOfWeek: day,
+  startTime: "09:00",
+  endTime: "18:00",
+}));
+
 export default function ProviderSchedulePage() {
   const { accessToken } = useAuth();
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -35,15 +41,25 @@ export default function ProviderSchedulePage() {
   );
 
   useEffect(() => {
-    setSlots(
-      [1, 2, 3, 4, 5, 6].map((day) => ({
-        dayOfWeek: day,
-        startTime: "09:00",
-        endTime: "18:00",
-      })),
-    );
-    setLoading(false);
-  }, []);
+    if (!accessToken) return;
+    let active = true;
+    setLoading(true);
+    listMyAvailability()
+      .then((availability) => {
+        if (active) {
+          setSlots(availability.length > 0 ? availability : DEFAULT_SLOTS);
+        }
+      })
+      .catch(() => {
+        if (active) setError("Failed to load your current schedule.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [accessToken]);
 
   function toggleDay(day: number) {
     const exists = slots.find((s) => s.dayOfWeek === day);
@@ -72,7 +88,7 @@ export default function ProviderSchedulePage() {
     setError(null);
     setSaved(false);
     try {
-      await api.put("/availability", { slots }, { token: accessToken! });
+      await replaceAvailability(slots);
       setSaved(true);
     } catch {
       setError("Failed to save changes. Please try again.");

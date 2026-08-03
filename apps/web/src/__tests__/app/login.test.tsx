@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: (props: Record<string, unknown>) =>
+  default: ({ priority: _priority, fill: _fill, ...props }: Record<string, unknown>) =>
     React.createElement("img", props as Record<string, unknown>),
 }));
 // Keep the test focused on the page's own conditional link.

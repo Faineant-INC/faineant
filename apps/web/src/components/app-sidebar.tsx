@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Plug,
   Scissors,
-  Settings,
   ShieldCheck,
   User,
   Users,
@@ -55,9 +54,8 @@ const PROVIDER_NAV: NavItem[] = [
   { title: "Portfolio", href: "/dashboard/provider/portfolio", icon: ImageIcon },
   { title: "Messages", href: "/dashboard/provider/messages", icon: MessageSquare },
   { title: "Earnings", href: "/dashboard/provider/earnings", icon: CreditCard },
-  { title: "Integrations", href: "/dashboard/provider/integrations", icon: Plug },
+  { title: "Calendar", href: "/dashboard/provider/settings", icon: Plug },
   { title: "Profile", href: "/dashboard/provider/profile", icon: User },
-  { title: "Settings", href: "/dashboard/provider/settings", icon: Settings },
 ];
 
 const ADMIN_NAV: NavItem[] = [

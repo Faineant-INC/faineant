@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { AppState } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -22,6 +23,7 @@ import {
   CormorantGaramond_400Regular_Italic,
   CormorantGaramond_500Medium_Italic,
 } from "@expo-google-fonts/cormorant-garamond";
+import { supabase } from "@/lib/supabase";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,6 +51,18 @@ export default function RootLayout() {
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
+
+  useEffect(() => {
+    supabase.auth.startAutoRefresh();
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") supabase.auth.startAutoRefresh();
+      else supabase.auth.stopAutoRefresh();
+    });
+    return () => {
+      subscription.remove();
+      supabase.auth.stopAutoRefresh();
+    };
+  }, []);
 
   if (!ready) return null;
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Topbar } from "@/components/layout/topbar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { api } from "@/lib/api-client";
+import { getAdminStats } from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 
 interface Stats {
@@ -26,10 +26,7 @@ export default function AdminDashboardPage() {
   async function loadStats() {
     setError(null);
     try {
-      const res = await api.get<{ data: Stats }>("/admin/stats", {
-        token: accessToken!,
-      });
-      setStats(res.data);
+      setStats(await getAdminStats());
     } catch {
       setError("Failed to load stats. Please try again.");
     }
