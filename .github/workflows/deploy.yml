@@ -27,4 +27,4 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'ci-anon-key' }}
           NEXT_PUBLIC_LAUNCH_MODE: ${{ vars.NEXT_PUBLIC_LAUNCH_MODE || 'false' }}
 
-      # Vercel owns deployment after its GitHub app is connected to the Faineant org.
+      # Vercel deploys main through its GitHub App connection to Faineant-INC/faineant.
