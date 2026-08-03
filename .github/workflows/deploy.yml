@@ -23,8 +23,8 @@ jobs:
       - run: pnpm --filter @faineant/shared build
       - run: pnpm --filter @faineant/web build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_LAUNCH_MODE: ${{ vars.NEXT_PUBLIC_LAUNCH_MODE }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'ci-anon-key' }}
+          NEXT_PUBLIC_LAUNCH_MODE: ${{ vars.NEXT_PUBLIC_LAUNCH_MODE || 'false' }}
 
       # Vercel owns deployment after its GitHub app is connected to the Faineant org.
