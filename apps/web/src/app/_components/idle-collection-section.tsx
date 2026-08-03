@@ -80,9 +80,9 @@ export async function IdleCollectionSection() {
               const image =
                 provider.portfolio.find((item) => item.serviceId === service.id)
                   ?.imageUrl ??
-                provider.portfolio[0]?.imageUrl ??
+                CATEGORY_IMAGES[service.category] ??
                 provider.avatarUrl ??
-                CATEGORY_IMAGES[service.category];
+                provider.portfolio[0]?.imageUrl;
               return (
                 <Link
                   key={service.id}

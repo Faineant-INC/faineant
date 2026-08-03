@@ -322,8 +322,8 @@ async function provisionScenarioFixtures({
       id: "72000000-0000-0000-0000-000000000020",
       provider_profile_id: providerProfileId,
       service_id: serviceIds.haircut,
-      image_url: "/brand/faineant-logo-champagne.png",
-      caption: "QA portfolio fixture",
+      image_url: "/brand/photography/tile-hair.png",
+      caption: "QA in-home haircut fixture",
       sort_order: 0,
     },
   ]);

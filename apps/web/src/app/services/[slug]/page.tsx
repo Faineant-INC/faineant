@@ -70,9 +70,9 @@ export default async function ServiceDetailPage({
 
   const image =
     provider.portfolio.find((item) => item.serviceId === service.id)?.imageUrl ??
-    provider.portfolio[0]?.imageUrl ??
+    CATEGORY_IMAGES[service.category] ??
     provider.avatarUrl ??
-    CATEGORY_IMAGES[service.category];
+    provider.portfolio[0]?.imageUrl;
   const providerName =
     `${provider.firstName} ${provider.lastName}`.trim() ||
     provider.businessName ||

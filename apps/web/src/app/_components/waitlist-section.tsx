@@ -21,6 +21,11 @@ type MarketingSubscribeResponse = {
   error?: string;
 };
 
+const PUBLIC_MARKETING_ERRORS = new Set([
+  "Too many requests. Try again later.",
+  "Your address was saved, but the welcome note could not be sent. Try again.",
+]);
+
 async function functionErrorMessage(error: unknown): Promise<string> {
   const context =
     typeof error === "object" && error !== null && "context" in error
@@ -29,7 +34,7 @@ async function functionErrorMessage(error: unknown): Promise<string> {
   if (context instanceof Response) {
     try {
       const body = (await context.clone().json()) as MarketingSubscribeResponse;
-      if (body.error) return body.error;
+      if (body.error && PUBLIC_MARKETING_ERRORS.has(body.error)) return body.error;
     } catch {
       // Fall through to the safe user-facing message.
     }

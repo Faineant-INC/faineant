@@ -93,4 +93,28 @@ describe("WaitlistSection marketing consent", () => {
       /address was saved, but the welcome note could not be sent/i,
     );
   });
+
+  it("does not expose database errors to a visitor", async () => {
+    mocks.invoke.mockResolvedValue({
+      data: null,
+      error: {
+        context: new Response(
+          JSON.stringify({ error: "permission denied for table waitlist_entries" }),
+          { status: 500, headers: { "content-type": "application/json" } },
+        ),
+      },
+    });
+    render(<WaitlistSection />);
+    fireEvent.change(screen.getByLabelText("Email address"), {
+      target: { value: "person@example.com" },
+    });
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: /receive marketing emails from Faineant/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Reserve a place" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("We could not save your place. Try again.");
+    expect(alert).not.toHaveTextContent(/waitlist_entries|permission denied/i);
+  });
 });
