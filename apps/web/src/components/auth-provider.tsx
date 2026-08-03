@@ -57,9 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAccessToken(null);
       })
       .finally(() => setIsLoading(false));
-    const {
-      data: sub,
-    } = supabase.auth.onAuthStateChange(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
       window.setTimeout(() => void loadUser(), 0);
     });
     return () => sub.subscription.unsubscribe();
@@ -71,9 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       });
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       const authenticatedUser = await loadUser();
       if (!authenticatedUser) throw new Error("Account profile is unavailable.");
+      return authenticatedUser;
     },
     [supabase, loadUser],
   );
@@ -114,9 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, accessToken, login, register, logout, isLoading }}
-    >
+    <AuthContext.Provider value={{ user, accessToken, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

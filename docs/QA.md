@@ -7,26 +7,26 @@ the repository.
 
 ## Account matrix
 
-| Identity | Role | Scenario | Expected sign-in |
-| --- | --- | --- | --- |
-| `qa.client@faineantapp.com` | `CLIENT` | Active, confirmed client with all booking states | Success |
-| `qa.unverified@faineantapp.com` | `CLIENT` | Email confirmation gate | `email_not_confirmed` |
-| `qa.disabled@faineantapp.com` | `CLIENT` | Inactive profile plus Auth ban | `user_banned` |
-| `qa.provider@faineantapp.com` | `PROVIDER` | Approved provider with catalog and schedule | Success |
-| `qa.provider.pending@faineantapp.com` | `PROVIDER` | Pending marketplace approval | Success; absent from public discovery |
-| `qa.admin@faineantapp.com` | `ADMIN` | Platform administration | Success |
+| Identity                              | Role       | Scenario                                         | Expected sign-in                      |
+| ------------------------------------- | ---------- | ------------------------------------------------ | ------------------------------------- |
+| `qa.client@faineantapp.com`           | `CLIENT`   | Active, confirmed client with all booking states | Success                               |
+| `qa.unverified@faineantapp.com`       | `CLIENT`   | Email confirmation gate                          | `email_not_confirmed`                 |
+| `qa.disabled@faineantapp.com`         | `CLIENT`   | Inactive profile plus Auth ban                   | `user_banned`                         |
+| `qa.provider@faineantapp.com`         | `PROVIDER` | Approved provider with catalog and schedule      | Success                               |
+| `qa.provider.pending@faineantapp.com` | `PROVIDER` | Pending marketplace approval                     | Success; absent from public discovery |
+| `qa.admin@faineantapp.com`            | `ADMIN`    | Platform administration                          | Success                               |
 
 On this Mac, each password is stored in the login Keychain under account
 `faineant` and the following service names:
 
-| Identity | Keychain service |
-| --- | --- |
-| Active client | `faineant-qa-client` |
-| Unverified client | `faineant-qa-unverified` |
-| Disabled client | `faineant-qa-disabled` |
-| Approved provider | `faineant-qa-provider` |
-| Pending provider | `faineant-qa-provider-pending` |
-| Administrator | `faineant-qa-admin` |
+| Identity          | Keychain service               |
+| ----------------- | ------------------------------ |
+| Active client     | `faineant-qa-client`           |
+| Unverified client | `faineant-qa-unverified`       |
+| Disabled client   | `faineant-qa-disabled`         |
+| Approved provider | `faineant-qa-provider`         |
+| Pending provider  | `faineant-qa-provider-pending` |
+| Administrator     | `faineant-qa-admin`            |
 
 Retrieve one credential without placing it in source control:
 
@@ -97,6 +97,44 @@ The hosted smoke suite currently proves:
 - unsigned Edge Function requests are rejected, while the signed email webhook
   accepts a non-delivery test payload.
 
+## Browser automation
+
+The executable account contract lives in `apps/web/e2e`; its README documents
+structure, secret handling, local/production commands, evidence retention, and
+failure triage. The production-safe lane covers:
+
+| Scenario          | Expected UI result                                                    |
+| ----------------- | --------------------------------------------------------------------- |
+| Active client     | `/dashboard`, Quinn's live booking overview, no admin access          |
+| Approved provider | `/dashboard/provider/bookings`, live QA booking data, no admin access |
+| Pending provider  | Private provider workspace works; public provider URL remains 404     |
+| Administrator     | `/admin` and the live House ledger                                    |
+| Unverified client | Remains on `/login` with an email-confirmation message                |
+| Disabled client   | Remains on `/login` with a disabled-account message                   |
+
+Run the read-only production suite on Node 24:
+
+```sh
+E2E_BASE_URL=https://faineantapp.com nvm exec 24 pnpm test:e2e
+```
+
+The suite reads the existing Keychain services directly on macOS. The manual
+`Production QA UI` GitHub workflow instead expects the six password variables as
+secrets in the protected `production-qa` environment. Do not upload Playwright
+reports or failure screenshots until they have been checked for session or user
+data.
+
+### Process and memory ownership
+
+- `CLAUDE.md` defines shared architecture; `AGENTS.md` defines Codex operations.
+- This runbook owns durable QA identities/scenarios; `apps/web/e2e` owns their
+  executable browser expectations.
+- Sanitized Codex memory can summarize verified outcomes only when explicitly
+  requested. It must never contain passwords, cookies, tokens, or storage state.
+- Before claiming a current result, re-check the repository SHA, hosted Supabase
+  state, Vercel deployment, and live browser run. Older memory is evidence, not
+  release authority.
+
 ## External integration gates
 
 ### Email DNS
@@ -106,11 +144,11 @@ the registrar and active nameservers are at GoDaddy
 (`ns21.domaincontrol.com`, `ns22.domaincontrol.com`). Add these public records at
 GoDaddy:
 
-| Type | Name | Value |
-| --- | --- | --- |
+| Type  | Name                | Value                                                                                                                                                                                                                        |
+| ----- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TXT` | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDE+t26vTYp7UkjUi05RViTwfDSPLVIAW76o59lrwDf09IlQImcos+0sSaZDXV+qKzYZoqwaG3V0ETdnJrw1iIw7At+0OqNuPppcYDX2gcUhRGOoexCcqOJm0XLwetxWhx9z8tSt7vL7Bh/C5A43q26n4sexefvp9UZ8MopfdJToQIDAQAB` |
-| `MX` | `send` | `feedback-smtp.us-east-1.amazonses.com` |
-| `TXT` | `send` | `v=spf1 include:amazonses.com ~all` |
+| `MX`  | `send`              | `feedback-smtp.us-east-1.amazonses.com`                                                                                                                                                                                      |
+| `TXT` | `send`              | `v=spf1 include:amazonses.com ~all`                                                                                                                                                                                          |
 
 Until Resend reports the domain as verified, the database email trigger is
 intentionally suspended by an empty `faineant_send_email_url` Vault value. The

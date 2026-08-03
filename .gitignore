@@ -30,6 +30,9 @@ npm-debug.log*
 
 # Testing
 coverage/
+apps/web/playwright-report/
+apps/web/test-results/
+apps/web/playwright/.auth/
 
 # Turbo
 .turbo/

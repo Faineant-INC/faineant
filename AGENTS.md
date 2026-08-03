@@ -17,3 +17,9 @@ this file as the Codex-specific operational memory for the repository.
   not hard-coded application source.
 - A green build is not proof of production deployment. Report Git, database,
   Edge Function, Vercel, and domain status separately.
+- Browser account QA lives in `apps/web/e2e`. Keep its identity registry,
+  `docs/QA.md`, and role-routing behavior synchronized. Credentials come only
+  from Keychain or CI secrets; never persist Playwright storage state, traces, or
+  videos containing authenticated sessions.
+- Production UI smoke tests are serial and read-only. Stateful browser tests need
+  disposable fixtures, explicit cleanup, and a separate lane.

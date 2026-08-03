@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import type { AppRole } from "@/lib/auth.matcher";
 
 export interface AuthUser {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  role: AppRole;
   emailVerified?: boolean;
 }
 
@@ -16,7 +17,7 @@ export interface AuthContextValue {
   // Exposed for authenticated UI gating and Edge Function calls. Data access
   // itself is handled by the Supabase client and its persisted session.
   accessToken: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
   register: (data: Record<string, string>) => Promise<{
     requiresEmailConfirmation: boolean;
   }>;
@@ -27,7 +28,9 @@ export interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue>({
   user: null,
   accessToken: null,
-  login: async () => {},
+  login: async () => {
+    throw new Error("AuthProvider is not mounted.");
+  },
   register: async () => ({ requiresEmailConfirmation: false }),
   logout: () => {},
   isLoading: true,

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { destinationAfterLogin, messageForLoginError } from "@/lib/auth-login";
 
 export function LoginForm({
   className,
@@ -25,33 +26,35 @@ export function LoginForm({
     setError("");
     setLoading(true);
     try {
-      await login(email.trim(), password);
-      const requestedPath = searchParams.get("redirect");
-      const redirectPath =
-        requestedPath?.startsWith("/") && !requestedPath.startsWith("//")
-          ? requestedPath
-          : "/dashboard";
+      const authenticatedUser = await login(email.trim(), password);
+      const redirectPath = destinationAfterLogin(
+        authenticatedUser.role,
+        searchParams.get("redirect"),
+      );
       router.push(redirectPath);
-    } catch {
-      setError("PASSWORD INCORRECT. NOTHING ELSE HAPPENED.");
+      router.refresh();
+    } catch (reason) {
+      setError(messageForLoginError(reason));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-    >
+    <form onSubmit={handleSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
       {searchParams.get("checkEmail") === "1" && !error && (
-        <div className="border border-champagne-400/60 bg-champagne-400/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-champagne-400">
+        <div
+          role="status"
+          className="border border-champagne-400/60 bg-champagne-400/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-champagne-400"
+        >
           Check your email, confirm the account, then sign in.
         </div>
       )}
       {error && (
-        <div className="border border-oxblood-500/60 bg-oxblood-500/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-oxblood-400">
+        <div
+          role="alert"
+          className="border border-oxblood-500/60 bg-oxblood-500/10 px-4 py-3 font-mono text-mono uppercase tracking-[0.2em] text-oxblood-400"
+        >
           {error}
         </div>
       )}
@@ -79,12 +82,7 @@ export function LoginForm({
         />
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        disabled={loading}
-      >
+      <Button type="submit" size="lg" className="w-full" disabled={loading}>
         {loading ? "Signing in…" : "Sign in →"}
       </Button>
     </form>
