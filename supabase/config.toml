@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "Arc"
+project_id = "faineant"
 
 [api]
 enabled = true
@@ -58,11 +58,11 @@ enabled = true
 schema_paths = []
 
 [db.seed]
-# If enabled, seeds the database after migrations during a db reset.
-enabled = true
+# No committed seed exists yet; avoid silently advertising or loading one.
+enabled = false
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+sql_paths = []
 
 [db.network_restrictions]
 # Enable management of network restrictions.
@@ -96,7 +96,7 @@ openai_api_key = "env(OPENAI_API_KEY)"
 
 # Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
 # are monitored, and you can view the emails that would have been sent from the web interface.
-[inbucket]
+[local_smtp]
 enabled = true
 # Port to use for the email testing server web interface.
 port = 54324
@@ -420,7 +420,9 @@ entrypoint = "./functions/send-email/index.ts"
 
 [functions.stripe-connect]
 enabled = true
-verify_jwt = true
+# Authentication is verified inside the handler with auth.getUser(). Keeping
+# the gateway check disabled supports projects using asymmetric signing keys.
+verify_jwt = false
 import_map = "./functions/stripe-connect/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -431,7 +433,7 @@ entrypoint = "./functions/stripe-connect/index.ts"
 
 [functions.stripe-payment]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/stripe-payment/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -442,7 +444,7 @@ entrypoint = "./functions/stripe-payment/index.ts"
 
 [functions.stripe-refund]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/stripe-refund/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -461,3 +463,27 @@ entrypoint = "./functions/stripe-webhook/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/stripe-webhook/*.html" ]
+
+[functions.calendar-google-connect]
+enabled = true
+verify_jwt = false
+import_map = "./functions/calendar-google-connect/deno.json"
+entrypoint = "./functions/calendar-google-connect/index.ts"
+
+[functions.calendar-google-callback]
+enabled = true
+verify_jwt = false
+import_map = "./functions/calendar-google-callback/deno.json"
+entrypoint = "./functions/calendar-google-callback/index.ts"
+
+[functions.calendar-ics-connect]
+enabled = true
+verify_jwt = false
+import_map = "./functions/calendar-ics-connect/deno.json"
+entrypoint = "./functions/calendar-ics-connect/index.ts"
+
+[functions.calendar-sync]
+enabled = true
+verify_jwt = false
+import_map = "./functions/calendar-sync/deno.json"
+entrypoint = "./functions/calendar-sync/index.ts"

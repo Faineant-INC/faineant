@@ -8,10 +8,10 @@ import {
   type UPLOAD_PURPOSES,
 } from "@faineant/shared";
 import { useAuth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const supabase = createClient();
 
 type AllowedType = (typeof ALLOWED_UPLOAD_CONTENT_TYPES)[number];
 type Purpose = (typeof UPLOAD_PURPOSES)[number];
@@ -28,21 +28,6 @@ interface UploaderProps {
   /** Optional label shown in the drop zone. */
   label?: string;
   className?: string;
-}
-
-interface SignResponse {
-  success: true;
-  data: {
-    uploadUrl: string;
-    publicUrl: string;
-    key: string;
-    expiresIn: number;
-  };
-}
-
-interface ApiError {
-  success: false;
-  error: { code: string; message: string };
 }
 
 export function Uploader({
@@ -90,96 +75,35 @@ export function Uploader({
       }
 
       setProgress(0);
-
-      // 1. Ask the API for a presigned URL.
-      let sign: SignResponse["data"];
       try {
-        const signRes = await fetch(`${API_URL}/uploads/sign`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+        if (userError || !user) throw new Error("You must be signed in to upload.");
+
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+        const uniqueId =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const path = `${user.id}/${purpose ?? "general"}/${uniqueId}-${safeName}`;
+        const { error: uploadError } = await supabase.storage
+          .from("uploads")
+          .upload(path, file, {
             contentType: file.type,
-            sizeBytes: file.size,
-            purpose,
-            filename: file.name,
-          }),
-        });
-        const json: SignResponse | ApiError = await signRes.json();
-        if (!signRes.ok || !json.success) {
-          const message =
-            !json.success && json.error?.message
-              ? json.error.message
-              : "Could not start upload.";
-          setError(message);
-          setProgress(null);
-          return;
-        }
-        sign = json.data;
-      } catch {
-        setError("Network error. Please try again.");
-        setProgress(null);
-        return;
-      }
+            cacheControl: "3600",
+            upsert: false,
+          });
+        if (uploadError) throw uploadError;
 
-      // 2. PUT the file directly to R2 with progress events (XHR for upload progress).
-      try {
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open("PUT", sign.uploadUrl);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              setProgress(Math.round((e.loaded / e.total) * 100));
-            }
-          };
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) resolve();
-            else reject(new Error(`Upload failed (${xhr.status})`));
-          };
-          xhr.onerror = () => reject(new Error("Upload network error"));
-          xhr.send(file);
-        });
+        const { data } = supabase.storage.from("uploads").getPublicUrl(path);
+        if (!data.publicUrl) throw new Error("Could not create the upload URL.");
+        setProgress(100);
+        onUploaded(data.publicUrl);
+        setTimeout(reset, 600);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Upload failed.");
-        setProgress(null);
-        return;
-      }
-
-      // 3. Finalize: API HEADs the object and records metadata.
-      try {
-        const finRes = await fetch(`${API_URL}/uploads/finalize`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            key: sign.key,
-            contentType: file.type,
-            sizeBytes: file.size,
-            purpose,
-          }),
-        });
-        const json: { success: true; data: { url: string } } | ApiError =
-          await finRes.json();
-        if (!finRes.ok || !json.success) {
-          const message =
-            !json.success && json.error?.message
-              ? json.error.message
-              : "Could not finalize upload.";
-          setError(message);
-          setProgress(null);
-          return;
-        }
-        setProgress(100);
-        onUploaded(json.data.url);
-        // Settle UI back to idle shortly after success.
-        setTimeout(reset, 600);
-      } catch {
-        setError("Could not finalize upload.");
         setProgress(null);
       }
     },

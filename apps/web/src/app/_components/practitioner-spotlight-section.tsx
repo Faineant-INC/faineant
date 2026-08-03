@@ -1,6 +1,27 @@
 import Image from "next/image";
+import Link from "next/link";
+import { listMarketplaceProviders } from "@/lib/marketplace";
 
-export function PractitionerSpotlightSection() {
+const CATEGORY_IMAGES: Record<string, string> = {
+  HAIRCUT: "/brand/photography/tile-hair.png",
+  FADE: "/brand/photography/tile-barber.png",
+  BEARD: "/brand/photography/tile-barber.png",
+  BRAIDS: "/brand/photography/tile-hair.png",
+  LOCS: "/brand/photography/tile-hair.png",
+  COLOR: "/brand/photography/tile-hair.png",
+  NAILS: "/brand/photography/tile-nails.png",
+  BROWS: "/brand/photography/tile-face.png",
+  FACIAL: "/brand/photography/tile-face.png",
+  LASHES: "/brand/photography/tile-lash.png",
+  WAXING: "/brand/photography/tile-face.png",
+  MAKEUP: "/brand/photography/tile-makeup.png",
+  OTHER: "/brand/photography/portrait-maeve.png",
+};
+
+export async function PractitionerSpotlightSection() {
+  const providers = await listMarketplaceProviders();
+  const provider = providers[0];
+
   return (
     <section className="py-16 md:py-24 lg:py-30 border-b border-smoke-700">
       <div className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14">
@@ -12,54 +33,83 @@ export function PractitionerSpotlightSection() {
             at home.
           </h3>
           <div className="font-mono text-mono text-taupe-300 leading-relaxed text-left md:text-right">
-            <strong className="text-bone-100 font-medium">14 PRACTITIONERS</strong>
+            <strong className="text-bone-100 font-medium">
+              {providers.length.toString().padStart(2, "0")} VERIFIED PRACTITIONERS
+            </strong>
             <br />
             CHICAGO ONLY
             <br />
-            ACCEPTANCE · 4.6%
+            APPLICATIONS REVIEWED
             <br />
             WAITLIST OPEN
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] border border-smoke-700 lg:min-h-[560px]">
-          <div className="relative bg-smoke-900 overflow-hidden min-h-[320px] sm:min-h-[420px] lg:min-h-0">
-            <Image
-              src="/brand/photography/portrait-maeve.png"
-              alt="Maeve Le Gal"
-              fill
-              className="object-cover object-top"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+        {provider ? (
+          <Link
+            href={`/providers/${provider.slug}`}
+            className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] border border-smoke-700 lg:min-h-[560px] group"
+          >
+            <div className="relative bg-smoke-900 overflow-hidden min-h-[320px] sm:min-h-[420px] lg:min-h-0">
+              <Image
+                src={
+                  provider.avatarUrl ??
+                  provider.portfolio[0]?.imageUrl ??
+                  CATEGORY_IMAGES[provider.services[0]?.category ?? "OTHER"]
+                }
+                alt={`${provider.firstName} ${provider.lastName}`.trim() || provider.businessName || "Faineant practitioner"}
+                fill
+                className="object-cover object-top transition-transform duration-[600ms] group-hover:scale-[1.02]"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </div>
+            <div className="p-8 sm:p-12 lg:p-16 lg:px-14 flex flex-col justify-between gap-6 lg:gap-0 bg-smoke-900">
+              <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
+                In Practice · Verified
+              </span>
+              <h3 className="font-display display-compressed text-[clamp(36px,8vw,60px)] leading-[0.95] text-bone-100 mt-4 lg:mt-6">
+                {provider.firstName || provider.businessName}{" "}
+                <em className="font-editorial italic font-light text-champagne-400">
+                  {provider.lastName ? `${provider.lastName}.` : ""}
+                </em>
+              </h3>
+              <p className="font-editorial italic font-light text-[19px] sm:text-[22px] lg:text-[24px] leading-snug text-bone-200 my-4 lg:my-8 max-w-[480px]">
+                &ldquo;{provider.bio ?? "A Chicago practitioner approved for private house calls."}&rdquo;
+              </p>
+              <dl className="grid grid-cols-3 gap-4 sm:gap-8 pt-6 border-t border-taupe-500">
+                <div>
+                  <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">
+                    Services
+                  </dt>
+                  <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">
+                    {provider.services.length}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">
+                    Rating
+                  </dt>
+                  <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">
+                    {provider.totalReviews > 0
+                      ? provider.averageRating.toFixed(2)
+                      : "New"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">
+                    Radius
+                  </dt>
+                  <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">
+                    {provider.serviceRadius ? `${provider.serviceRadius} mi` : "Ask"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </Link>
+        ) : (
+          <div className="border border-smoke-700 px-6 py-20 text-center font-editorial italic text-body-lg text-bone-200">
+            Practitioner profiles are under review.
           </div>
-          <div className="p-8 sm:p-12 lg:p-16 lg:px-14 flex flex-col justify-between gap-6 lg:gap-0 bg-smoke-900">
-            <span className="text-label uppercase tracking-[0.32em] text-taupe-300 font-medium">
-              In Practice · № 01
-            </span>
-            <h3 className="font-display display-compressed text-[clamp(36px,8vw,60px)] leading-[0.95] text-bone-100 mt-4 lg:mt-6">
-              Maeve{" "}
-              <em className="font-editorial italic font-light text-champagne-400">
-                Le Gal.
-              </em>
-            </h3>
-            <p className="font-editorial italic font-light text-[19px] sm:text-[22px] lg:text-[24px] leading-snug text-bone-200 my-4 lg:my-8 max-w-[480px]">
-              &ldquo;I cut hair for people who would rather lie down than stand at a salon for two hours. The work is the same. The chair is just yours.&rdquo;
-            </p>
-            <dl className="grid grid-cols-3 gap-4 sm:gap-8 pt-6 border-t border-taupe-500">
-              <div>
-                <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">Trained</dt>
-                <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">Cristophe, Paris</dd>
-              </div>
-              <div>
-                <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">Years</dt>
-                <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">22</dd>
-              </div>
-              <div>
-                <dt className="text-label uppercase tracking-[0.3em] text-taupe-300 mb-1.5 font-medium">Neighbourhood</dt>
-                <dd className="font-editorial italic text-body-sm sm:text-body-lg text-bone-100">West Loop</dd>
-              </div>
-            </dl>
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );

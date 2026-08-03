@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api-client";
+import { createService, listMyServices } from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 import { SERVICE_CATEGORY_LABELS } from "@faineant/shared";
 import { Loader2 } from "lucide-react";
@@ -42,10 +42,7 @@ export default function ProviderServicesPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await api.get<{ data: ServiceItem[] }>("/services/mine", {
-        token: accessToken!,
-      });
-      setServices(res.data);
+      setServices(await listMyServices());
     } catch {
       // Network error on initial load — degrade to empty state
     } finally {
@@ -58,17 +55,13 @@ export default function ProviderServicesPage() {
     setError(null);
     setSaving(true);
     try {
-      await api.post(
-        "/services",
-        {
-          name: form.name,
-          description: form.description || undefined,
-          category: form.category,
-          durationMinutes: parseInt(form.durationMinutes),
-          priceInCents: Math.round(parseFloat(form.priceInCents) * 100),
-        },
-        { token: accessToken! },
-      );
+      await createService({
+        name: form.name,
+        description: form.description || undefined,
+        category: form.category,
+        durationMinutes: parseInt(form.durationMinutes),
+        priceInCents: Math.round(parseFloat(form.priceInCents) * 100),
+      });
       setShowForm(false);
       setForm({
         name: "",

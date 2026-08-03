@@ -1,11 +1,9 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react-native";
-import * as apiClient from "@/lib/api-client";
-import * as auth from "@/lib/auth";
+import * as dataClient from "@/lib/data-client";
 import MessagesScreen from "@/app/(client)/messages";
 
-jest.mock("@/lib/api-client");
-jest.mock("@/lib/auth");
+jest.mock("@/lib/data-client");
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -25,20 +23,18 @@ const mockConversations = [
 ];
 
 describe("MessagesScreen", () => {
-  it("loads conversations with stored token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok-123" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockConversations });
+  it("loads conversations from Supabase", async () => {
+    (dataClient.listConversations as jest.Mock).mockResolvedValueOnce(mockConversations);
 
     render(<MessagesScreen />);
 
     await waitFor(() => {
-      expect(apiClient.api.get).toHaveBeenCalledWith("/messages/conversations", { token: "tok-123" });
+      expect(dataClient.listConversations).toHaveBeenCalledWith();
     });
   });
 
   it("displays conversation participant names", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockConversations });
+    (dataClient.listConversations as jest.Mock).mockResolvedValueOnce(mockConversations);
 
     const { getByText } = render(<MessagesScreen />);
 
@@ -49,8 +45,7 @@ describe("MessagesScreen", () => {
   });
 
   it("displays last message preview", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockConversations });
+    (dataClient.listConversations as jest.Mock).mockResolvedValueOnce(mockConversations);
 
     const { getByText } = render(<MessagesScreen />);
 
@@ -60,8 +55,7 @@ describe("MessagesScreen", () => {
   });
 
   it("renders avatar initials", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockConversations });
+    (dataClient.listConversations as jest.Mock).mockResolvedValueOnce(mockConversations);
 
     const { getByText } = render(<MessagesScreen />);
 
@@ -72,8 +66,7 @@ describe("MessagesScreen", () => {
   });
 
   it("shows empty state when no conversations", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: [] });
+    (dataClient.listConversations as jest.Mock).mockResolvedValueOnce([]);
 
     const { getByText } = render(<MessagesScreen />);
 
@@ -86,13 +79,4 @@ describe("MessagesScreen", () => {
     });
   });
 
-  it("does not fetch when no access token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: null });
-
-    render(<MessagesScreen />);
-
-    await waitFor(() => {
-      expect(apiClient.api.get).not.toHaveBeenCalled();
-    });
-  });
 });

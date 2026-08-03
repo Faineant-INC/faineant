@@ -1,8 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-// Override the global useAuth mock so the component has a token.
+const supabaseMocks = vi.hoisted(() => ({
+  getUser: vi.fn(),
+  upload: vi.fn(),
+  getPublicUrl: vi.fn(),
+}));
+
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({
     user: { id: "u1", role: "PROVIDER" },
@@ -17,54 +22,33 @@ vi.mock("@/lib/auth", () => ({
   },
 }));
 
+vi.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({
+    auth: { getUser: supabaseMocks.getUser },
+    storage: {
+      from: vi.fn(() => ({
+        upload: supabaseMocks.upload,
+        getPublicUrl: supabaseMocks.getPublicUrl,
+      })),
+    },
+  }),
+}));
+
 import { Uploader } from "@/components/uploader";
 
-/**
- * Mock XHR class for tracking PUT calls and simulating success.
- */
-class MockXMLHttpRequest {
-  status = 0;
-  upload = { onprogress: null as ((e: ProgressEvent) => void) | null };
-  onload: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  opened: { method: string; url: string } | null = null;
-  headers: Record<string, string> = {};
-
-  open(method: string, url: string) {
-    this.opened = { method, url };
-  }
-  setRequestHeader(k: string, v: string) {
-    this.headers[k] = v;
-  }
-  send(_body: unknown) {
-    // Simulate progress + success on next tick.
-    setTimeout(() => {
-      this.upload.onprogress?.({
-        lengthComputable: true,
-        loaded: 50,
-        total: 100,
-      } as ProgressEvent);
-      this.status = 200;
-      this.onload?.();
-    }, 0);
-  }
-}
-
 describe("Uploader component", () => {
-  const fetchMock = vi.fn();
   const onUploaded = vi.fn();
-  const originalXHR = globalThis.XMLHttpRequest;
 
   beforeEach(() => {
-    fetchMock.mockReset();
-    onUploaded.mockReset();
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
-    (globalThis as { XMLHttpRequest: unknown }).XMLHttpRequest =
-      MockXMLHttpRequest;
-  });
-
-  afterEach(() => {
-    (globalThis as { XMLHttpRequest: unknown }).XMLHttpRequest = originalXHR;
+    vi.clearAllMocks();
+    supabaseMocks.getUser.mockResolvedValue({
+      data: { user: { id: "u1" } },
+      error: null,
+    });
+    supabaseMocks.upload.mockResolvedValue({ data: { path: "stored" }, error: null });
+    supabaseMocks.getPublicUrl.mockReturnValue({
+      data: { publicUrl: "https://uploads.test/u1/portfolio/photo.jpg" },
+    });
   });
 
   function makeFile(name = "photo.jpg", type = "image/jpeg", size = 1024) {
@@ -72,114 +56,69 @@ describe("Uploader component", () => {
     return new File([blob], name, { type });
   }
 
+  function selectFile(file: File) {
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    Object.defineProperty(input, "files", { value: [file], configurable: true });
+    fireEvent.change(input);
+  }
+
   it("renders the drop zone label", () => {
     render(<Uploader onUploaded={onUploaded} />);
     expect(screen.getByLabelText("Upload image")).toBeInTheDocument();
   });
 
-  it("rejects an unsupported content type without calling the API", async () => {
+  it("rejects an unsupported content type before storage is called", async () => {
     render(<Uploader onUploaded={onUploaded} />);
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    const bad = makeFile("doc.pdf", "application/pdf", 100);
-
-    Object.defineProperty(input, "files", { value: [bad], configurable: true });
-    fireEvent.change(input);
+    selectFile(makeFile("doc.pdf", "application/pdf", 100));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/JPEG, PNG, and WebP/i);
     });
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(supabaseMocks.upload).not.toHaveBeenCalled();
     expect(onUploaded).not.toHaveBeenCalled();
   });
 
   it("rejects a file over the size limit", async () => {
     render(<Uploader onUploaded={onUploaded} maxBytes={500} />);
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    const big = makeFile("big.jpg", "image/jpeg", 2000);
-
-    Object.defineProperty(input, "files", { value: [big], configurable: true });
-    fireEvent.change(input);
+    selectFile(makeFile("big.jpg", "image/jpeg", 2000));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/limit/i);
     });
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(supabaseMocks.upload).not.toHaveBeenCalled();
   });
 
-  it("runs the full sign -> PUT -> finalize flow on a valid file", async () => {
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: {
-            uploadUrl: "https://signed.example/put",
-            publicUrl: "https://uploads.test/users/u1/abc.jpg",
-            key: "users/u1/abc.jpg",
-            expiresIn: 300,
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          success: true,
-          data: { url: "https://uploads.test/users/u1/abc.jpg" },
-        }),
-      });
-
+  it("uploads a valid file directly to the user-scoped Supabase path", async () => {
     render(<Uploader onUploaded={onUploaded} purpose="portfolio" />);
-
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    const file = makeFile();
-    Object.defineProperty(input, "files", { value: [file], configurable: true });
-    fireEvent.change(input);
+    selectFile(makeFile("my photo.jpg"));
 
     await waitFor(() => {
       expect(onUploaded).toHaveBeenCalledWith(
-        "https://uploads.test/users/u1/abc.jpg",
+        "https://uploads.test/u1/portfolio/photo.jpg",
       );
     });
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const [signUrl, signOpts] = fetchMock.mock.calls[0]!;
-    expect(String(signUrl)).toMatch(/\/uploads\/sign$/);
-    expect((signOpts as RequestInit).headers).toMatchObject({
-      Authorization: "Bearer test-token",
-    });
-
-    const [finUrl] = fetchMock.mock.calls[1]!;
-    expect(String(finUrl)).toMatch(/\/uploads\/finalize$/);
+    expect(supabaseMocks.upload).toHaveBeenCalledWith(
+      expect.stringMatching(/^u1\/portfolio\/.+-my-photo\.jpg$/),
+      expect.any(File),
+      {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: false,
+      },
+    );
   });
 
-  it("surfaces the API error message when /uploads/sign fails", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({
-        success: false,
-        error: {
-          code: "UPLOAD_QUOTA_EXCEEDED",
-          message: "Daily upload limit reached (50/day). Try again tomorrow.",
-        },
-      }),
+  it("surfaces a Supabase Storage error", async () => {
+    supabaseMocks.upload.mockResolvedValue({
+      data: null,
+      error: new Error("Upload quota reached"),
     });
-
     render(<Uploader onUploaded={onUploaded} />);
-    const input = document.querySelector(
-      'input[type="file"]',
-    ) as HTMLInputElement;
-    const file = makeFile();
-    Object.defineProperty(input, "files", { value: [file], configurable: true });
-    fireEvent.change(input);
+    selectFile(makeFile());
 
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(/Daily upload limit/i);
+      expect(screen.getByRole("alert")).toHaveTextContent(/Upload quota reached/i);
     });
     expect(onUploaded).not.toHaveBeenCalled();
   });

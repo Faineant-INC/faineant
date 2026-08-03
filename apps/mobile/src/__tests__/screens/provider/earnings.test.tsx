@@ -1,11 +1,9 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react-native";
-import * as apiClient from "@/lib/api-client";
-import * as auth from "@/lib/auth";
+import * as dataClient from "@/lib/data-client";
 import EarningsScreen from "@/app/(provider)/earnings";
 
-jest.mock("@/lib/api-client");
-jest.mock("@/lib/auth");
+jest.mock("@/lib/data-client");
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -30,20 +28,18 @@ const mockEarnings = {
 };
 
 describe("EarningsScreen", () => {
-  it("loads earnings with stored token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok-123" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+  it("loads earnings from Supabase", async () => {
+    (dataClient.getEarnings as jest.Mock).mockResolvedValueOnce(mockEarnings);
 
     render(<EarningsScreen />);
 
     await waitFor(() => {
-      expect(apiClient.api.get).toHaveBeenCalledWith("/payments/earnings", { token: "tok-123" });
+      expect(dataClient.getEarnings).toHaveBeenCalledWith();
     });
   });
 
   it("displays total earnings", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+    (dataClient.getEarnings as jest.Mock).mockResolvedValueOnce(mockEarnings);
 
     const { getByText } = render(<EarningsScreen />);
 
@@ -53,8 +49,9 @@ describe("EarningsScreen", () => {
   });
 
   it("displays Total Earnings label", () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+    (dataClient.getEarnings as jest.Mock).mockReturnValueOnce(
+      new Promise(() => {}),
+    );
 
     const { getByText } = render(<EarningsScreen />);
     expect(getByText("TO DATE")).toBeTruthy();
@@ -62,16 +59,16 @@ describe("EarningsScreen", () => {
   });
 
   it("displays Payment History section", () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+    (dataClient.getEarnings as jest.Mock).mockReturnValueOnce(
+      new Promise(() => {}),
+    );
 
     const { getByText } = render(<EarningsScreen />);
     expect(getByText("HISTORY")).toBeTruthy();
   });
 
   it("displays individual payment amounts", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+    (dataClient.getEarnings as jest.Mock).mockResolvedValueOnce(mockEarnings);
 
     const { getByText } = render(<EarningsScreen />);
 
@@ -82,8 +79,7 @@ describe("EarningsScreen", () => {
   });
 
   it("displays service names in payment list", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({ data: mockEarnings });
+    (dataClient.getEarnings as jest.Mock).mockResolvedValueOnce(mockEarnings);
 
     const { getByText } = render(<EarningsScreen />);
 
@@ -94,17 +90,16 @@ describe("EarningsScreen", () => {
   });
 
   it("shows $0.00 when earnings not loaded yet", () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce(new Promise(() => {})); // never resolves
+    (dataClient.getEarnings as jest.Mock).mockReturnValueOnce(new Promise(() => {}));
 
     const { getByText } = render(<EarningsScreen />);
     expect(getByText("$0.00")).toBeTruthy();
   });
 
   it("shows empty state when no payments", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: "tok" });
-    (apiClient.api.get as jest.Mock).mockResolvedValueOnce({
-      data: { totalEarnings: 0, payments: [] },
+    (dataClient.getEarnings as jest.Mock).mockResolvedValueOnce({
+      totalEarnings: 0,
+      payments: [],
     });
 
     const { getByText } = render(<EarningsScreen />);
@@ -114,13 +109,4 @@ describe("EarningsScreen", () => {
     });
   });
 
-  it("does not fetch when no access token", async () => {
-    (auth.getStoredTokens as jest.Mock).mockResolvedValue({ accessToken: null });
-
-    render(<EarningsScreen />);
-
-    await waitFor(() => {
-      expect(apiClient.api.get).not.toHaveBeenCalled();
-    });
-  });
 });

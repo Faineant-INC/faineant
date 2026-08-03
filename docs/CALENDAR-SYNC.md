@@ -1,4 +1,8 @@
-# FAINEANT — Calendar & Booking Platform Sync Strategy
+# FAINEANT — Calendar & Booking Platform Sync Strategy (Historical)
+
+> This document describes the retired standalone API design and is retained for
+> product history only. The implemented read-only Supabase design is documented
+> in `supabase/functions/calendar.README.md` and the calendar Edge Function code.
 
 > Barbers won't adopt FAINEANT if it means managing two calendars.
 > This document plans how FAINEANT syncs with existing booking tools so providers

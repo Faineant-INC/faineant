@@ -25,6 +25,7 @@ jest.mock("expo-router", () => ({
     push: jest.fn(),
     back: jest.fn(),
   })),
+  useLocalSearchParams: jest.fn(() => ({})),
   router: {
     replace: jest.fn(),
     push: jest.fn(),
@@ -38,6 +39,11 @@ jest.mock("react-native", () => {
   const React = require("react");
   const RN = {
     Platform: { OS: "ios", select: (obj) => obj.ios },
+    NativeModules: {},
+    TurboModuleRegistry: {
+      get: jest.fn(() => null),
+      getEnforcing: jest.fn(() => null),
+    },
     StyleSheet: {
       create: (styles) => styles,
       flatten: (style) => {

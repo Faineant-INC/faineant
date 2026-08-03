@@ -1,28 +1,33 @@
 import { create } from "zustand";
+import type { BookableService } from "@/lib/data-client";
 
 export type BookingState = {
-  serviceSlug: string | null;
-  serviceLabel: string | null;
-  servicePrice: string | null;
-  day: string | null;
-  time: string | null;
-  setService: (slug: string, label: string, price: string) => void;
-  setWindow: (day: string, time: string) => void;
+  service: BookableService | null;
+  startTime: string | null;
+  windowLabel: string | null;
+  location: string;
+  bookingId: string | null;
+  setService: (service: BookableService) => void;
+  setWindow: (startTime: string, label: string) => void;
+  setLocation: (location: string) => void;
+  setBookingId: (bookingId: string) => void;
   reset: () => void;
 };
 
 const initialState = {
-  serviceSlug: null,
-  serviceLabel: null,
-  servicePrice: null,
-  day: null,
-  time: null,
+  service: null,
+  startTime: null,
+  windowLabel: null,
+  location: "",
+  bookingId: null,
 };
 
 export const useBookingStore = create<BookingState>((set) => ({
   ...initialState,
-  setService: (slug, label, price) =>
-    set({ serviceSlug: slug, serviceLabel: label, servicePrice: price }),
-  setWindow: (day, time) => set({ day, time }),
+  setService: (service) =>
+    set({ service, startTime: null, windowLabel: null, bookingId: null }),
+  setWindow: (startTime, windowLabel) => set({ startTime, windowLabel }),
+  setLocation: (location) => set({ location }),
+  setBookingId: (bookingId) => set({ bookingId }),
   reset: () => set({ ...initialState }),
 }));

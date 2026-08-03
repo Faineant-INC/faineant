@@ -25,7 +25,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { api } from "@/lib/api-client";
+import {
+  listProviderBookings,
+  updateBookingStatus,
+} from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 
 interface BookingItem {
@@ -143,12 +146,7 @@ export default function ProviderBookingsPage() {
     setLoading(true);
     try {
       const apiStatus = TAB_TO_API_STATUS[activeTab];
-      const params = apiStatus ? `?status=${apiStatus}` : "";
-      const res = await api.get<{ data: BookingItem[] }>(
-        `/bookings/provider${params}`,
-        { token: accessToken },
-      );
-      setBookings(res.data);
+      setBookings(await listProviderBookings(apiStatus || undefined));
     } catch {
       // Network error on initial load — degrade to empty state
     } finally {
@@ -171,11 +169,7 @@ export default function ProviderBookingsPage() {
     setError(null);
     setUpdatingId(bookingId);
     try {
-      await api.patch(
-        `/bookings/${bookingId}/status`,
-        { status },
-        { token: accessToken },
-      );
+      await updateBookingStatus(bookingId, status);
       await loadBookings();
     } catch {
       setError("Failed to update booking status.");
@@ -188,11 +182,7 @@ export default function ProviderBookingsPage() {
     if (!declineBooking || !accessToken) return;
     setDeclining(true);
     try {
-      await api.patch(
-        `/bookings/${declineBooking.id}/status`,
-        { status: "CANCELLED", reason: declineReason || undefined },
-        { token: accessToken },
-      );
+      await updateBookingStatus(declineBooking.id, "CANCELLED");
       setDeclineBooking(null);
       setDeclineReason("");
       await loadBookings();

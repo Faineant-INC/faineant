@@ -37,9 +37,9 @@ register, logout, isLoading }`.
 - `register` → `signUp` with `options.data: { first_name, last_name, role, phone }`. The
   `handle_new_user` DB trigger mirrors that metadata into `profiles` (and
   `provider_profiles` for providers).
-- `accessToken` is temporarily `null` (supabase-js owns the token). It is kept on the
-  context only so unmigrated pages still type-check; it is removed once the last feature
-  group migrates.
+- `accessToken` reflects the active Supabase session. UI components use it only as an
+  authenticated-session readiness signal; database access is performed by supabase-js
+  and constrained by RLS.
 
 ## Email confirmation flow
 
@@ -63,9 +63,8 @@ Real values go in `apps/web/.env.local` (gitignored). `.env.example` ships with 
 anon key. The anon key is a public client key, never a secret — but it still belongs only
 in `.env.local`, not in committed files.
 
-## Transition note (incremental rewrite)
+## Current state
 
-After this foundation (plan 6a), login issues a **Supabase** session, not an Express JWT.
-Dashboard **data** pages that still call the legacy Express `api-client` no longer have a
-valid token and will error until their feature group is migrated (plans 6c–6g). Public
-pages (landing, discovery) are unaffected. This is expected pre-launch / in local dev.
+The web application uses Supabase Auth, PostgREST/RPCs, Storage, and Edge Functions
+directly. The retired Express client and its custom JWT flow are no longer part of the
+workspace.

@@ -3,100 +3,36 @@ import Link from "next/link";
 import { Topbar } from "@/components/layout/topbar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { listMarketplaceProviders } from "@/lib/marketplace";
 
 export const metadata = {
   title: "The Salon — FAINEANT",
-  description:
-    "Fourteen practitioners. Chicago only. Hair, nails, face, lash, barber, makeup — at home.",
+  description: "Verified Chicago practitioners available for house calls.",
 };
 
-interface PractitionerCard {
-  slug: string;
-  firstName: string;
-  surname: string;
-  neighbourhood: string;
-  specialty: string;
-  numberLabel: string;
-  image: string;
+const CATEGORY_IMAGES: Record<string, string> = {
+  HAIRCUT: "/brand/photography/tile-hair.png",
+  FADE: "/brand/photography/tile-barber.png",
+  BEARD: "/brand/photography/tile-barber.png",
+  BRAIDS: "/brand/photography/tile-hair.png",
+  LOCS: "/brand/photography/tile-hair.png",
+  COLOR: "/brand/photography/tile-hair.png",
+  NAILS: "/brand/photography/tile-nails.png",
+  BROWS: "/brand/photography/tile-face.png",
+  FACIAL: "/brand/photography/tile-face.png",
+  LASHES: "/brand/photography/tile-lash.png",
+  WAXING: "/brand/photography/tile-face.png",
+  MAKEUP: "/brand/photography/tile-makeup.png",
+  OTHER: "/brand/photography/portrait-maeve.png",
+};
+
+function categoryLabel(value: string): string {
+  return value.toLowerCase().replaceAll("_", " ");
 }
 
-// TODO(impl): replace with Prisma query
-const PRACTITIONERS: PractitionerCard[] = [
-  {
-    slug: "maeve-le-gal",
-    firstName: "Maeve",
-    surname: "Le Gal",
-    neighbourhood: "West Loop",
-    specialty: "Hair · cut & colour",
-    numberLabel: "№ 01",
-    image: "/brand/photography/portrait-maeve.png",
-  },
-  {
-    slug: "noor-amari",
-    firstName: "Noor",
-    surname: "Amari",
-    neighbourhood: "Logan Square",
-    specialty: "Nails · gel & natural",
-    numberLabel: "№ 02",
-    image: "/brand/photography/tile-nails.png",
-  },
-  {
-    slug: "isolde-vance",
-    firstName: "Isolde",
-    surname: "Vance",
-    neighbourhood: "Lincoln Park",
-    specialty: "Face · facials & dermaplane",
-    numberLabel: "№ 03",
-    image: "/brand/photography/tile-face.png",
-  },
-  {
-    slug: "june-hartwell",
-    firstName: "June",
-    surname: "Hartwell",
-    neighbourhood: "Wicker Park",
-    specialty: "Lash · classic & volume",
-    numberLabel: "№ 04",
-    image: "/brand/photography/tile-lash.png",
-  },
-  {
-    slug: "augustin-roe",
-    firstName: "Augustin",
-    surname: "Roe",
-    neighbourhood: "Fulton Market",
-    specialty: "Barber · cut & shave",
-    numberLabel: "№ 05",
-    image: "/brand/photography/tile-barber.png",
-  },
-  {
-    slug: "céleste-mori",
-    firstName: "Céleste",
-    surname: "Mori",
-    neighbourhood: "River North",
-    specialty: "Makeup · day & evening",
-    numberLabel: "№ 06",
-    image: "/brand/photography/tile-makeup.png",
-  },
-  {
-    slug: "henrik-lund",
-    firstName: "Henrik",
-    surname: "Lund",
-    neighbourhood: "West Loop",
-    specialty: "Hair · long & curly",
-    numberLabel: "№ 07",
-    image: "/brand/photography/tile-hair.png",
-  },
-  {
-    slug: "ottilie-renner",
-    firstName: "Ottilie",
-    surname: "Renner",
-    neighbourhood: "Logan Square",
-    specialty: "Face · acne & rosacea",
-    numberLabel: "№ 08",
-    image: "/brand/photography/tile-face.png",
-  },
-];
+export default async function ProvidersPage() {
+  const providers = await listMarketplaceProviders();
 
-export default function ProvidersPage() {
   return (
     <>
       <Topbar />
@@ -114,59 +50,78 @@ export default function ProvidersPage() {
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-start md:items-end gap-6 md:gap-8 mt-10 pt-8 border-t border-taupe-500">
             <p className="font-editorial italic font-light text-[clamp(18px,3vw,24px)] leading-snug text-bone-200 max-w-[680px]">
-              Fourteen practitioners, chosen one at a time. Each one travels.
-              Each one keeps their own calendar. Tap a name to read about them
-              and reserve an hour.
+              Every practitioner shown here has been approved for the public
+              marketplace. Open a profile to see their live service menu.
             </p>
             <p className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300 text-left md:text-right">
               Chicago only
               <br />
-              Currently shown · 8 of 14
+              Currently shown · {providers.length}
             </p>
           </div>
         </section>
 
         <section className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14 py-16 md:py-20">
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-l border-t border-smoke-700">
-            {PRACTITIONERS.map((p) => (
-              <li
-                key={p.slug}
-                className="border-r border-b border-smoke-700 group bg-smoke-900"
-              >
-                <Link
-                  href={`/providers/${p.slug}`}
-                  className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne-400"
-                >
-                  <div className="relative aspect-[4/5] overflow-hidden bg-smoke-950">
-                    <Image
-                      src={p.image}
-                      alt={`${p.firstName} ${p.surname}`}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover object-top transition-transform duration-[600ms] ease-fai-smooth group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  <div className="p-6 sm:p-8 flex flex-col gap-4">
-                    <span className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300">
-                      {p.numberLabel} · {p.neighbourhood}
-                    </span>
-                    <h3 className="font-display display-compressed text-[clamp(28px,5vw,36px)] leading-[0.95] text-bone-100">
-                      {p.firstName}{" "}
-                      <em className="font-editorial italic font-light text-champagne-400">
-                        {p.surname}.
-                      </em>
-                    </h3>
-                    <p className="font-editorial italic text-body-lg text-bone-200">
-                      {p.specialty}
-                    </p>
-                    <span className="mt-4 pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.32em] text-bone-100 group-hover:text-champagne-400 transition-colors duration-[250ms] ease-fai-smooth font-medium">
-                      Book →
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {providers.length === 0 ? (
+            <div className="border border-smoke-700 px-6 py-20 text-center">
+              <p className="font-editorial italic text-[clamp(20px,4vw,28px)] text-bone-200">
+                The next approved practitioner will appear here.
+              </p>
+            </div>
+          ) : (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-l border-t border-smoke-700">
+              {providers.map((provider, index) => {
+                const firstService = provider.services[0];
+                const image =
+                  provider.avatarUrl ??
+                  provider.portfolio[0]?.imageUrl ??
+                  CATEGORY_IMAGES[firstService?.category ?? "OTHER"];
+                const specialties = [
+                  ...new Set(provider.services.map((service) => categoryLabel(service.category))),
+                ];
+                return (
+                  <li
+                    key={provider.id}
+                    className="border-r border-b border-smoke-700 group bg-smoke-900"
+                  >
+                    <Link
+                      href={`/providers/${provider.slug}`}
+                      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne-400"
+                    >
+                      <div className="relative aspect-[4/5] overflow-hidden bg-smoke-950">
+                        <Image
+                          src={image}
+                          alt={`${provider.firstName} ${provider.lastName}`.trim() || provider.businessName || "Faineant practitioner"}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover object-top transition-transform duration-[600ms] ease-fai-smooth group-hover:scale-[1.03]"
+                        />
+                      </div>
+                      <div className="p-6 sm:p-8 flex flex-col gap-4">
+                        <span className="font-mono text-mono uppercase tracking-[0.3em] text-taupe-300">
+                          № {(index + 1).toString().padStart(2, "0")} · Chicago
+                        </span>
+                        <h3 className="font-display display-compressed text-[clamp(28px,5vw,36px)] leading-[0.95] text-bone-100">
+                          {provider.firstName || provider.businessName}{" "}
+                          <em className="font-editorial italic font-light text-champagne-400">
+                            {provider.lastName ? `${provider.lastName}.` : ""}
+                          </em>
+                        </h3>
+                        <p className="font-editorial italic text-body-lg text-bone-200">
+                          {specialties.length > 0
+                            ? specialties.join(" · ")
+                            : "Service menu coming soon"}
+                        </p>
+                        <span className="mt-4 pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.32em] text-bone-100 group-hover:text-champagne-400 transition-colors duration-[250ms] ease-fai-smooth font-medium">
+                          View menu →
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       </main>
       <SiteFooter />

@@ -6,7 +6,7 @@ const { redirectMock } = vi.hoisted(() => ({ redirectMock: vi.fn() }));
 
 vi.mock("next/image", () => ({
   __esModule: true,
-  default: (props: Record<string, unknown>) =>
+  default: ({ priority: _priority, fill: _fill, ...props }: Record<string, unknown>) =>
     React.createElement("img", props as Record<string, unknown>),
 }));
 vi.mock("@/components/register-form", () => ({

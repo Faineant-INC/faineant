@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api-client";
+import {
+  getMyProviderProfile,
+  updateMyProviderProfile,
+} from "@/lib/data-client";
 import { Loader2 } from "lucide-react";
 
 export default function ProviderProfilePage() {
@@ -32,15 +35,7 @@ export default function ProviderProfilePage() {
   async function loadProfile() {
     setError(null);
     try {
-      const res = await api.get<{
-        data: {
-          bio?: string;
-          businessName?: string;
-          address?: string;
-          serviceRadius?: number;
-        };
-      }>("/providers/me", { token: accessToken! });
-      const data = res.data;
+      const data = await getMyProviderProfile();
       setForm({
         bio: data?.bio ?? "",
         businessName: data?.businessName ?? "",
@@ -59,16 +54,12 @@ export default function ProviderProfilePage() {
     setMessage("");
     setError(null);
     try {
-      await api.put(
-        "/providers/me",
-        {
-          bio: form.bio || undefined,
-          businessName: form.businessName || undefined,
-          address: form.address || undefined,
-          serviceRadius: parseFloat(form.serviceRadius),
-        },
-        { token: accessToken! },
-      );
+      await updateMyProviderProfile({
+        bio: form.bio || undefined,
+        businessName: form.businessName || undefined,
+        address: form.address || undefined,
+        serviceRadius: parseFloat(form.serviceRadius),
+      });
       setMessage("Saved.");
     } catch {
       setError("Failed to update profile. Please try again.");

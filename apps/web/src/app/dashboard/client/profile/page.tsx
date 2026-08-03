@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { NEIGHBOURHOODS, type Neighbourhood } from "@faineant/shared";
 import { useAuth } from "@/lib/auth";
-import { api } from "@/lib/api-client";
+import { getMyProfileDetails, updateMyProfile } from "@/lib/data-client";
 
 interface NotificationPrefs {
   reminders: boolean;
@@ -15,21 +15,47 @@ interface NotificationPrefs {
 export default function ClientProfilePage() {
   const { user, accessToken, isLoading } = useAuth();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    firstName: string;
+    lastName: string;
+    streetAddress: string;
+    neighbourhood: Neighbourhood | "";
+  }>({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     streetAddress: "",
-    neighbourhood: NEIGHBOURHOODS[0] as Neighbourhood,
+    neighbourhood: "",
   });
-  // TODO(impl): load real notification preferences from /users/me/preferences
   const [prefs, setPrefs] = useState<NotificationPrefs>({
     reminders: true,
     rebooking: true,
     newsletter: false,
   });
   const [saving, setSaving] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    setLoadingProfile(true);
+    getMyProfileDetails()
+      .then((profile) => {
+        setForm({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          streetAddress: profile.streetAddress,
+          neighbourhood: profile.neighbourhood as Neighbourhood | "",
+        });
+        setPrefs({
+          reminders: profile.notificationReminders,
+          rebooking: profile.notificationRebooking,
+          newsletter: profile.notificationNewsletter,
+        });
+      })
+      .catch(() => setError("Couldn't load your saved details."))
+      .finally(() => setLoadingProfile(false));
+  }, [accessToken]);
 
   async function handleSave() {
     if (!accessToken) return;
@@ -37,13 +63,15 @@ export default function ClientProfilePage() {
     setMessage("");
     setError(null);
     try {
-      // TODO(impl): swap to a dedicated /users/me endpoint that accepts address +
-      // neighbourhood + notification prefs. For now we save name only.
-      await api.put(
-        "/users/me",
-        { firstName: form.firstName, lastName: form.lastName },
-        { token: accessToken },
-      );
+      await updateMyProfile({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        streetAddress: form.streetAddress,
+        neighbourhood: form.neighbourhood,
+        notificationReminders: prefs.reminders,
+        notificationRebooking: prefs.rebooking,
+        notificationNewsletter: prefs.newsletter,
+      });
       setMessage("Saved.");
     } catch {
       setError("Couldn't save. Try again in a moment.");
@@ -52,7 +80,7 @@ export default function ClientProfilePage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || loadingProfile) {
     return (
       <div className="flex justify-center py-12">
         <Loader2 className="h-6 w-6 animate-spin text-taupe-300" />
@@ -184,6 +212,9 @@ export default function ClientProfilePage() {
               }
               className="bg-transparent border-b border-smoke-700 px-0 py-2 font-display text-bone-100 text-[1.125rem] focus:outline-none focus:border-champagne-400"
             >
+              <option value="" className="bg-smoke-900 text-bone-100">
+                Select a neighbourhood
+              </option>
               {NEIGHBOURHOODS.map((n) => (
                 <option key={n} value={n} className="bg-smoke-900 text-bone-100">
                   {n}
@@ -199,23 +230,11 @@ export default function ClientProfilePage() {
         <h4 className="text-label uppercase tracking-[0.32em] text-taupe-300 mb-5 font-medium">
           Card on file
         </h4>
-        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9 flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-          <div className="flex flex-wrap items-center gap-3 md:gap-6">
-            <span className="font-mono text-mono text-bone-100 tracking-[0.2em] text-[1.125rem]">
-              &bull; &bull; &bull; &bull; &nbsp; &bull; &bull; &bull; &bull;
-              &nbsp; &bull; &bull; &bull; &bull; &nbsp; 4242
-            </span>
-            <span className="font-editorial italic font-light text-bone-200">
-              Visa, exp 04/29.
-            </span>
-          </div>
-          {/* TODO(impl): wire to Stripe customer portal / setup intent */}
-          <button
-            type="button"
-            className="px-3.5 py-2 border border-smoke-700 text-label uppercase tracking-[0.28em] text-bone-200 font-medium text-[10px]"
-          >
-            Replace
-          </button>
+        <div className="bg-smoke-900 border border-smoke-700 p-6 sm:p-9">
+          <p className="font-editorial italic font-light text-bone-200">
+            No payment method is stored. Secure card setup will appear here
+            after the house payment account is connected.
+          </p>
         </div>
       </section>
 

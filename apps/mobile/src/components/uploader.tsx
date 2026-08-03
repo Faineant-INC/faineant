@@ -14,10 +14,7 @@ import {
   type UPLOAD_PURPOSES,
 } from "@faineant/shared";
 import { colors, fonts } from "@/theme";
-import { getStoredTokens } from "@/lib/auth";
-
-const API_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+import { supabase } from "@/lib/supabase";
 
 type Purpose = (typeof UPLOAD_PURPOSES)[number];
 
@@ -77,90 +74,41 @@ export function Uploader({
       return;
     }
 
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
       setError("You must be signed in to upload.");
       return;
     }
 
     setProgress(0);
-
-    // 1. Get presigned URL
-    let sign: { uploadUrl: string; publicUrl: string; key: string };
     try {
-      const res = await fetch(`${API_URL}/uploads/sign`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
+      const bytes = await (await fetch(asset.uri)).arrayBuffer();
+      const safeName = (asset.fileName ?? "upload.jpg").replace(
+        /[^a-zA-Z0-9._-]+/g,
+        "-",
+      );
+      const uniqueId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const path = `${user.id}/${purpose ?? "general"}/${uniqueId}-${safeName}`;
+      const { error: uploadError } = await supabase.storage
+        .from("uploads")
+        .upload(path, bytes, {
           contentType,
-          sizeBytes: sizeBytes || 1,
-          purpose,
-          filename: asset.fileName ?? undefined,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        setError(json?.error?.message ?? "Could not start upload.");
-        setProgress(null);
-        return;
-      }
-      sign = json.data;
-    } catch {
-      setError("Network error. Please try again.");
-      setProgress(null);
-      return;
-    }
-
-    // 2. PUT the file directly to R2.
-    try {
-      const blob = await (await fetch(asset.uri)).blob();
-      const putRes = await fetch(sign.uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": contentType },
-        body: blob,
-      });
-      if (!putRes.ok) {
-        setError(`Upload failed (${putRes.status}).`);
-        setProgress(null);
-        return;
-      }
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
       setProgress(75);
-    } catch {
-      setError("Upload failed.");
-      setProgress(null);
-      return;
-    }
-
-    // 3. Finalize
-    try {
-      const res = await fetch(`${API_URL}/uploads/finalize`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          key: sign.key,
-          contentType,
-          sizeBytes: sizeBytes || 1,
-          purpose,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        setError(json?.error?.message ?? "Could not finalize upload.");
-        setProgress(null);
-        return;
-      }
-      setPreview(json.data.url);
+      const { data } = supabase.storage.from("uploads").getPublicUrl(path);
+      if (!data.publicUrl) throw new Error("Could not create the upload URL.");
+      setPreview(data.publicUrl);
       setProgress(100);
-      onUploaded(json.data.url);
+      onUploaded(data.publicUrl);
       setTimeout(() => setProgress(null), 600);
-    } catch {
-      setError("Could not finalize upload.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
       setProgress(null);
     }
   }

@@ -5,8 +5,9 @@ import { waitlistSchema } from "@faineant/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createClient } from "@/lib/supabase/client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const supabase = createClient();
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -35,16 +36,21 @@ export function WaitlistSection() {
 
     setStatus("submitting");
     try {
-      const res = await fetch(`${API_URL}/waitlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
-      });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { error?: { message?: string } }
-          | null;
-        throw new Error(body?.error?.message ?? "Could not save your email.");
+      const { error } = await supabase.from("waitlist_entries").upsert(
+        {
+          email: parsed.data.email,
+          source: parsed.data.source ?? null,
+          referrer: parsed.data.referrer ?? null,
+          user_agent:
+            typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 1024) : null,
+        },
+        {
+          onConflict: "email",
+          ignoreDuplicates: true,
+        },
+      );
+      if (error) {
+        throw new Error(error.message || "Could not save your email.");
       }
       setStatus("success");
       setEmail("");

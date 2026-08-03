@@ -13,7 +13,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { api } from "@/lib/api-client";
+import {
+  listClientBookings,
+  updateBookingStatus,
+} from "@/lib/data-client";
 import { useAuth } from "@/lib/auth";
 
 interface BookingItem {
@@ -83,10 +86,7 @@ export default function ClientBookingsPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await api.get<{ data: BookingItem[] }>("/bookings/client", {
-        token: accessToken,
-      });
-      setBookings(res.data);
+      setBookings(await listClientBookings());
     } catch {
       // Network error on initial load — degrade to empty state
     } finally {
@@ -127,11 +127,7 @@ export default function ClientBookingsPage() {
     if (!cancelBooking || !accessToken) return;
     setCancelling(true);
     try {
-      await api.patch(
-        `/bookings/${cancelBooking.id}/status`,
-        { status: "CANCELLED" },
-        { token: accessToken },
-      );
+      await updateBookingStatus(cancelBooking.id, "CANCELLED");
       setCancelBooking(null);
       await loadBookings();
     } catch {

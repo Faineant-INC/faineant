@@ -1,94 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  listMarketplaceProviders,
+  servicePathSegment,
+} from "@/lib/marketplace";
 
-const SERVICES = [
-  {
-    n: "№ 01",
-    cat: "HAIR",
-    price: "$180",
-    img: "/brand/photography/tile-hair.png",
-    alt: "An hour of nothing on your couch",
-    title: "An",
-    titleEm: "hour of nothing",
-    titleEnd: "on your couch.",
-    desc: "A slow shampoo at your kitchen sink. Warm towels she carries up four flights. The conversation is optional.",
-    by: "MAEVE LE GAL",
-    meta: "90 MIN · WEST LOOP",
-    slug: "hour-of-nothing",
-  },
-  {
-    n: "№ 02",
-    cat: "NAILS",
-    price: "$120",
-    img: "/brand/photography/tile-nails.png",
-    alt: "A quiet manicure at your coffee table",
-    title: "A",
-    titleEm: "quiet manicure",
-    titleEnd: "at your coffee table.",
-    desc: "Yumi brings her own lamp, her own files, and a small jazz record she will not play unless you ask.",
-    by: "YUMI WATANABE",
-    meta: "75 MIN · LOGAN SQUARE",
-    slug: "quiet-manicure",
-  },
-  {
-    n: "№ 03",
-    cat: "FACE",
-    price: "$280",
-    img: "/brand/photography/tile-face.png",
-    alt: "A lymphatic facial on your own pillow",
-    title: "A",
-    titleEm: "lymphatic facial",
-    titleEnd: "on your own pillow.",
-    desc: "Adèle arrives with one heated towel and the patience of a person who reads books all the way through.",
-    by: "ADÈLE BERGÈRE",
-    meta: "120 MIN · LINCOLN PARK",
-    slug: "lymphatic-facial",
-  },
-  {
-    n: "№ 04",
-    cat: "LASH",
-    price: "$220",
-    img: "/brand/photography/tile-lash.png",
-    alt: "Lashes laid on your bed, by Imani",
-    title: "Lashes",
-    titleEm: "laid on your bed,",
-    titleEnd: "by Imani.",
-    desc: "A two-hour lie-down in your own dark room while a stranger improves your face one millimetre at a time.",
-    by: "IMANI OKAFOR",
-    meta: "120 MIN · WICKER PARK",
-    slug: "lashes-by-hand",
-  },
-  {
-    n: "№ 05",
-    cat: "BARBER",
-    price: "$95",
-    img: "/brand/photography/tile-barber.png",
-    alt: "A barber's chair, placed in your kitchen",
-    title: "A barber’s chair,",
-    titleEm: "placed in your kitchen.",
-    titleEnd: "",
-    desc: "A clean fade and a hot towel, performed by a man who has nothing to prove. Bring your own stool.",
-    by: "RAFAEL DUARTE",
-    meta: "60 MIN · FULTON MARKET",
-    slug: "barber-in-kitchen",
-  },
-  {
-    n: "№ 06",
-    cat: "MAKEUP",
-    price: "$340",
-    img: "/brand/photography/tile-makeup.png",
-    alt: "Makeup at your own vanity, by Léa",
-    title: "Makeup",
-    titleEm: "at your own vanity,",
-    titleEnd: "by Léa.",
-    desc: "Editorial-grade makeup applied at your bathroom mirror. The kit is heavier than it looks. The result is lighter.",
-    by: "LÉA HERNANDEZ",
-    meta: "90 MIN · RIVER NORTH",
-    slug: "makeup-at-vanity",
-  },
-];
+const CATEGORY_IMAGES: Record<string, string> = {
+  HAIRCUT: "/brand/photography/tile-hair.png",
+  FADE: "/brand/photography/tile-barber.png",
+  BEARD: "/brand/photography/tile-barber.png",
+  BRAIDS: "/brand/photography/tile-hair.png",
+  LOCS: "/brand/photography/tile-hair.png",
+  COLOR: "/brand/photography/tile-hair.png",
+  NAILS: "/brand/photography/tile-nails.png",
+  BROWS: "/brand/photography/tile-face.png",
+  FACIAL: "/brand/photography/tile-face.png",
+  LASHES: "/brand/photography/tile-lash.png",
+  WAXING: "/brand/photography/tile-face.png",
+  MAKEUP: "/brand/photography/tile-makeup.png",
+  OTHER: "/brand/photography/portrait-maeve.png",
+};
 
-export function IdleCollectionSection() {
+function dollars(cents: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
+}
+
+export async function IdleCollectionSection() {
+  const providers = await listMarketplaceProviders();
+  const services = providers
+    .flatMap((provider) =>
+      provider.services.map((service) => ({ provider, service })),
+    )
+    .slice(0, 6);
+  const prices = services.map(({ service }) => service.priceInCents);
+  const averageMinutes = services.length
+    ? Math.round(
+        services.reduce((sum, item) => sum + item.service.durationMinutes, 0) /
+          services.length,
+      )
+    : 0;
+
   return (
     <section className="py-16 md:py-24 lg:py-30 border-b border-smoke-700">
       <div className="max-w-[1480px] mx-auto px-5 md:px-10 lg:px-14">
@@ -100,55 +55,81 @@ export function IdleCollectionSection() {
             </em>
           </h3>
           <div className="font-mono text-mono text-taupe-300 leading-relaxed text-left md:text-right">
-            <strong className="text-bone-100 font-medium">06 RITUALS</strong>
+            <strong className="text-bone-100 font-medium">
+              {services.length.toString().padStart(2, "0")} LIVE RITUALS
+            </strong>
             <br />
-            FROM $95 — $480
+            {prices.length > 0
+              ? `${dollars(Math.min(...prices))} — ${dollars(Math.max(...prices))}`
+              : "MENUS IN REVIEW"}
             <br />
-            AVG · 90 MIN · CHICAGO
+            {averageMinutes > 0 ? `AVG · ${averageMinutes} MIN · ` : ""}CHICAGO
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-smoke-700">
-          {SERVICES.map((s) => (
-            <Link
-              key={s.slug}
-              href={`/services/${s.slug}`}
-              className="group bg-smoke-900 grid grid-cols-1 sm:grid-cols-2 sm:min-h-[380px] hover:bg-smoke-800 transition-colors duration-[350ms] ease-fai-smooth"
-            >
-              <div className="relative bg-smoke-900 overflow-hidden h-56 sm:h-auto">
-                <Image
-                  src={s.img}
-                  alt={s.alt}
-                  fill
-                  className="object-cover object-center brightness-95 contrast-[1.02]"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
-                />
-              </div>
-              <div className="p-6 sm:p-8 lg:p-9 flex flex-col gap-3.5">
-                <div className="flex justify-between items-start font-mono text-mono text-taupe-300">
-                  <span>{s.n} · {s.cat}</span>
-                  <span className="text-champagne-400 font-medium text-[14px]">{s.price}</span>
-                </div>
-                <h4 className="font-display display-compressed text-[clamp(24px,5vw,30px)] leading-[1.04] text-bone-100 mt-1">
-                  {s.title}{" "}
-                  <em className="font-editorial italic font-light text-champagne-400 tracking-[-0.005em]">
-                    {s.titleEm}
-                  </em>{" "}
-                  {s.titleEnd}
-                </h4>
-                <p className="font-editorial italic text-body-lg text-bone-200 leading-snug">
-                  {s.desc}
-                </p>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-auto pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.3em] text-taupe-300 font-medium text-[10px] gap-2">
-                  <span className="flex items-center gap-2.5">
-                    <span className="w-4 h-4 rounded-full bg-taupe-500" aria-hidden />
-                    {s.by}
-                  </span>
-                  <span>{s.meta}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {services.length === 0 ? (
+          <div className="border border-smoke-700 px-6 py-20 text-center font-editorial italic text-body-lg text-bone-200">
+            Approved service menus will appear here.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-smoke-700">
+            {services.map(({ provider, service }, index) => {
+              const practitioner =
+                `${provider.firstName} ${provider.lastName}`.trim() ||
+                provider.businessName ||
+                "Faineant practitioner";
+              const image =
+                provider.portfolio.find((item) => item.serviceId === service.id)
+                  ?.imageUrl ??
+                provider.portfolio[0]?.imageUrl ??
+                provider.avatarUrl ??
+                CATEGORY_IMAGES[service.category];
+              return (
+                <Link
+                  key={service.id}
+                  href={`/services/${servicePathSegment(service)}`}
+                  className="group bg-smoke-900 grid grid-cols-1 sm:grid-cols-2 sm:min-h-[380px] hover:bg-smoke-800 transition-colors duration-[350ms] ease-fai-smooth"
+                >
+                  <div className="relative bg-smoke-900 overflow-hidden h-56 sm:h-auto">
+                    <Image
+                      src={image}
+                      alt={service.name}
+                      fill
+                      className="object-cover object-center brightness-95 contrast-[1.02]"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                    />
+                  </div>
+                  <div className="p-6 sm:p-8 lg:p-9 flex flex-col gap-3.5">
+                    <div className="flex justify-between items-start font-mono text-mono text-taupe-300">
+                      <span>
+                        № {(index + 1).toString().padStart(2, "0")} ·{" "}
+                        {service.category.replaceAll("_", " ")}
+                      </span>
+                      <span className="text-champagne-400 font-medium text-[14px]">
+                        {dollars(service.priceInCents)}
+                      </span>
+                    </div>
+                    <h4 className="font-display display-compressed text-[clamp(24px,5vw,30px)] leading-[1.04] text-bone-100 mt-1">
+                      {service.name}
+                      <em className="font-editorial italic font-light text-champagne-400">
+                        .
+                      </em>
+                    </h4>
+                    <p className="font-editorial italic text-body-lg text-bone-200 leading-snug">
+                      {service.description ?? "A private house call, performed slowly."}
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-auto pt-4 border-t border-smoke-700 text-label uppercase tracking-[0.3em] text-taupe-300 font-medium text-[10px] gap-2">
+                      <span className="flex items-center gap-2.5">
+                        <span className="w-4 h-4 rounded-full bg-taupe-500" aria-hidden />
+                        {practitioner}
+                      </span>
+                      <span>{service.durationMinutes} MIN · CHICAGO</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

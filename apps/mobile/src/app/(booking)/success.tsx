@@ -3,13 +3,10 @@ import { useRouter } from "expo-router";
 import { colors, fonts, sizes, spacing } from "@/theme";
 import { useBookingStore } from "@/stores/booking";
 
-// TODO: Confirmation number should come from the booking API response.
-const STUB_CONFIRMATION = "#FAI-2026-0042";
-
 export default function BookingSuccessScreen() {
   const router = useRouter();
   const reset = useBookingStore((s) => s.reset);
-  const { serviceLabel, servicePrice, day, time } = useBookingStore();
+  const { service, windowLabel, location, bookingId } = useBookingStore();
 
   function handleHome() {
     reset();
@@ -27,7 +24,11 @@ export default function BookingSuccessScreen() {
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.eyebrow}>RESERVATION CONFIRMED · {STUB_CONFIRMATION}</Text>
+          <Text style={styles.eyebrow}>
+            {bookingId
+              ? `RESERVATION CONFIRMED · #FAI-${bookingId.slice(0, 8).toUpperCase()}`
+              : "RESERVATION STATUS UNAVAILABLE"}
+          </Text>
           <Text style={styles.headline}>
             It's <Text style={styles.headlineEm}>booked.</Text>
           </Text>
@@ -35,11 +36,21 @@ export default function BookingSuccessScreen() {
         </View>
 
         <View style={styles.ticket}>
-          <TicketRow label="SERVICE" value={serviceLabel ?? "Hour of nothing"} />
-          <TicketRow label="WHEN" value={`${day ?? "Tomorrow"} · ${time ?? "—:—"}`} />
-          <TicketRow label="PRACTITIONER" value="Mireille L." />
-          <TicketRow label="ADDRESS" value="Your place · West Loop" />
-          <TicketRow label="TOTAL" value={servicePrice ?? "$0"} />
+          <TicketRow label="SERVICE" value={service?.name ?? "—"} />
+          <TicketRow label="WHEN" value={windowLabel ?? "—"} />
+          <TicketRow label="PRACTITIONER" value={service?.providerName ?? "—"} />
+          <TicketRow label="ADDRESS" value={location || "—"} />
+          <TicketRow
+            label="TOTAL"
+            value={
+              service
+                ? new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(service.priceInCents / 100)
+                : "—"
+            }
+          />
         </View>
       </ScrollView>
 

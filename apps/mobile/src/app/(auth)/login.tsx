@@ -10,29 +10,15 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { Link, useRouter } from "expo-router";
-import { api } from "@/lib/api-client";
-import { storeTokens } from "@/lib/auth";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { signIn } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-interface LoginResponse {
-  data: {
-    user: {
-      id: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-    };
-    accessToken: string;
-    refreshToken: string;
-  };
-}
-
 export default function LoginScreen() {
   const router = useRouter();
+  const { registered } = useLocalSearchParams<{ registered?: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,18 +38,9 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const res = await api.post<LoginResponse>("/auth/login", {
-        email: trimmedEmail,
-        password,
-      });
+      const user = await signIn(trimmedEmail, password);
 
-      await storeTokens(
-        res.data.accessToken,
-        res.data.refreshToken,
-        res.data.user
-      );
-
-      if (res.data.user.role === "PROVIDER") {
+      if (user.role === "PROVIDER") {
         router.replace("/(provider)/home");
       } else {
         router.replace("/(client)/home");
@@ -97,6 +74,11 @@ export default function LoginScreen() {
           <Text style={styles.lede}>
             One window away from your next reservation.
           </Text>
+          {registered === "true" && (
+            <Text style={styles.error}>
+              CHECK YOUR EMAIL TO CONFIRM THE ACCOUNT, THEN SIGN IN.
+            </Text>
+          )}
           {err && <Text style={styles.error}>{err}</Text>}
           <View style={styles.field}>
             <Text style={styles.fieldLabel}>EMAIL</Text>

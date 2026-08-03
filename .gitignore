@@ -41,3 +41,4 @@ apps/mobile/android/
 
 # Superpowers brainstorming sessions
 .superpowers/
+/.env.local

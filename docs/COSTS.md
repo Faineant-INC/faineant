@@ -1,4 +1,7 @@
-# FAINEANT Marketplace — Infrastructure & Service Costs
+# FAINEANT Marketplace — Infrastructure & Service Costs (Historical)
+
+> Archived estimate for the retired standalone API architecture. Recalculate
+> costs from current Vercel, Supabase, Stripe, Resend, and Google usage.
 
 > Exhaustive cost breakdown for launching and operating FAINEANT.
 > All prices as of April 2026. Costs shown as monthly unless noted.

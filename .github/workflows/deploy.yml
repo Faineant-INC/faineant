@@ -1,52 +1,32 @@
-name: Deploy
+name: Verify production build
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
-  deploy-api:
+  web:
+    name: Build Vercel web application
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: 22.13
+          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @arc/shared build
-      - run: pnpm --filter @arc/api build
+      - run: pnpm --filter @faineant/shared build
+      - run: pnpm --filter @faineant/web build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_LAUNCH_MODE: ${{ vars.NEXT_PUBLIC_LAUNCH_MODE }}
 
-      # Add your deployment steps here (Docker push, Railway, Fly.io, etc.)
-      - name: Deploy API
-        run: echo "Add deployment configuration here"
-
-  deploy-web:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "pnpm"
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @arc/shared build
-      - run: pnpm --filter @arc/web build
-
-      # Add Vercel/Netlify deployment steps here
-      - name: Deploy Web
-        run: echo "Add deployment configuration here"
+      # Vercel owns deployment after its GitHub app is connected to the Faineant org.

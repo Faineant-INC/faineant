@@ -1,43 +1,53 @@
-import * as SecureStore from "expo-secure-store";
+import { supabase } from "./supabase";
 
-const TOKEN_KEY = "arc_access_token";
-const REFRESH_KEY = "arc_refresh_token";
-const USER_KEY = "arc_user";
-
-export async function getStoredTokens() {
-  const [accessToken, refreshToken, userStr] = await Promise.all([
-    SecureStore.getItemAsync(TOKEN_KEY),
-    SecureStore.getItemAsync(REFRESH_KEY),
-    SecureStore.getItemAsync(USER_KEY),
-  ]);
-
+function sessionUser(
+  user: {
+    id: string;
+    email?: string | null;
+  } | null,
+  profile: {
+    first_name: string;
+    last_name: string;
+    role: string;
+  } | null,
+) {
+  if (!user || !profile) return null;
   return {
-    accessToken,
-    refreshToken,
-    user: userStr ? JSON.parse(userStr) : null,
+    id: user.id,
+    email: user.email ?? "",
+    firstName: profile.first_name,
+    lastName: profile.last_name,
+    role: profile.role,
   };
 }
 
-export async function storeTokens(
-  accessToken: string,
-  refreshToken: string,
-  user: { id: string; email: string; firstName: string; lastName: string; role: string },
-) {
-  await Promise.all([
-    SecureStore.setItemAsync(TOKEN_KEY, accessToken),
-    SecureStore.setItemAsync(REFRESH_KEY, refreshToken),
-    SecureStore.setItemAsync(USER_KEY, JSON.stringify(user)),
-  ]);
-}
+export async function getStoredTokens() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw new Error(error.message);
+  const session = data.session;
+  if (!session) {
+    return { accessToken: null, refreshToken: null, user: null };
+  }
 
-export async function setAccessToken(accessToken: string) {
-  await SecureStore.setItemAsync(TOKEN_KEY, accessToken);
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("first_name,last_name,role,is_active")
+    .eq("id", session.user.id)
+    .maybeSingle();
+
+  if (profileError || !profile?.is_active || profile.role === "ADMIN") {
+    await supabase.auth.signOut({ scope: "local" });
+    return { accessToken: null, refreshToken: null, user: null };
+  }
+
+  return {
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+    user: sessionUser(session.user, profile),
+  };
 }
 
 export async function clearTokens() {
-  await Promise.all([
-    SecureStore.deleteItemAsync(TOKEN_KEY),
-    SecureStore.deleteItemAsync(REFRESH_KEY),
-    SecureStore.deleteItemAsync(USER_KEY),
-  ]);
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+  if (error) throw new Error(error.message);
 }

@@ -27,22 +27,22 @@ language sql stable security definer set search_path = '' as $$
       p_lat is null or p_lng is null or p_radius_km is null
       or (
         v.latitude is not null and v.longitude is not null
-        and public.st_dwithin(
-              public.st_makepoint(v.longitude, v.latitude)::public.geography,
-              public.st_makepoint(p_lng, p_lat)::public.geography,
+        and extensions.st_dwithin(
+              extensions.st_makepoint(v.longitude, v.latitude)::extensions.geography,
+              extensions.st_makepoint(p_lng, p_lat)::extensions.geography,
               p_radius_km * 1000)
       )
     )
   order by
     case
       when p_lat is not null and p_lng is not null and v.latitude is not null
-      then public.st_distance(
-             public.st_makepoint(v.longitude, v.latitude)::public.geography,
-             public.st_makepoint(p_lng, p_lat)::public.geography)
+      then extensions.st_distance(
+             extensions.st_makepoint(v.longitude, v.latitude)::extensions.geography,
+             extensions.st_makepoint(p_lng, p_lat)::extensions.geography)
       else null
     end asc nulls last,
     v.average_rating desc
-  limit greatest(p_limit, 0) offset greatest(p_offset, 0);
+  limit least(greatest(p_limit, 0), 100) offset greatest(p_offset, 0);
 $$;
 grant execute on function public.search_providers(text, public.service_category, double precision, double precision, double precision, integer, integer) to anon, authenticated;
 

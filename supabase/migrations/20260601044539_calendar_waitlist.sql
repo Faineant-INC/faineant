@@ -35,11 +35,14 @@ create trigger external_events_set_updated_at before update on public.external_e
 
 create table public.waitlist_entries (
   id         uuid primary key default gen_random_uuid(),
-  email      text not null unique,
-  source     text,
-  referrer   text,
-  user_agent text,
-  ip_hash    text,
+  email      text not null unique
+             check (length(email) between 3 and 320)
+             check (email = btrim(email))
+             check (email ~* '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$'),
+  source     text check (length(source) <= 100),
+  referrer   text check (length(referrer) <= 2048),
+  user_agent text check (length(user_agent) <= 1024),
+  ip_hash    text check (length(ip_hash) <= 128),
   created_at timestamptz not null default now()
 );
 create index waitlist_entries_created_idx on public.waitlist_entries(created_at);

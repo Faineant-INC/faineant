@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, Image, ActivityIndicator, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { getStoredTokens } from "@/lib/auth";
+import { clearTokens, getStoredTokens } from "@/lib/auth";
 import { colors, fonts } from "@/theme";
 
 export default function SplashScreen() {
@@ -20,8 +20,11 @@ export default function SplashScreen() {
         router.replace("/(auth)/login");
       } else if (user.role === "PROVIDER") {
         router.replace("/(provider)/home");
-      } else {
+      } else if (user.role === "CLIENT") {
         router.replace("/(client)/home");
+      } else {
+        await clearTokens();
+        router.replace("/(auth)/login");
       }
     } catch {
       router.replace("/(auth)/login");

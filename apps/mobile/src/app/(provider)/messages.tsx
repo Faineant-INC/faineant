@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { api } from "@/lib/api-client";
-import { getStoredTokens } from "@/lib/auth";
+import { listConversations } from "@/lib/data-client";
 import { colors, fonts, sizes, spacing } from "@/theme";
 
 interface Conversation {
@@ -24,14 +23,8 @@ export default function ProviderMessagesScreen() {
   }, []);
 
   async function loadConversations() {
-    const { accessToken } = await getStoredTokens();
-    if (!accessToken) return;
     try {
-      const res = await api.get<{ data: Conversation[] }>(
-        "/messages/conversations",
-        { token: accessToken },
-      );
-      setConversations(res.data);
+      setConversations(await listConversations());
     } catch {
       // Handle error
     }

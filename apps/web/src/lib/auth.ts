@@ -13,12 +13,13 @@ export interface AuthUser {
 
 export interface AuthContextValue {
   user: AuthUser | null;
-  // Temporary: legacy Express-backed pages still read `accessToken` from the
-  // bearer token. Supabase manages sessions via cookies, so this is always
-  // null. Remove once those pages migrate to supabase data fetching.
+  // Exposed for authenticated UI gating and Edge Function calls. Data access
+  // itself is handled by the Supabase client and its persisted session.
   accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: Record<string, string>) => Promise<void>;
+  register: (data: Record<string, string>) => Promise<{
+    requiresEmailConfirmation: boolean;
+  }>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -27,7 +28,7 @@ export const AuthContext = createContext<AuthContextValue>({
   user: null,
   accessToken: null,
   login: async () => {},
-  register: async () => {},
+  register: async () => ({ requiresEmailConfirmation: false }),
   logout: () => {},
   isLoading: true,
 });

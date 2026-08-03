@@ -6,32 +6,35 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#006fc9"
-    },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "co.faineant.mobile",
-      "config": {
-        "googleMapsApiKey": "YOUR_IOS_KEY"
-      }
+      "bundleIdentifier": "co.faineant.mobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#006fc9"
       },
-      "package": "co.faineant.mobile",
-      "config": {
-        "googleMaps": {
-          "apiKey": "YOUR_ANDROID_KEY"
-        }
-      }
+      "package": "co.faineant.mobile"
     },
     "scheme": "faineant",
-    "plugins": ["expo-router", "expo-secure-store", "expo-location"]
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-location",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#006fc9"
+        }
+      ],
+      "expo-status-bar"
+    ]
   }
 }
