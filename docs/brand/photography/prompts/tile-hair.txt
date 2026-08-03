@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home hair-service editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a scene, mood, and palette reference. Recreate it with GPT Image 2 and more believable anatomy and service technique.
+Primary request: A highly realistic candid photograph of an adult woman hairstylist slowly combing an adult woman client's damp dark hair during a quiet in-home appointment. The client rests comfortably in a low upholstered chair with eyes closed while the stylist works from a stable seated position behind her; both postures must look physically natural and safe.
+Scene/backdrop: Sparse Chicago loft living room with white-painted brick, tall black-framed window, wide-plank hardwood, linen sofa, ceramic rinse bowl, and neatly folded towels.
+Style/medium: Photorealistic 35 mm editorial film; authentic skin texture, individual damp hair strands, worn comb teeth, linen weave, subtle warm grain and slight desaturation; candid, not posed.
+Composition/framing: Vertical 2:3 frame, asymmetric with open wall and window space, both adult subjects clearly readable, hands and comb visible without dominating the frame.
+Lighting/mood: Single soft late-afternoon window source, shadow-side dominant, warm quiet domestic atmosphere.
+Color palette: Smoke, taupe, champagne, bone, dark natural hair; no saturated colors.
+Constraints: Exactly two adult people; anatomically correct hands, fingers, arms, feet, and hair; safe professional interaction; no extra limbs or fingers, no duplicated tools, no text, logo, watermark, salon branding, camera awareness, smile, plastic skin, or fashion pose.

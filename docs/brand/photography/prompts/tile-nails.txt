@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home manicure editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a composition, mood, and palette reference. Recreate it with GPT Image 2 with fully believable hand anatomy.
+Primary request: A highly realistic overhead editorial photograph of an in-home manicure at a walnut coffee table. An adult practitioner's left hand gently supports one finger of an adult client's left hand while the practitioner's right hand uses a simple nail file. The client's other hand is outside the frame. A folded bone-linen towel, small ceramic dish, brass reading lamp, and one glass of lemon water complete the restrained scene.
+Scene/backdrop: Quiet Chicago apartment with real walnut grain, edge of a worn leather chair, and dark wide-plank floor.
+Style/medium: Photorealistic candid 35 mm film; real skin pores and nail texture, subtle cuticles, linen fibers, walnut grain, warm fine grain, slight desaturation, understated luxury.
+Composition/framing: Vertical 2:3 overhead frame; the manicure action is centered low with generous dark table negative space above; hands remain fully legible and naturally connected to arms.
+Lighting/mood: Single warm brass task lamp with gentle falloff, shadow-side dominant, intimate evening calm.
+Color palette: Smoke, walnut, taupe, champagne brass, bone linen; no bright polish colors.
+Constraints: Show only three hands total: the client's one visible hand and the practitioner's two hands. Exactly five fingers on each complete hand, correct joints and nail placement, no fused or extra fingers, no detached hands, no duplicated tools, no text, logo, watermark, branded products, or glossy artificial skin.

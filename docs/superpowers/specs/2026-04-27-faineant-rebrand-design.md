@@ -139,7 +139,7 @@ mono            0.8125rem/1.55/ 0.04em  / 400  Geist Mono
 
 ### 4.2 Photography style guide
 
-**Eight images already generated** (`gpt-image-1`, ~$2 total). Visual language is locked:
+**Eight campaign images are generated with `gpt-image-2` through the official OpenAI API.** The earlier GPT Image 1 set was used only as a composition, scene, and palette reference. Exact prompts and the acceptance process are recorded in [`docs/brand/photography/`](../../brand/photography/). Visual language is locked:
 
 - 35 mm grainy film, fine warm tint, slight desaturation
 - Single warm light source (tall industrial window or single brass lamp); shadow-side dominant
@@ -149,7 +149,7 @@ mono            0.8125rem/1.55/ 0.04em  / 400  Geist Mono
 - Composition asymmetric and breathing; generous negative space
 - No logos in frame, no recognisable brand artifacts
 
-**Future practitioners** (Yumi, Adèle, Imani, Rafael, Léa, plus more) need portraits in the same style. Re-run the same prompt scaffold with practitioner-specific descriptions. Once the OpenAI org is verified, regenerate the existing 8 on `gpt-image-2` for higher fidelity and character continuity across the set.
+**Future practitioners** (Yumi, Adèle, Imani, Rafael, Léa, plus more) need portraits in the same style. Re-run the documented prompt scaffold with practitioner-specific descriptions and apply the same full-resolution acceptance gate before adding runtime assets.
 
 ### 4.3 Voice / copy patterns
 

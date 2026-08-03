@@ -4,22 +4,7 @@ import {
   listMarketplaceProviders,
   servicePathSegment,
 } from "@/lib/marketplace";
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  HAIRCUT: "/brand/photography/tile-hair.png",
-  FADE: "/brand/photography/tile-barber.png",
-  BEARD: "/brand/photography/tile-barber.png",
-  BRAIDS: "/brand/photography/tile-hair.png",
-  LOCS: "/brand/photography/tile-hair.png",
-  COLOR: "/brand/photography/tile-hair.png",
-  NAILS: "/brand/photography/tile-nails.png",
-  BROWS: "/brand/photography/tile-face.png",
-  FACIAL: "/brand/photography/tile-face.png",
-  LASHES: "/brand/photography/tile-lash.png",
-  WAXING: "/brand/photography/tile-face.png",
-  MAKEUP: "/brand/photography/tile-makeup.png",
-  OTHER: "/brand/photography/portrait-maeve.png",
-};
+import { resolveServiceImage } from "@/lib/marketplace-image";
 
 function dollars(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -77,12 +62,7 @@ export async function IdleCollectionSection() {
                 `${provider.firstName} ${provider.lastName}`.trim() ||
                 provider.businessName ||
                 "Faineant practitioner";
-              const image =
-                provider.portfolio.find((item) => item.serviceId === service.id)
-                  ?.imageUrl ??
-                CATEGORY_IMAGES[service.category] ??
-                provider.avatarUrl ??
-                provider.portfolio[0]?.imageUrl;
+              const image = resolveServiceImage(provider, service);
               return (
                 <Link
                   key={service.id}

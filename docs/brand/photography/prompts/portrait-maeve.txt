@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant practitioner editorial portrait
+Input images: Image 1 is the earlier GPT Image 1 portrait and is an identity, pose, scene, and palette reference. Recreate Maeve with GPT Image 2 while preserving her mature age, understated character, dark hair in a low bun, downcast gaze, black knit top, tailored trousers, and folded linen towel.
+Primary request: A highly realistic editorial portrait of Maeve Le Gal, an adult woman beauty practitioner in her early fifties, standing quietly beside a tall Chicago loft window before an appointment. She holds a folded bone-colored linen towel with both hands and looks down, thoughtful and unposed.
+Scene/backdrop: Sparse Chicago loft with white-painted brick, black industrial window, wide-plank hardwood, and one simple vintage chair far in the background.
+Style/medium: Photorealistic candid 35 mm film portrait; age-appropriate pores, fine lines, under-eye texture, flyaway hair, knit fibers, linen weave, subtle warm grain, slight desaturation, dignified and entirely unretouched.
+Composition/framing: Vertical 2:3 three-quarter portrait matching the reference, subject offset toward the window with generous plain-wall negative space.
+Lighting/mood: One soft late-afternoon window source, shadow-side dominant, quiet confidence and lived-in warmth.
+Color palette: Smoke, taupe, champagne, bone, warm natural skin; no chromatic outliers.
+Constraints: Preserve a realistic mature adult appearance; anatomically correct hands and fingers naturally holding one towel; no youthification, glamorization, heavy makeup, extra limbs, duplicated towel, text, logo, watermark, camera awareness, smile, plastic skin, or beauty retouching.

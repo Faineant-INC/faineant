@@ -5,23 +5,8 @@ import { Topbar } from "@/components/layout/topbar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { getMarketplaceService } from "@/lib/marketplace";
+import { resolveServiceImage } from "@/lib/marketplace-image";
 import { createClient } from "@/lib/supabase/server";
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  HAIRCUT: "/brand/photography/tile-hair.png",
-  FADE: "/brand/photography/tile-barber.png",
-  BEARD: "/brand/photography/tile-barber.png",
-  BRAIDS: "/brand/photography/tile-hair.png",
-  LOCS: "/brand/photography/tile-hair.png",
-  COLOR: "/brand/photography/tile-hair.png",
-  NAILS: "/brand/photography/tile-nails.png",
-  BROWS: "/brand/photography/tile-face.png",
-  FACIAL: "/brand/photography/tile-face.png",
-  LASHES: "/brand/photography/tile-lash.png",
-  WAXING: "/brand/photography/tile-face.png",
-  MAKEUP: "/brand/photography/tile-makeup.png",
-  OTHER: "/brand/photography/portrait-maeve.png",
-};
 
 const DAYS = [
   "Sunday",
@@ -68,11 +53,7 @@ export default async function ServiceDetailPage({
     .order("start_time");
   if (scheduleError) throw new Error(scheduleError.message);
 
-  const image =
-    provider.portfolio.find((item) => item.serviceId === service.id)?.imageUrl ??
-    CATEGORY_IMAGES[service.category] ??
-    provider.avatarUrl ??
-    provider.portfolio[0]?.imageUrl;
+  const image = resolveServiceImage(provider, service);
   const providerName =
     `${provider.firstName} ${provider.lastName}`.trim() ||
     provider.businessName ||

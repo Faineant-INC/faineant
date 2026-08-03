@@ -1,22 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { listMarketplaceProviders } from "@/lib/marketplace";
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  HAIRCUT: "/brand/photography/tile-hair.png",
-  FADE: "/brand/photography/tile-barber.png",
-  BEARD: "/brand/photography/tile-barber.png",
-  BRAIDS: "/brand/photography/tile-hair.png",
-  LOCS: "/brand/photography/tile-hair.png",
-  COLOR: "/brand/photography/tile-hair.png",
-  NAILS: "/brand/photography/tile-nails.png",
-  BROWS: "/brand/photography/tile-face.png",
-  FACIAL: "/brand/photography/tile-face.png",
-  LASHES: "/brand/photography/tile-lash.png",
-  WAXING: "/brand/photography/tile-face.png",
-  MAKEUP: "/brand/photography/tile-makeup.png",
-  OTHER: "/brand/photography/portrait-maeve.png",
-};
+import { resolveProviderImage } from "@/lib/marketplace-image";
 
 export async function PractitionerSpotlightSection() {
   const providers = await listMarketplaceProviders();
@@ -51,11 +36,7 @@ export async function PractitionerSpotlightSection() {
           >
             <div className="relative bg-smoke-900 overflow-hidden min-h-[320px] sm:min-h-[420px] lg:min-h-0">
               <Image
-                src={
-                  provider.avatarUrl ??
-                  provider.portfolio[0]?.imageUrl ??
-                  CATEGORY_IMAGES[provider.services[0]?.category ?? "OTHER"]
-                }
+                src={resolveProviderImage(provider)}
                 alt={`${provider.firstName} ${provider.lastName}`.trim() || provider.businessName || "Faineant practitioner"}
                 fill
                 className="object-cover object-top transition-transform duration-[600ms] group-hover:scale-[1.02]"

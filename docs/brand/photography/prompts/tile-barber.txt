@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home barber-service editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a scene, composition, and palette reference. Recreate it with GPT Image 2 with more believable human detail and barber technique.
+Primary request: A highly realistic candid photograph of an adult male barber refining an adult male client's short haircut inside the client's Chicago loft. The seated client wears a matte black cutting cape and looks down; the barber stands naturally behind and uses a comb and scissors near the side of the head with safe, practiced hand placement.
+Scene/backdrop: White-painted brick, tall black-framed industrial window, dark wood floor, slim walnut counter, round hand mirror, ceramic bowl, and one folded towel.
+Style/medium: Photorealistic 35 mm documentary editorial; authentic skin texture and stubble, individual hair clippings, worn tool surfaces, fabric folds, warm fine grain, slight desaturation, unposed.
+Composition/framing: Vertical 2:3 full-medium frame with both adult men and work area visible, asymmetric window negative space, natural proportions.
+Lighting/mood: Single soft afternoon window source, shadow-side dominant, focused and quiet.
+Color palette: Smoke black, taupe, champagne, bone, walnut; no saturated accents.
+Constraints: Exactly two adult men; anatomically correct hands and fingers; scissors and comb used safely; no extra limbs, duplicated tools, text, logo, watermark, branded cape, camera awareness, smile, plastic skin, or salon setting.

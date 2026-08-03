@@ -4,26 +4,11 @@ import { Topbar } from "@/components/layout/topbar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { listMarketplaceProviders } from "@/lib/marketplace";
+import { resolveProviderImage } from "@/lib/marketplace-image";
 
 export const metadata = {
   title: "The Salon — FAINEANT",
   description: "Verified Chicago practitioners available for house calls.",
-};
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  HAIRCUT: "/brand/photography/tile-hair.png",
-  FADE: "/brand/photography/tile-barber.png",
-  BEARD: "/brand/photography/tile-barber.png",
-  BRAIDS: "/brand/photography/tile-hair.png",
-  LOCS: "/brand/photography/tile-hair.png",
-  COLOR: "/brand/photography/tile-hair.png",
-  NAILS: "/brand/photography/tile-nails.png",
-  BROWS: "/brand/photography/tile-face.png",
-  FACIAL: "/brand/photography/tile-face.png",
-  LASHES: "/brand/photography/tile-lash.png",
-  WAXING: "/brand/photography/tile-face.png",
-  MAKEUP: "/brand/photography/tile-makeup.png",
-  OTHER: "/brand/photography/portrait-maeve.png",
 };
 
 function categoryLabel(value: string): string {
@@ -71,11 +56,7 @@ export default async function ProvidersPage() {
           ) : (
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-l border-t border-smoke-700">
               {providers.map((provider, index) => {
-                const firstService = provider.services[0];
-                const image =
-                  provider.avatarUrl ??
-                  provider.portfolio[0]?.imageUrl ??
-                  CATEGORY_IMAGES[firstService?.category ?? "OTHER"];
+                const image = resolveProviderImage(provider);
                 const specialties = [
                   ...new Set(provider.services.map((service) => categoryLabel(service.category))),
                 ];

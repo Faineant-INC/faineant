@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home lash-service editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a low-key lighting and framing reference. Recreate it with GPT Image 2 using safe, recognizable lash-extension technique rather than a needle-like tool.
+Primary request: A highly realistic close editorial photograph of an adult client resting with eyes closed during an in-home lash appointment. A licensed adult practitioner wears matte black nitrile gloves and uses two fine professional lash-extension tweezers safely above the client's natural lashes, with clean under-eye gel pads correctly placed below the lash line.
+Scene/backdrop: Dark, minimal Chicago apartment treatment corner with a linen head cushion; no salon clutter.
+Style/medium: Photorealistic macro 35 mm editorial film; real pores, fine natural eyelashes, believable glove creases and metal reflections, subtle warm grain, slight desaturation, refined but not retouched.
+Composition/framing: Vertical 2:3 close profile matching the reference's dramatic negative space; face lower-right, tools clearly visible but never touching the eye.
+Lighting/mood: One narrow warm brass task light across the face, deep controlled shadows, calm and precise.
+Color palette: Smoke black, warm natural skin, taupe linen, small champagne highlight; no bright colors.
+Constraints: Adult client and practitioner only; safe lash tweezers, never needles or sharp tools aimed at the eye; anatomically correct face, eyelids, gloved hands, and fingers; no extra tools or hands, no text, logo, watermark, blood, injury, camera awareness, plastic skin, or horror mood.

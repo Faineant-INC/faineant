@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home facial editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a scene, mood, and palette reference. Recreate it with GPT Image 2 with more natural skin and hand contact.
+Primary request: A highly realistic candid photograph of an adult client receiving a gentle facial massage at home. The client lies comfortably on a linen-covered treatment cushion with eyes closed while an adult practitioner in a black long-sleeve uniform places both hands naturally along the temples and jawline.
+Scene/backdrop: Dim Chicago loft corner with white-painted brick, sheer bone curtain, small walnut side table, plain candle, glass of water, and sparse furnishings.
+Style/medium: Photorealistic 35 mm editorial film; authentic pores, subtle facial lines, real hand pressure, linen texture, fine warm grain, slight desaturation, no beauty retouching.
+Composition/framing: Vertical 2:3 frame, asymmetric close-medium view, client's face and practitioner's two hands clearly visible with breathing room toward the window.
+Lighting/mood: One soft warm window source through linen curtain, shadow-side dominant, quiet and restorative.
+Color palette: Smoke, taupe, champagne, bone, warm natural skin tones; no saturated accents.
+Constraints: Two adult people only; exactly two practitioner hands with anatomically correct fingers and wrists; physically plausible gentle contact; no extra limbs, no distorted face, no text, logo, watermark, branded products, camera awareness, smile, plastic skin, or spa-catalog gloss.

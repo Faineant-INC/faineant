@@ -8,22 +8,7 @@ import {
   getMarketplaceProvider,
   servicePathSegment,
 } from "@/lib/marketplace";
-
-const CATEGORY_IMAGES: Record<string, string> = {
-  HAIRCUT: "/brand/photography/tile-hair.png",
-  FADE: "/brand/photography/tile-barber.png",
-  BEARD: "/brand/photography/tile-barber.png",
-  BRAIDS: "/brand/photography/tile-hair.png",
-  LOCS: "/brand/photography/tile-hair.png",
-  COLOR: "/brand/photography/tile-hair.png",
-  NAILS: "/brand/photography/tile-nails.png",
-  BROWS: "/brand/photography/tile-face.png",
-  FACIAL: "/brand/photography/tile-face.png",
-  LASHES: "/brand/photography/tile-lash.png",
-  WAXING: "/brand/photography/tile-face.png",
-  MAKEUP: "/brand/photography/tile-makeup.png",
-  OTHER: "/brand/photography/portrait-maeve.png",
-};
+import { resolveProviderImage } from "@/lib/marketplace-image";
 
 function money(cents: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -43,11 +28,7 @@ export default async function PractitionerPage({
   if (!provider) notFound();
 
   const name = `${provider.firstName} ${provider.lastName}`.trim();
-  const firstService = provider.services[0];
-  const image =
-    provider.avatarUrl ??
-    provider.portfolio[0]?.imageUrl ??
-    CATEGORY_IMAGES[firstService?.category ?? "OTHER"];
+  const image = resolveProviderImage(provider);
   const rating =
     provider.totalReviews > 0
       ? `${provider.averageRating.toFixed(2)} / 5`

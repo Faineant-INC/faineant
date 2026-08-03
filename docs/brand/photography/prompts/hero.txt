@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant landing-page hero photograph
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a composition, scene, and palette reference. Recreate the photograph with GPT Image 2 rather than merely sharpening it.
+Primary request: A highly realistic editorial photograph of an adult woman beauty practitioner who has just arrived inside a Chicago loft doorway. She carries a well-used dark leather professional kit in one hand and two neatly folded warm bone-colored linen towels over the other arm. Her gaze is naturally downcast and she is mid-step, calm and unposed.
+Scene/backdrop: Real Chicago loft apartment with white-painted brick, black steel industrial windows, wide-plank hardwood, one sparse vintage floor lamp, and generous negative space.
+Style/medium: Photorealistic candid 35 mm film editorial; authentic pores, flyaway hair, fabric weave, scuffed leather, subtle warm grain, slight desaturation, restrained luxury, no glossy commercial retouching.
+Composition/framing: Wide horizontal frame matching the reference, windows and breathing room on the left, full practitioner on the right, natural documentary perspective, suitable for a full-bleed website crop.
+Lighting/mood: One warm late-afternoon window source, shadow-side dominant, quiet and intimate, Chicago winter softness.
+Color palette: Smoke black, taupe, champagne, bone, warm brown; no saturated chromatic accents.
+Constraints: Adult subject only; anatomically correct natural hands and fingers; physically plausible kit and towel grip; no text, letters, logo, watermark, branded artifacts, extra people, duplicated objects, plastic skin, uncanny symmetry, or staged smile.

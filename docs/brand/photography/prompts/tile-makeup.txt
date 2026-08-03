@@ -1,0 +1,10 @@
+Use case: photorealistic-natural
+Asset type: Faineant in-home makeup-service editorial tile
+Input images: Image 1 is the earlier GPT Image 1 campaign image and is a scene, composition, and palette reference. Recreate it with GPT Image 2 with more realistic faces, hands, reflection, and cosmetic tools.
+Primary request: A highly realistic candid photograph of an adult woman client seated at her own bathroom vanity while an adult woman makeup artist applies a soft neutral eyeshadow with one clean brush. The client's eyes are gently closed and her hands rest naturally together. A compact professional brush roll lies open on the stone counter.
+Scene/backdrop: Restrained Chicago loft bathroom with warm plaster, simple frameless mirror, pale stone vanity, one round brass wall light, and no product clutter.
+Style/medium: Photorealistic 35 mm editorial film; authentic pores and fine facial hair, natural unretouched complexion, believable brush fibers and hand joints, fabric and stone texture, fine warm grain, slight desaturation.
+Composition/framing: Vertical 2:3 medium frame matching the reference; client centered slightly left, artist partially visible at right, mirror reflection optically plausible and understated.
+Lighting/mood: One warm brass practical light plus soft window fill, shadow-side dominant, private and composed.
+Color palette: Bone, smoke, taupe, champagne brass, neutral makeup; no saturated colors.
+Constraints: Exactly two adult women; anatomically correct hands and fingers; one brush touching only the eyelid area; physically correct mirror reflection; no duplicated faces, hands, brushes, or reflections, no text, logo, watermark, branded products, camera awareness, smile, plastic skin, or bridal-catalog gloss.
