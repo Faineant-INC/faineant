@@ -67,3 +67,5 @@ The full design specification lives in
 
 The hosted test identities, deterministic scenarios, secure credential lookup,
 and remaining provider-integration gates are documented in [docs/QA.md](docs/QA.md).
+Marketing consent, welcome delivery, unsubscribe behavior, and legal release
+gates are documented in [docs/MARKETING-EMAIL.md](docs/MARKETING-EMAIL.md).

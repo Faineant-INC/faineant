@@ -23,3 +23,6 @@ this file as the Codex-specific operational memory for the repository.
   videos containing authenticated sessions.
 - Production UI smoke tests are serial and read-only. Stateful browser tests need
   disposable fixtures, explicit cleanup, and a separate lane.
+- Marketing email is governed by `docs/MARKETING-EMAIL.md`. Never treat a legacy
+  waitlist row as consent, bypass `marketing_status`, invent a postal address,
+  pre-check consent, or send live marketing to an address that did not opt in.

@@ -155,6 +155,11 @@ intentionally suspended by an empty `faineant_send_email_url` Vault value. The
 Edge Function and signing secret are deployed; do not enable the trigger or
 custom Auth SMTP before DNS verification.
 
+The homepage marketing list has additional release gates: owner-supplied valid
+postal address, monitored `privacy@faineantapp.com` inbox, signing secret,
+consent migration, `marketing-subscribe` deployment, and counsel review. See
+`docs/MARKETING-EMAIL.md`. Legacy waitlist fixtures are not marketing consent.
+
 ### Stripe and Google Calendar
 
 The retired API and Vercel projects contained no real Stripe secret/webhook

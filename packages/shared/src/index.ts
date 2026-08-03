@@ -31,6 +31,7 @@ export * from "./constants/brand";
 export * from "./constants/categories";
 export * from "./constants/booking-status";
 export * from "./constants/roles";
+export * from "./constants/marketing";
 
 // Theme
 export * from "./theme";

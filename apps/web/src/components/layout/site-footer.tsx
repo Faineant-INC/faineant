@@ -27,6 +27,8 @@ const FOOT_COLS = [
       { label: "Journal", href: "/journal" },
       { label: "Cancellation", href: "/cancellation" },
       { label: "Contact", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Email terms", href: "/marketing-terms" },
     ],
   },
 ];

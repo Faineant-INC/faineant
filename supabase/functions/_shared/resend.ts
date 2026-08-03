@@ -1,7 +1,11 @@
 import type { RenderedEmail } from "./email-templates.ts";
 
 export async function sendEmail(
-  apiKey: string, from: string, to: string, rendered: RenderedEmail, idempotencyKey: string,
+  apiKey: string,
+  from: string,
+  to: string,
+  rendered: RenderedEmail,
+  idempotencyKey: string,
 ): Promise<{ id?: string }> {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -10,7 +14,14 @@ export async function sendEmail(
       "Content-Type": "application/json",
       "Idempotency-Key": idempotencyKey,
     },
-    body: JSON.stringify({ from, to, subject: rendered.subject, html: rendered.html, text: rendered.text }),
+    body: JSON.stringify({
+      from,
+      to,
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      ...(rendered.headers ? { headers: rendered.headers } : {}),
+    }),
   });
   if (!res.ok) {
     const body = await res.text();

@@ -856,31 +856,55 @@ export type Database = {
       }
       waitlist_entries: {
         Row: {
+          consent_at: string | null
+          consent_source: string | null
+          consent_version: string | null
           created_at: string
           email: string
           id: string
           ip_hash: string | null
+          last_email_error: string | null
+          marketing_status: string
           referrer: string | null
           source: string | null
+          unsubscribed_at: string | null
+          updated_at: string
           user_agent: string | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
+          consent_at?: string | null
+          consent_source?: string | null
+          consent_version?: string | null
           created_at?: string
           email: string
           id?: string
           ip_hash?: string | null
+          last_email_error?: string | null
+          marketing_status?: string
           referrer?: string | null
           source?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string
           user_agent?: string | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
+          consent_at?: string | null
+          consent_source?: string | null
+          consent_version?: string | null
           created_at?: string
           email?: string
           id?: string
           ip_hash?: string | null
+          last_email_error?: string | null
+          marketing_status?: string
           referrer?: string | null
           source?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string
           user_agent?: string | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: []
       }

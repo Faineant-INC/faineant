@@ -49,11 +49,13 @@ Function-specific requirements are documented in:
 - `supabase/functions/calendar.README.md`
 - `supabase/functions/_shared/stripe.README.md`
 - `supabase/functions/send-email/README.md`
+- `supabase/functions/marketing-subscribe/README.md`
 
 Deploy only the reviewed functions:
 
 ```sh
 supabase functions deploy send-email --no-verify-jwt
+supabase functions deploy marketing-subscribe --no-verify-jwt
 supabase functions deploy stripe-connect
 supabase functions deploy stripe-payment
 supabase functions deploy stripe-refund
@@ -65,7 +67,9 @@ supabase functions deploy calendar-sync
 ```
 
 Configure Google OAuth with the deployed callback URL, Stripe webhook delivery
-with the deployed webhook URL, and Resend/Supabase Auth SMTP independently.
+with the deployed webhook URL, and Resend/Supabase Auth SMTP independently. The
+marketing-specific consent, postal-address, inbox, DNS, and unsubscribe gates are
+defined in `docs/MARKETING-EMAIL.md`.
 
 ## 4. Release verification
 
@@ -76,7 +80,8 @@ Verify each plane separately:
 3. Database security and performance advisors are clean.
 4. Required Edge Functions exist at the intended version and secrets are present.
 5. The Vercel production deployment is Ready at the same commit.
-6. Auth, waitlist, provider discovery, booking/RPC authorization, upload ownership,
-   and calendar/Stripe failure paths are exercised against the deployed runtime.
+6. Auth, marketing opt-in/delivery/unsubscribe, provider discovery, booking/RPC
+   authorization, upload ownership, and calendar/Stripe failure paths are
+   exercised against the deployed runtime.
 
 A merged commit or successful local build alone is not a production release.

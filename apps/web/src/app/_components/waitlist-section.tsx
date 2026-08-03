@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { waitlistSchema } from "@faineant/shared";
+import Link from "next/link";
+import {
+  MARKETING_CONSENT_DISCLOSURE,
+  MARKETING_CONSENT_VERSION,
+  waitlistSchema,
+} from "@faineant/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,11 +16,34 @@ const supabase = createClient();
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+type MarketingSubscribeResponse = {
+  subscribed?: boolean;
+  error?: string;
+};
+
+async function functionErrorMessage(error: unknown): Promise<string> {
+  const context =
+    typeof error === "object" && error !== null && "context" in error
+      ? (error as { context?: unknown }).context
+      : null;
+  if (context instanceof Response) {
+    try {
+      const body = (await context.clone().json()) as MarketingSubscribeResponse;
+      if (body.error) return body.error;
+    } catch {
+      // Fall through to the safe user-facing message.
+    }
+  }
+  return "We could not save your place. Try again.";
+}
+
 export function WaitlistSection() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,6 +53,8 @@ export function WaitlistSection() {
       email,
       source: "homepage",
       referrer: typeof document !== "undefined" ? document.referrer || undefined : undefined,
+      marketingConsent,
+      consentVersion: MARKETING_CONSENT_VERSION,
       website,
     });
 
@@ -36,29 +66,23 @@ export function WaitlistSection() {
 
     setStatus("submitting");
     try {
-      const { error } = await supabase.from("waitlist_entries").upsert(
-        {
-          email: parsed.data.email,
-          source: parsed.data.source ?? null,
-          referrer: parsed.data.referrer ?? null,
-          user_agent:
-            typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 1024) : null,
-        },
-        {
-          onConflict: "email",
-          ignoreDuplicates: true,
-        },
+      const { data, error } = await supabase.functions.invoke<MarketingSubscribeResponse>(
+        "marketing-subscribe",
+        { body: parsed.data },
       );
       if (error) {
-        throw new Error(error.message || "Could not save your email.");
+        throw new Error(await functionErrorMessage(error));
       }
+      if (!data?.subscribed) throw new Error("We could not save your place. Try again.");
+      setSuccessMessage(
+        "Your address is saved. If it is new to the list, a welcome note is on its way.",
+      );
       setStatus("success");
       setEmail("");
+      setMarketingConsent(false);
     } catch (err) {
       setStatus("error");
-      setErrorMessage(
-        err instanceof Error ? err.message : "Something went wrong. Try again.",
-      );
+      setErrorMessage(err instanceof Error ? err.message : "Something went wrong. Try again.");
     }
   }
 
@@ -81,14 +105,12 @@ export function WaitlistSection() {
               className="font-display display-compressed text-[clamp(36px,8vw,64px)] leading-[0.94] text-bone-100"
             >
               Be{" "}
-              <em className="font-editorial italic font-light text-champagne-400">
-                first in line
-              </em>{" "}
+              <em className="font-editorial italic font-light text-champagne-400">first in line</em>{" "}
               when the door opens.
             </h2>
             <p className="font-editorial italic text-body-lg text-bone-200 leading-snug max-w-[44ch]">
-              We are inviting a small Chicago circle ahead of public release. Leave an address;
-              we will write once, briefly, when the calendar opens.
+              We are inviting a small Chicago circle ahead of public release. Leave an address for a
+              welcome note now and occasional news when the calendar opens.
             </p>
           </div>
 
@@ -108,7 +130,7 @@ export function WaitlistSection() {
                   Received
                 </span>
                 <p className="font-editorial italic text-editorial text-bone-100">
-                  Your address is on the list. We will be in touch — never often, never loud.
+                  {successMessage}
                 </p>
               </div>
             ) : (
@@ -156,11 +178,43 @@ export function WaitlistSection() {
                   </div>
                 </div>
 
+                <label className="grid grid-cols-[18px_1fr] gap-3 items-start text-body-sm text-bone-200 leading-relaxed cursor-pointer">
+                  <input
+                    name="marketingConsent"
+                    type="checkbox"
+                    required
+                    checked={marketingConsent}
+                    onChange={(event) => {
+                      setMarketingConsent(event.target.checked);
+                      if (status === "error") {
+                        setStatus("idle");
+                        setErrorMessage("");
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    className="mt-1 h-4 w-4 rounded-none border border-taupe-500 bg-transparent accent-champagne-400"
+                  />
+                  <span>
+                    {MARKETING_CONSENT_DISCLOSURE} Read the{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-champagne-400 underline underline-offset-4"
+                    >
+                      Privacy Notice
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/marketing-terms"
+                      className="text-champagne-400 underline underline-offset-4"
+                    >
+                      Email Terms
+                    </Link>
+                    .
+                  </span>
+                </label>
+
                 {/* Honeypot — visually hidden, off the AT tree, no autofill */}
-                <div
-                  aria-hidden="true"
-                  className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
-                >
+                <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
                   <label htmlFor="waitlist-website">Website</label>
                   <input
                     id="waitlist-website"
@@ -188,8 +242,8 @@ export function WaitlistSection() {
                   id="waitlist-privacy"
                   className="font-mono text-mono text-taupe-300 leading-relaxed"
                 >
-                  One address. No third parties. Unsubscribe in a single click — we believe in
-                  doing less, including in your inbox.
+                  We will send a welcome note now, then occasional marketing email. We do not sell
+                  your address. Unsubscribe in a single click.
                 </p>
               </>
             )}
