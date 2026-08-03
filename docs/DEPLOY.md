@@ -7,8 +7,17 @@ or Prisma deployment step.
 ## 1. GitHub and Vercel
 
 The canonical repository belongs to the `Faineant-INC` GitHub organization.
-Install the Vercel GitHub app for that organization, connect the web project to
-the repository, and configure production deployments from `main`.
+The Faineant Vercel project is connected through the Vercel GitHub App to
+`Faineant-INC/faineant`, with `main` as its production branch and `apps/web` as
+the project root. A push to `main` automatically creates a production deployment.
+Pull requests create preview deployments through the same connection.
+
+GitHub Actions and Vercel remain separate evidence planes: `CI` validates the
+applications, database migrations and policies, and Edge Functions; `Verify
+production build` performs the deterministic web build; and Vercel records the
+deployment for the exact GitHub commit. Do not add a second token-driven deploy
+workflow while the GitHub App connection is active, because that would create
+duplicate deployments for the same commit.
 
 Set these Vercel variables in Preview and Production:
 
@@ -80,7 +89,8 @@ Verify each plane separately:
 3. Database security and performance advisors are clean.
 4. Required Edge Functions exist at the intended version and secrets are present.
 5. The Vercel production deployment is Ready at the same commit.
-6. Auth, marketing opt-in/delivery/unsubscribe, provider discovery, booking/RPC
+6. `faineantapp.com` serves the expected public assets from that deployment.
+7. Auth, marketing opt-in/delivery/unsubscribe, provider discovery, booking/RPC
    authorization, upload ownership, and calendar/Stripe failure paths are
    exercised against the deployed runtime.
 
