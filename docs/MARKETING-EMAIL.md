@@ -108,11 +108,13 @@ Then, with explicit production authorization only:
 4. Set the required function secrets without printing them.
 5. Deploy `marketing-subscribe` with JWT verification disabled; the function
    performs its own origin, token, rate-limit, and body checks.
-6. Deploy the exact Vercel commit containing the new form and legal routes.
-7. Use a disposable, owner-controlled inbox to opt in through the real UI.
-8. Prove the row contains the current consent version, the welcome message arrives
+6. Run `pnpm db:verify:hosted`; it must confirm the migration ledger, function,
+   JWT setting, and required secret names without exposing their values.
+7. Deploy the exact Vercel commit containing the new form and legal routes.
+8. Use a disposable, owner-controlled inbox to opt in through the real UI.
+9. Prove the row contains the current consent version, the welcome message arrives
    with the correct sender/footer/headers, and its unsubscribe changes the row.
-9. Delete or clearly label the disposable fixture after evidence is captured.
+10. Delete or clearly label the disposable fixture after evidence is captured.
 
 Do not seed a real person's address, send a live marketing message without their
 affirmative choice, or treat a successful API response as delivery evidence.
