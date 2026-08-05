@@ -17,6 +17,7 @@
     "db:test": "supabase test db",
     "db:migrate:deploy": "supabase db push --linked",
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts",
+    "db:verify:hosted": "deno run --allow-env --allow-read --allow-run supabase/scripts/verify-hosted-release.ts",
     "qa:provision": "pnpm --filter @faineant/web qa:provision",
     "clean": "turbo run clean && rm -rf node_modules"
   },

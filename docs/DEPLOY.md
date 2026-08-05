@@ -37,6 +37,7 @@ Link the CLI once, then inspect the pending migration set before any write:
 supabase link --project-ref <project-ref>
 supabase migration list --linked
 supabase db push --linked --dry-run
+pnpm db:verify:hosted # expected to fail when reviewed changes are pending
 ```
 
 Before production push, a fresh local `pnpm db:reset`, `pnpm db:test`, generated
@@ -95,3 +96,8 @@ Verify each plane separately:
    exercised against the deployed runtime.
 
 A merged commit or successful local build alone is not a production release.
+Run `pnpm db:verify:hosted` after every database/function release. It compares
+the local and hosted migration ledgers, every enabled function in
+`supabase/config.toml` (including its JWT-gateway setting), and the names of all
+required marketing secrets. The command never prints secret values and must be
+green before the release is called complete.

@@ -70,7 +70,7 @@ jobs:
           deno-version: v2.x
 
       - name: Typecheck Edge Functions
-        run: deno check --node-modules-dir=auto supabase/functions/*/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/*/index.ts supabase/scripts/verify-hosted-release.ts
 
       - name: Test Edge Functions
         run: deno test --allow-env --node-modules-dir=auto supabase/functions
